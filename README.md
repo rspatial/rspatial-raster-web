@@ -20,11 +20,6 @@ You only need to clone the code if you plan to modify it.
 git clone https://bitbucket.org/hijmans-lab/rspatial-web.git
 ```
 
-If you plan to contribute login to get your unique url or to use your ssh authentication.
-```
-git clone git@bitbucket.org:hijmans-lab/rspatial-web.git
-```
-
 #### Dependencies ####
 
 * R
