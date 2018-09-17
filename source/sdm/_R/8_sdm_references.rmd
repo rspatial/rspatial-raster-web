@@ -1,0 +1,115 @@
+# 8. References
+
+
++ Austin M.P., 2002. Spatial prediction of species distribution: an interface between ecological theory and statistical modelling. Ecological Modelling 157: 101-18.
+
++ Austin, M.P., and T.M. Smith, 1989. A new model for the continuum concept. Vegetatio 83: 35-47.
+
++ Bahn, V., and B.J. McGill, 2007. Can niche-based distribution models outperform spatial interpolation? Global Ecology and Biogeography 16: 733-742.
+
++ Booth, T.H., H.A. Nix, J.R. Busby and M.F. Hutchinson, 2014. BIOCLIM: the first species distribution modelling package, its early applications and relevance to most current MAXENT studies. Diversity and Distributions 20: 1-9.
+
++ Breiman, L., 2001a. Statistical Modeling: The Two Cultures. Statistical Science 16: 199-215.
+
++ Breiman, L., 2001b. Random Forests. Machine Learning 45: 5-32. 
+
++ Breiman, L., J. Friedman, C.J. Stone and R.A. Olshen, 1984.  Classification and Regression Trees. Chapman & Hall/CRC.
+
++ Carpenter G., A.N. Gillison and J. Winter, 1993. Domain: a flexible modelling procedure for  mapping potential distributions of plants and animals. Biodiversity Conservation 2: 667-680.
+
++ Colwell R.K. and T.F. Rangel, 2009. Hutchinson's duality: The once and future niche. Proceedings of the National Academy of Sciences 106: 19651-19658.
+
++ Dormann C.F., Elith J., Bacher S., Buchmann C., Carl G., Carré G., Diekötter T., García Marquéz J., Gruber B., Lafourcade B., Leitão P.J., Münkemüller T., McClean C., Osborne P., Reineking B., Schröder B., Skidmore A.K., Zurell D., Lautenbach S., 2013. Collinearity: a review of methods to deal with it and a simulation study evaluating their performance. Ecography 36: 27-46.
+
++ Elith, J. and J.R. Leathwick, 2009. [Species distribution models: Ecological explanation and prediction across space and time](http://dx.doi.org/10.1146/annurev.ecolsys.110308.120159). Annual Review of Ecology, Evolution, and Systematics 40: 677-697. 
+
++ Elith, J., C.H. Graham, R.P. Anderson, M. Dudik, S. Ferrier, A. Guisan, R.J. Hijmans, F. Huettmann, J. Leathwick, A. Lehmann, J. Li, L.G. Lohmann, B. Loiselle, G. Manion, C. Moritz, M. Nakamura, Y. Nakazawa, J. McC. Overton, A.T. Peterson, S. Phillips, K. Richardson, R. Scachetti-Pereira, R. Schapire, J. Soberon, S. Williams, M. Wisz and N. Zimmerman, 2006. [Novel methods improve prediction of species' distributions from occurrence data](http://dx.doi.org/10.1111/j.2006.0906-7590.04596.x). Ecography 29: 129-151. 
+
++ Elith, J., S.J. Phillips, T. Hastie, M. Dudik, Y.E. Chee, C.J. Yates, 2011. [A statistical explanation of MaxEnt for ecologists](http://dx.doi.org/10.1111/j.1472-4642.2010.00725.x). Diversity and Distributions 17:43-57. 
+
++ Elith, J., J.R. Leathwick and T. Hastie, 2009. A working guide to boosted regression trees. Journal of Animal Ecology 77: 802-81
+
++ Ferrier, S. and A. Guisan, 2006. Spatial modelling of biodiversity at the community level. Journal of Applied Ecology 43: 393-40
+
++ Fielding, A.H. and J.F. Bell, 1997. A review of methods for the assessment of prediction errors in conservation presence/absence models. Environmental Conservation 24: 38-49
+
++ Franklin, J. 2009. Mapping Species Distributions: Spatial Inference and Prediction. Cambridge University Press, Cambridge, UK.
+
++ Friedman, J.H., 2001. [Greedy function approximation: a gradient boosting machine](http://www-stat.stanford.edu/~jhf/ftp/trebst.pdf). The Annals of Statistics 29: 1189-1232. 
+
++ Graham, C.H., S. Ferrier, F. Huettman, C. Moritz and A. T Peterson, 2004. New developments in museum-based informatics and applications in biodiversity analysis. Trends in Ecology and Evolution 19: 497-503.
+
++ Graham, C.H., J. Elith, R.J. Hijmans, A. Guisan, A.T. Peterson, B.A. Loiselle and the NCEAS Predicting Species Distributions Working Group, 2007. The influence of spatial errors in species occurrence data used in distribution models. Journal of Applied Ecology 45: 239-247 
+
++ Guisan, A., T.C. Edwards Jr, and T. Hastie, 2002. Generalized linear and generalized additive models in studies of species distributions: setting the scene. Ecological Modelling 157: 89-100.
+
++ Guo, Q., M. Kelly, and C. Graham, 2005. Support vector machines for predicting distribution of Sudden Oak Death in California. Ecological Modeling 182: 75-90
+
++ Guralnick, R.P., J. Wieczorek, R. Beaman, R.J. Hijmans and the BioGeomancer Working Group, 2006. [BioGeomancer:  Automated georeferencing to map the world's biodiversity data](http://dx.doi.org/10.1371/journal.pbio.0040381). PLoS Biology 4: 1908-1909. 
+
++ Hastie, T.J. and R.J. Tibshirani, 1990. Generalized Additive Models. Chapman \& Hall/CRC.
+
++ Hastie, T., R. Tibshirani and J. Friedman, 2009. [The Elements of Statistical Learning: Data Mining, Inference, and Prediction (Second Edition)](http://www-stat.stanford.edu/~tibs/ElemStatLearn/)
+
++ Hijmans, R.J., 2012. Cross-validation of species distribution models: removing spatial sorting bias and calibration with a null-model. Ecology 93: 679-688.
+
++ Hijmans R.J., and C.H. Graham, 2006. [Testing the ability of climate envelope models to predict the effect of climate change on species distributions](http://dx.doi.org/10.1111/j.1365-2486.2006.01256.x). Global change biology 12: 2272-2281. 
+
++ Hijmans, R.J., M. Schreuder, J. de la Cruz and L. Guarino, 1999. Using GIS to check coordinates of germplasm accessions. Genetic Resources and Crop Evolution 46: 291-296.
+
++ Hijmans, R.J., S.E. Cameron, J.L. Parra, P.G. Jones and A. Jarvis, 2005. [Very high resolution interpolated climate surfaces for global land areas](http://dx.doi.org/10.1002/joc.1276). International Journal of Climatology 25: 1965-1978. 
+
++ Jiménez-Valverde, A. 2011. Insights into the area under the receiver operating characteristic curve (AUC) as a discrimination measure in species distribution modelling. Global Ecology and Biogeography (on-line early): DOI: 10.1111/j.1466-8238.2011.00683.
+
++ Karatzoglou, A., D. Meyer and K. Hornik, 2006. [Support Vector Machines in *R*](http://www.jstatsoft.org/v15/i09/). Journal of statistical software 15(9). 
+
++ Kéry M., B. Gardner, and C. Monnerat, 2010. Predicting species distributions from checklist data using site-occupancy models. J. Biogeogr. 37: 1851–1862
+
++ Lehmann, A., J. McC. Overton and J.R. Leathwick, 2002. GRASP: Generalized Regression Analysis and Spatial Predictions. Ecological Modelling 157: 189-207.
+
++ Leathwick J., and D. Whitehead, 2001. Soil and atmospheric water deficits and the distribution of New Zealand’s indigenous tree species. Functional Ecology 15: 233–242.
+
++ Liu C., P.M. Berry, T.P. Dawson, and R.G. Pearson, 2005. Selecting thresholds of occurrence in the prediction of species distributions. Ecography 28: 385-393.
+
++ Liu C., White M., Newell G., 2011. Measuring and comparing the accuracy of species distribution models with presence–absence data. Ecography 34: 232-243. 
+
++ Lobo, J.M. 2008. More complex distribution models or more representative data? Biodiversity Informatics 5: 14-19.
+
++ Lobo, J.M., A. Jiménez-Valverde and R. Real, 2007. AUC: a misleading measure of the performance of predictive distribution models. Global Ecology and Biogeography 17: 145-151.
+
++ Lozier, J.D., P. Aniello, and M.J. Hickerson, 2009. Predicting the distribution of Sasquatch in western North America: anything goes with ecological niche modelling. Journal of Biogeography 36: 1623–1627
+
++ Mahalanobis, P.C., 1936. On the generalised distance in statistics. Proceedings of the National Institute of Sciences of India 2: 49-55.
+
++ Mellert K.H., V. Fensterer, H. Küchenhoff, B. Reger, C. Kölling, H.J. Klemmt, and J. Ewald, 2011. Hypothesis-driven species distribution models for tree species in the Bavarian Alps. Journal of Vegetation Science 22: 635-646.
+
++ Nix, H.A., 1986. A biogeographic analysis of Australian elapid snakes. In: Atlas of Elapid Snakes of Australia. (Ed.) R. Longmore, pp. 4-15. Australian Flora and Fauna Series Number 7. Australian Government Publishing Service: Canberra.
+
++ Olson, D.M, E. Dinerstein, E.D. Wikramanayake, N.D. Burgess, G.V.N. Powell, E.C. Underwood, J.A. D'amico, I. Itoua, H.E. Strand, J.C. Morrison, C.J. Loucks, T.F. Allnutt, T.H. Ricketts, Y. Kura, J.F. Lamoreux, W.W. Wettengel, P. Hedao, and K.R. Kassem. 2001. Terrestrial Ecoregions of the World: A New Map of Life on Earth. BioScience 51: 933-938
+
++ Peterson, A.T., J. Soberón, R.G. Pearson, R.P. Anderson, E. Martínez-Meyer, M. Nakamura and M.B. Araújo, 2011. Ecological Niches and Geographic Distributions. Monographs in Population Biology 49. Princeton University Press, 328p.
+
++ Phillips S.J. and J. Elith, 2011. Logistic methods for resource selection functions and presence-only species distribution models, AAAI (Association for the Advancement of Artificial Intelligence), San Francisco, USA.
+
++ Phillips, S.J., R.P. Anderson, R.E. Schapire, 2006. Maximum entropy modeling of species geographic distributions. Ecological Modelling 190: 231-259.
+
++ Phillips, S.J., M. Dudik, J. Elith, C.H. Graham, A. Lehmann, J. Leathwick, and S. Ferrier. 2009. Sample selection bias and presence-only distribution models: implications for background and pseudo-absence data. Ecological Applications 19: 181-197.
+
++ Potts J. and J. Elith, 2006. Comparing species abundance models. Ecological Modelling 199: 153-163.
+
++ Thuiller, W. 2003. BIOMOD - optimizing predictions of species distributions and projecting potential future shifts under global change. Global Change Biology 9: 1353-1362.
+
++ Vapnik, V., 1998. Statistical Learning Theory. Wiley, New York.
+
++ VanDerWal J., L.P. Shoo, C. Graham and S.E. Williams, 2009. Selecting pseudo-absence data for presence-only distribution modeling: how far should you stray from what you know? Ecological Modelling 220: 589-594.
+
++ Ward G., T. Hastie, S.C. Barry, J. Elith and J.R. Leathwick, 2009. Presence-only data and the EM algorithm. Biometrics 65: 554-563.
+
++ Wieczorek, J., Q. Guo and R.J. Hijmans, 2004. The point-radius method for georeferencing point localities and calculating associated uncertainty. International Journal of Geographic Information Science 18: 745-767.
+
++ Wisz, M.S., R.J. Hijmans, J. Li, A.T. Peterson, C.H. Graham, A. Guisan, and the NCEAS Predicting Species Distributions Working Group, 2008. Effects of sample size on the performance of species distribution models. Diversity and Distributions 14: 763-773. 
+
++ Wood, S., 2006. Generalized Additive Models: An Introduction with *R*. Chapman & Hall/CRC.
+
+
+

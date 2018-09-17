@@ -1,0 +1,37 @@
+
+# Manipulation of SpatialPolygons* and other vector type Spatial* objects
+   
+Some of these functions are in the `sp` package. The `highlighted` name is the equivalent command in ArcGIS. These functions build on the geometry ("spatial features") manipulation functions in package `rgeos`. These functions are extended here by also providing automated attribute data handling.
+
+## bind
+## append
+  combine Spatial* objects of the same (vector) type
+## erase ("-")
+ erase parts of a SpatialPolygons* object
+## intersect ("*")
+ intersect SpatialPolygons* objects
+## union
+ or "+" `union` SpatialPolygons* objects
+## cover
+ `update` and `identity` a SpatialPolygons object with another one
+## symdif
+ `symmetrical difference` of two SpatialPolygons* objects 
+## aggregate
+ `dissolve` smaller polygons into larger ones
+## disaggregate
+ `explode`: turn polygon parts into separate polygons (in the `sp` package)
+## crop
+ `clip` a Spatial* object using a rectangle (Extent object)
+## select
+ `select` - interactively select spatial features
+## click
+ `identify` attributes by clicking on a map
+## merge
+ `Join table` (in the `sp` package)
+## over
+ spatial queries between Spatial* objects
+## extract
+ spatial queries between Spatial* and Raster* objects
+## as.data.frame
+ coerce coordinates of `SpatialLines` or `SpatialPolygons` into a data.frame
+

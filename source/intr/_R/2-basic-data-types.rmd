@@ -1,0 +1,324 @@
+# 2. Basic data types
+
+This chapter briefly discusses the basic data types that are used in *R*. Here we mainly show how to create data of these types. How to manipulate them is described in the following chapters. The most important basic (or "primitive") data types are the "numeric" and "character" types. Additional types are the "integer", which can be used to represent whole numbers; the "logical" and the "factor". These are all discussed below. 
+
+
+## Numeric and integer values
+
+Let's create a variable `a` that is a vector of one number. 
+```{r}
+a <- 7
+```
+
+To do this yourself, type the code in an R console. Or, if you use R-Studio, use 'File / New File / R script' and type it in the new script. Then press "Run" or "Ctrl-Enter" (Apple-Enter on a Mac) to run the line (make sure your cursor is on the line that you want to run). 
+
+The "arrow" `<-` was used to **assign** the value `7` to variable `a`. You can pronounce the above as "a becomes 7".
+
+It is also possible to use the `=` sign.
+
+```{r}
+a = 7
+```
+
+Although you can use `=`, `<-` is preferred, because the arrow clearly indicates the assignment action, and because `=` is also used in another context (to pass arguments to functions). 
+
+The name `a` is entirely arbitrary. We could have used `x`, `var`, `fruit` or any other name that would help us recognize it. There are a few restrictions: variable names cannot start with a number, and they cannot contain spaces or "special" characters, such as "*". 
+
+To check the value of a, we can ask *R* to `show` or `print` it.
+```{r}
+show(a)
+print(a)
+```
+
+This is also what happens if you simply type the variable name.
+
+```{r}
+a
+```
+
+In *R*, all basic values are stored as a *vector*, a one-dimensional array of *n* values of a certain type. Even a single number is a vector (of length 1). That is why *R* shows that the value of `a` is `[1] 7`. Because 7 is the first element in vector `a`. 
+
+We can use the `class` function to find out what type of object `a` is (what class it belongs to). 
+
+```{r}
+class(a)
+```
+
+*numeric* means that `a` is a real (decimal) number. Its value is equivalent to `7.000`, but trailing zeros are not printed by default. In a few cases it can be useful, or even necessary, to use integer (whole number) values. To create a vector with a single integer you can either use the `as.integer` function, or append an `L` to the number.
+
+
+```{r}
+a <- as.integer(7)
+class(a)
+a <- 7L
+class(a)
+```
+
+To create a vector of several numbers, the `c` (combine) function can be used.
+```{r}
+b <- c(1.25, 2.9, 3.0)
+b
+```
+
+But to create a regular sequence it is easier to use `:`.  
+```{r}
+d <- 5:9
+d
+```
+
+You can also use the `:` to create a sequence in descending order.
+```{r}
+6:2
+```
+
+For more flexibiliuty, the `seq` function can be used. For example it allows for different step sizes. In this case we go from 3 to 12, taking steps of 3. Try some variations!
+
+```{r}
+e <- seq(from=6, to=12, by=3)
+e
+```
+
+To go in descending order the `by` argument needs to be negative.
+```{r}
+seq(from=12, to=0, by=-4)
+```
+
+You can also reverse the order of a sequence, after making the sequence, using the `rev` function.
+
+```{r}
+s <- seq(from=0, to=12, by=4)
+s
+r <- rev(s)
+r
+```
+
+We will discuss *functions* like `seq` in more detail later. But, in essence, a *function* is a named procedure that performs a certain task. In this case the name is `seq`, and the task is to create a sequence of numbers. The exact specification of the sequence is modified by the *arguments* that are provided to `seq`, in this case: `from`, `to`, and `by`. If you are unsure what a function does, or which arguments are available, then read the function's help page. You can get to the help page for `seq` by typing `?seq` or `help(seq)`, and likewise for all other functions in *R*.
+
+The `rep` (for repeat) function provides another way to create a vector of numbers. You can repeat a single number, or a sequence of numbers. 
+```{r}
+rep(9, times=5)
+rep(5:7, times=3)
+rep(5:7, each=3)
+```
+
+
+## Character values
+
+A character variable is used to represent letters, codes, or words. Character values are often referred to as a 'string'.  
+
+```{r}
+x <- 'Yi'
+y <- 'Wong'
+class(x)
+x
+```
+
+To distinguish a character value from a variable name, it needs to be quoted. `'x'` is a character value, but `x` is a variable! Double-quoted `"Yi"` is the same as single-quoted `'Yi'`, but you cannot mix the two in one value: `"Yi'` is not valid. But you can enclose one type of quote inside a pair of the other type. For example, you can do `"Yi's dog"` or `'Wong said "hello" and left'`. 
+
+One of the most common mistakes for beginners is to forget the quotes. 
+
+```{r error = TRUE}
+Yi
+```
+The error occurs because *R* tries to print the value of variable `Yi`, but there is no such variable. So remember that any time you get the error message `object 'something' not found`, the most likely reason is that you forgot to quote a character value. If not, it probably means that you have misspelled, or not yet created, the variable that you are referring to.
+
+Keep in mind R is a case-sensitive language; `a` is not the same as `A`. In computing, these are two **entirely** different and, for most intents and purposes, unrelated characters. 
+
+Now let's create variable `countries` holding a character vector of five elements.
+```{r}
+countries <- c('China', 'China', 'Japan', 'South Korea', 'Japan')
+class(countries)
+countries
+```
+
+The function `length` tells us how long the vector is (how many elements it has).
+```{r}
+length(countries)
+```
+
+If you want to know the number of characters of each element of the vector, you can use `nchar`.
+```{r}
+nchar(countries)
+```
+
+`nchar` returns a vector of integers with the same length as `x` (5). Each number is the number of characters of the corresponding element of `countries`. This is an example of why we say that most functions in *R* are `vectorized`. This means that you normally do not need to tell *R* to compute things for each individual element in a vector. 
+
+It is handy to know that `letters` (a constant value, like `pi`) returns the alphabet (`LETTERS` returns them in uppercase), and `toupper` and `tolower` can be used to change case.
+
+```{r}
+z <- letters
+z
+toupper(z)
+```
+
+Perhaps the most commonly used function for string manipulation is `paste`. This function is used to concatenate strings. For example:
+```{r}
+girl <- "Mary"
+boy <- "John"
+paste(girl, "likes", boy)
+```
+
+By default, paste uses a space to separate the elements. You can change that with the `sep` argument.
+
+```{r}
+paste(girl, "likes", boy, sep = ' ~ ')
+```
+
+Sometimes you do not want any separator. You can then use `sep=''` or the `paste0` function.
+
+By using the "collapse" argument, we can concatenate all values of a vector into a single element.
+```{r}
+paste(countries, collapse=' -- ')
+```
+
+We'll leave more advanced manipulation of strings for later, but here are two more important functions. To get a part of a string use 'substr'.
+
+```{r}
+substr('Hello World', 1, 5)
+substr('Hello World', 7, 11)
+```
+
+To replace characters in a string use `gsub` or `sub`. 
+```{r}
+gsub('l', '!!', 'Hello World')
+gsub('Hello', 'Bye bye', 'Hello World')
+```
+
+To find elements that fit a particular pattern use `grep`. It returns the index of the matching elements in a vector.
+
+```{r}
+d <- c('az20', 'az21', 'az22', 'ba30', 'ba31', 'ba32')
+i <- grep('b', d)
+i
+d[i]
+```
+
+Which elements of d include the character "2"?
+```{r}
+grep('2', d)
+```
+
+Which elements of d *end* with the character "2"?  "$" has a special meaning.
+```{r}
+grep('2$', d)
+```
+
+Which elements of d *start* with the character "b"?  "^" has a special meaning.
+```{r}
+grep('^b', d)
+```
+
+
+
+## Logical values
+
+A logical (or Boolean) value is either `TRUE` or `FALSE`. They are used very frequently in *R* and in computer programming in general.
+
+```{r}
+z <- FALSE
+z
+class(z)
+z <- c(TRUE, TRUE, FALSE)
+z
+```
+
+`TRUE` and `FALSE` can be abbreviated to `T` and `F`, but that is very bad practice. This is because it is possible to change the value of `T` and `F` to something else which would be extraordinarily confusing. In contrast, `TRUE` and `FALSE` are constants that cannot be changed.
+
+Logical values are often the result of a computation. For example, here we ask if the values of `x` are larger than 3, which is `TRUE` for values 4 and 5
+```{r}
+x <- 5
+x > 3
+```
+
+Likewise we can test for equality using two equal signs `==` (not `=` which would be an assignment!). `<=` means "smaller or equal".
+```{r}
+x == 3
+x <= 2
+```
+
+Logical values can be treated as numerical values. `TRUE` is equivalent to 1 and `FALSE` to 0. 
+```{r}
+y <- TRUE
+y + 1
+```
+
+However, if you go the other way, only zero is equivalent to `FALSE` while any number that is not zero, is `TRUE`
+
+```{r}
+as.logical(0)
+as.logical(1)
+as.logical(2.5)
+```
+
+
+## Factors
+
+A `factor` is a nominal (categorical) variable with a set of known possible values called `levels`. They can be created using the `as.factor` function. In *R* you typically need to convert (cast) a character variable to a factor to identify groups for use in statistical tests and models.
+
+```{r}
+f1 <- as.factor(countries)
+f1
+```
+
+But numbers can also be used. For example, they may simply indicate group membership.
+```{r}
+f2 <- c(5:7, 5:7, 5:7)
+f2
+f2 <- as.factor(f2)
+f2
+```
+
+Dealing with factors can be tricky. For example `f2` created above is not what it may seem. We see numbers 5, 6 and 7, but these are now just labels to identify groups. They cannot be used in algebraic expressions. 
+
+We can convert factors to something else. Here we use `as.integer`. If you want a number with decimal places, you can use `as.numeric` instead.
+
+```{r}
+f2
+as.integer(f2)
+```
+
+The result of as.integer(f2) may have been surprising. But it should not be, as there is no direct link between a category with label "5" and the number 5. In this case, "5" is simply the label of the first category and hence it gets converted to the integer 1. Nevertheless, we can get the numbers back as there is an established link between the character symbol '5' and the number 5. So we first create characters from the factor values, and then numbers from the characters.
+
+```{r}
+fc2 <- as.character(f2)
+fc2
+as.integer(fc2)
+```
+
+This is different from `as.integer(f2)`, which returned the indices of the factor values. It has no way of knowing if you want factor level `6` to represent the number 6.
+
+At this point it is OK if you are confused about factors and *why* you might do such things as conversion from and to them. 
+
+
+
+## Missing values
+
+All basic data types can have "missing values". These are represented by the symbol `NA` for "not available". For example, we can have vector 'm' 
+
+```{r}
+m <- c(2, NA, 5, 2, NA, 2)
+m
+```
+Note that `NA` is *not* quoted.
+
+
+## Time
+
+Representing time is a somewhat complex problem. There are different calendars, hours, days, months, and leap years to consider. As a basic introduction, here is simple way to create date values.
+
+```{r}
+d1 <- as.Date('2015-4-11')
+d2 <- as.Date('2015-3-11')
+class(d1)
+d1 - d2
+```
+
+And there are more advanced classes as well that capture date and time.
+
+```{r}
+as.POSIXlt(d1)
+as.POSIXct(d1)
+```
+
+See http://www.stat.berkeley.edu/~s133/dates.html for more info.
+

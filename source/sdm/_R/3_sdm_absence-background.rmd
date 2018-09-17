@@ -1,0 +1,132 @@
+# 3. Absence and background points
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+library(dismo)
+```
+
+
+Some of the early species distribution model algorithms, such as Bioclim and Domain only use 'presence' data in the modeling process. Other methods also use 'absence' data or 'background' data. Logistic regression is the classical approach to analyzing presence and absence data (and it is still much used, often implemented in a generalized linear modeling (GLM) framework). If you have a large dataset with presence/absence from a well designed survey, you should use a method that can use these data (i.e. do not use a modeling method that only considers presence data). If you only have presence data, you can still use a method that needs absence data, by substituting absence data with background data. 
+
+Background data (e.g. Phillips *et al.* 2009) are not attempting to guess at absence locations, but rather to characterize environments in the study region. In this sense, background is the same, irrespective of where the species has been found. Background data establishes the environmental domain of the study, whilst presence data should establish under which conditions a species is more likely to be present than on average. A closely related but different concept, that of "pseudo-absences", is also used for generating the non-presence class for logistic models. In this case, researchers sometimes try to guess where absences might occur – they may sample the whole region except at presence locations, or they might sample at places unlikely to be suitable for the species. We prefer the background concept because it requires fewer assumptions and has some coherent statistical methods for dealing with the "overlap" between presence and background points (e.g. Ward et al. 2009; Phillips and Elith, 2011). 
+
+Survey-absence data has value. In conjunction with presence records, it establishes where surveys have been done, and the prevalence of the species given the survey effort. That information is lacking for presence-only data, a fact that can cause substantial difficulties for modeling presence-only data well.  However, absence data can also be biased and incomplete, as discussed in the literature on detectability (e.g., Kéry *et al.*, 2010).  
+
+The `dismo` package has a function to sample random points (background data) from a study area. You can use a 'mask' to exclude area with no data `NA`, e.g. areas not on land. You can use an 'extent' to further restrict the area from which random locations are drawn.  
+
+In the example below, we first get the list of filenames with the predictor raster data (discussed in detail in the next chapter). We use a raster as a 'mask' in the `randomPoints` function such that the background points are from the same geographic area, and only for places where there are values (land, in our case). 
+
+Note that if the mask has the longitude/latitute coordinate reference system, function `randomPoints` selects cells according to cell area, which varies by latitude (as in Elith *et al.*, 2011)
+
+```{r, sdm15a}
+library(dismo)
+# get the file names 
+files <- list.files(path=paste(system.file(package="dismo"), '/ex', 
+                       sep=''),  pattern='grd',  full.names=TRUE )
+
+# we use the first file to create a RasterLayer
+mask <- raster(files[1])
+
+# select 500 random points
+# set seed to assure that the examples will always
+# have the same random sample.
+set.seed(1963)
+bg <- randomPoints(mask, 500 )
+```
+
+And inspect the results by plotting
+```{r, sdm15, fig.width=9, fig.height=6}
+# set up the plotting area for two maps
+par(mfrow=c(1,2))
+plot(!is.na(mask), legend=FALSE)
+points(bg, cex=0.5)
+
+# now we repeat the sampling, but limit 
+# the area of sampling using a spatial extent
+e <- extent(-80, -53, -39, -22)
+bg2 <- randomPoints(mask, 50, ext=e)
+plot(!is.na(mask), legend=FALSE)
+plot(e, add=TRUE, col='red')
+points(bg2, cex=0.5)
+```
+
+
+There are several approaches one could use to sample 'pseudo-absence' points, i.e., points from more restricted area than 'background'. VanDerWal et al. (2009) sampled withn a radius of presence points. Here is one way to implement that, using the `Solanum acaule` data.
+
+We first read the cleaned and subsetted `S. acaule` data that we produced in the previous chapter from the csv file that comes with dismo:
+```{r, sdm16a}
+file <- paste(system.file(package="dismo"), '/ex/acaule.csv', sep='')
+ac <- read.csv(file)
+```
+
+`ac` is a `data.frame`. Let's change it into a `SpatialPointsDataFrame`
+
+```{r, sdm16b}
+coordinates(ac) <- ~lon+lat
+projection(ac) <- CRS('+proj=longlat +datum=WGS84')
+```
+
+We first create a 'circles' model (see the chapter about geographic models), using an arbitrary radius of 50 km
+```{r, sdm17}
+# circles with a radius of 50 km
+x <- circles(ac, d=50000, lonlat=TRUE)
+pol <- polygons(x)
+```
+
+Note that you need to have the `rgeos` package installed for the `circles` function to 'dissolve' the circles (remove boundaries were circles overlap). 
+
+And then we take a random sample of points within the polygons. We only want one point per grid cell.
+
+```{r, sdm19}
+# sample randomly from all circles
+samp1 <- spsample(pol, 250, type='random', iter=25)
+# get unique cells
+cells <- cellFromXY(mask, samp1)
+length(cells)
+cells <- unique(cells)
+length(cells)
+xy <- xyFromCell(mask, cells)
+```
+
+
+Plot to inspect the results:
+
+```{r, sdm20, fig.width=9, fig.height=6}
+plot(pol, axes=TRUE)
+points(xy, cex=0.75, pch=20, col='blue')
+```
+
+Note that the blue points are not all within the polygons (circles), as they now represent the centers of the selected cells from mask. We could choose to select only those cells that have their centers within the circles, using the overlay function.
+
+```{r, sdm21a}
+spxy <- SpatialPoints(xy, proj4string=CRS('+proj=longlat +datum=WGS84'))
+o <- over(spxy, geometry(x))
+xyInside <- xy[!is.na(o), ]
+```
+
+Similar results could also be achieved via the raster functions `rasterize` or `extract`.
+
+```{r, sdm21b, fig.width=9, fig.height=6}
+# extract cell numbers for the circles
+v <- extract(mask, x@polygons, cellnumbers=T)
+# use rbind to combine the elements in list v
+v <- do.call(rbind, v)
+
+# get unique cell numbers from which you could sample
+v <- unique(v[,1])
+head(v)
+
+# to display the results
+m <- mask
+m[] <- NA
+m[v] <- 1
+plot(m, ext=extent(x@polygons)+1)
+plot(x@polygons, add=T)
+```
+

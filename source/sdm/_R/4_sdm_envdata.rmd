@@ -1,0 +1,109 @@
+# 4. Environmental data
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 6,
+	fig.height = 6,
+	fig.cap = '',
+	collapse = TRUE
+)
+library(dismo)
+```
+
+## 4.1 Raster data
+
+In species distribution modeling, predictor variables are typically organized as raster (grid) type files. Each predictor should be a 'raster' representing a variable of interest. Variables can include climatic, soil, terrain, vegetation, land use, and other variables. These data are typically stored in files in some kind of GIS format. Almost all relevant formats can be used (including ESRI grid, geoTiff, netCDF, IDRISI). Avoid ASCII files if you can, as they tend to considerably slow down processing speed. For any particular study the layers should all have the same spatial extent, resolution, origin, and projection. If necessary, use functions like `crop`, `extend`, `aggregate`, `resample`, and `projectRaster` from the `raster` package. See the [Introduction to spatial data manipulation](../../spatial/rst/8-rastermanip.html) for more information about function you can use to prepare your predictor variable data. See the help files and the vignette of the raster package for more info on how to do this. 
+
+The set of predictor variables (rasters) can be used to make a `RasterStack`, which is a collection of `RasterLayer' objects (see the [Spatial Data tutorial](../../spatial/rst/4-rasterdata.html) for more info. 
+
+Here we make a list of files that are installed with the dismo package and then create a rasterStack from these, show the names of each layer, and finally plot them all.
+
+
+First get the folder with our files. In this example it is the ("ex") directory of the dismo package. You do not need such a complex statement to get your own files (you just type the string).
+
+```{r, sdm22a}
+path <- file.path(system.file(package="dismo"), 'ex')
+```
+
+Now get the names of all the files with extension ".grd" in this folder. The `$` sign indicates that the files must *end* with the characters 'grd'. By using `full.names=TRUE`, the full path names are retunred.
+
+```{r, sdm22b}
+library(dismo)
+files <- list.files(path, pattern='grd$', full.names=TRUE )
+files
+```
+
+Now create a RasterStack of predictor variables. 
+```{r, sdm22c}
+predictors <- stack(files)
+predictors
+names(predictors)
+plot(predictors)
+```
+
+
+We can also make a plot of a single layer in a RasterStack, and plot some additional data on top of it. First get the world boundaries and the bradypus data:
+```{r, sdm23a}
+library(maptools)
+data(wrld_simpl)
+file <- paste(system.file(package="dismo"), "/ex/bradypus.csv", sep="")
+bradypus <- read.table(file,  header=TRUE,  sep=',')
+# we do not need the first column
+bradypus  <- bradypus[,-1]
+```
+
+And now plot:
+```{r, sdm23b}
+# first layer of the RasterStack
+plot(predictors, 1)
+
+# note the "add=TRUE" argument with plot
+plot(wrld_simpl, add=TRUE)
+# with the points function, "add" is implicit
+points(bradypus, col='blue')
+```
+
+The example above uses data representing 'bioclimatic variables' from the [WorldClim database](http://www.worldclim.org) (Hijmans *et al.*, 2004) and ['terrestrial biome'](http://www.worldwildlife.org/science/data/item1875.html) data from the WWF (Olsen *et al.*, 2001). You can go to these websites if you want higher resolution data. You can also use the `getData` function from the `raster` package to download WorldClim climate data.
+
+Predictor variable selection can be important, particularly if the objective of a study is explanation. See, e.g., Austin and Smith (1987), Austin (2002), Mellert *et al.*, (2011). The early applications of species modeling tended to focus on explanation (Elith and Leathwick 2009). Nowadays, the objective of SDM tends to be prediction.  For prediction within the same geographic area, variable selection might arguably be relatively less important, but for many prediction tasks (e.g. to new times or places, see below) variable selection is critically important. In all cases it is important to use variables that are relevant to the ecology of the species (rather than with the first dataset that can be found on the web!).  In some cases it can be useful to develop new, more ecologically relevant, predictor variables from existing data. For example, one could use land cover data and the `focal` function in the `raster ` package to create a new variable that indicates how much forest area is available within x km of a grid cell, for a species that might have a home range of x. 
+
+
+
+## 4.2 Extracting values from rasters
+
+We now have a set of predictor variables (rasters) and occurrence points. The next step is to extract the values of the predictors at the locations of the points. (This step can be skipped for the modeling methods that are implemented in the dismo package). This is a very straightforward thing to do using the 'extract' function from the raster package. In the example below we use that function first for the `Bradypus` occurrence points, then for 500 random background points. We combine these into a single `data.frame` in which the first column (variable 'pb') indicates whether this is a presence or a background point. 'biome' is categorical variable (called a 'factor' in *R*) and it is important to explicitly define it that way, so that it won't be treated like any other numerical variable.
+
+```{r, sdm24a}
+presvals <- extract(predictors, bradypus)
+# setting random seed to always create the same
+# random set of points for this example
+set.seed(0)
+backgr <- randomPoints(predictors, 500)
+absvals <- extract(predictors, backgr)
+pb <- c(rep(1, nrow(presvals)), rep(0, nrow(absvals)))
+sdmdata <- data.frame(cbind(pb, rbind(presvals, absvals)))
+sdmdata[,'biome'] = as.factor(sdmdata[,'biome'])
+head(sdmdata)
+tail(sdmdata)
+summary(sdmdata)
+```
+
+There are alternative approaches possible here. For example, one could extract multiple points in a radius as a potential means for dealing with mismatch between location accuracy and grid cell size. If one would make 10 datasets that represent 10 equally valid "samples" of the environment in that radius, that could be then used to fit 10 models and explore the effect of uncertainty in location. 
+
+To visually investigate colinearity in the environmental data (at the presence and background points) you can use a pairs plot. See Dormann *et al.* (2013) for a discussion of methods to remove colinearity. 
+
+```{r, sdm24b}
+pairs(sdmdata[,2:5], cex=0.1)
+```
+
+A pairs plot of the values of the climate data at the Bradypus occurrence sites.
+
+To use the `sdmdata` and `presvals` in the next chapter, we save it to disk.
+```{r, sdm24b2}
+saveRDS(sdmdata, "sdm.Rds")
+saveRDS(presvals, "pvals.Rds")
+```
+
+
+

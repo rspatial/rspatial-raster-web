@@ -1,0 +1,41 @@
+
+# Miscellaneous
+
+
+## rasterOptions
+ Show, set, save or get session options
+
+## getData
+ Download and geographic data
+
+## pointDistance
+ Distance between points
+
+## readIniFile
+ Read a (windows) 'ini' file
+
+## hdr
+ Write header file for a number of raster formats
+
+## trim
+ Remove leading and trainling blanks from a character string
+
+## extension
+ Get or set the extentsion of a filename
+
+## cv
+ Coefficient of variation 
+
+## modal
+ Modal value 
+
+## sampleInt
+ Random sample of (possibly very large) range of integer values
+
+## showTmpFiles
+ Show temporary files
+
+## removeTmpFiles
+ Remove temporary files
+
+	

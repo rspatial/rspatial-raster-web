@@ -1,0 +1,40 @@
+
+# Spatial contextual computation
+
+
+## distance
+ Shortest distance to a cell that is not `NA`
+
+## gridDistance
+ Distance when traversing grid cells that are not `NA`
+
+## distanceFromPoints
+ Shortest distance to any point in a set of points
+
+## direction
+ Direction (azimuth) to or from cells that are not `NA`
+
+## focal
+ Focal (neighborhood; moving window) functions
+
+## localFun
+ Local association (using neighborhoods) functions
+
+## boundaries
+ Detection of boundaries (edges)
+
+## clump
+ Find clumps (patches)
+
+## adjacent
+ Identify cells that are adjacent to a set of cells on a raster
+
+## area
+ Compute area of cells (for longitude/latitude data)
+
+## terrain
+ Compute slope, aspect and other characteristics from elevation data	
+
+## Moran
+ Compute global or local Moran or Geary indices of spatial autocorrelation 	
+

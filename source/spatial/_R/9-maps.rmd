@@ -1,0 +1,135 @@
+# 9. Maps
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+library(raster)
+library(dismo)
+library(XML)
+```
+
+Like for other plots, there are different approaches in R to make maps. You can use "base plot" in many cases. Alternatively use levelplot, either via the `spplot` function (implemented in `sp` and `raster`) or via the `rasterVis` package.
+
+Here are some brief examples about making maps. You can also look elsewhere on the Internet, [like here](http://www.nickeubank.com/wp-content/uploads/2015/10/RGIS3_MakingMaps_part1_mappingVectorData.html), or this for [spplot](http://rspatial.r-forge.r-project.org/gallery/) and [rasterVis](https://oscarperpinan.github.io/rastervis/).
+
+
+## Vector data
+
+### Base plots 
+
+```{r, maps_1}
+library(raster)
+p <- shapefile(system.file("external/lux.shp", package="raster"))
+plot(p)
+```
+
+```{r, maps_2}
+n <- length(p)
+plot(p, col=rainbow(n))
+```
+
+One colour per region (NAME_1)
+
+```{r, maps_3}
+u <- unique(p$NAME_1)
+u
+m <- match(p$NAME_1, u)
+plot(p, col=rainbow(n)[m])
+text(p, 'NAME_2', cex=.75, halo=TRUE)
+```
+
+### spplot
+
+```{r, maps_4}
+spplot(p, 'AREA')
+```
+
+
+## Raster
+
+Example data
+
+```{r}
+library(raster)
+b <- brick(system.file("external/rlogo.grd", package="raster"))
+
+r <- raster(p, res=0.01 )
+values(r) <- 1:ncell(r)
+r <- mask(r, p)
+```
+Several generic functions have been implemented for Raster* objects to create maps and other plot types. Use 'plot' to create a map of a Raster* object. When plot is used with a `RasterLayer`, it calls the function 'rasterImage' (but, by default, adds a legend; using code from `fields::image.plot`). It is also possible to directly call `image`. You can zoom in using 'zoom' and clicking on the map twice (to indicate where to zoom to). With `click` it is possible to interactively query a Raster* object by clicking once or several times on a map plot.
+
+After plotting a `RasterLayer` you can add vector type spatial data (points, lines, polygons). You can do this with functions points, lines, polygons if you are using the basic R data structures or plot(object, add=TRUE) if you are using Spatial* objects as defined in the sp package. When plot is used with a multi-layer Raster* object, all layers are plotted (up to 16), unless the layers desired are indicated with an additional argument. 
+
+```{r, maps_5}
+plot(r)
+plot(p, add=TRUE)
+```
+
+`image` does not provide a legend and that can be advantageous in some cases.
+
+```{r, maps_6}
+image(r)
+plot(p, add=TRUE)
+```
+
+Multi-layer Raster objects can be plotted as individual layers
+```{r, raster-20a, fig.width=7}
+plot(b)
+```
+
+They can also be combined into a single image, by assigning individual layers to one of the three color channels (red, green and blue):
+```{r, raster-20b }
+plotRGB(b, r=1, g=2, b=3)
+```
+
+
+You can also plot `Raster*` objects with spplot. 
+
+```{r, maps_7}
+bounds <- list("sp.polygons", p)
+spplot(r, sp.layout=bounds)
+```
+
+
+```{r, raster-20c, fig.width=9, fig.height=3}
+spplot(b, layout=c(3,1))
+```
+
+
+The `rasterVis` package has several other `lattice` based plotting functions for `Raster*` objects. The [rasterVis](https://oscarperpinan.github.io/rastervis/) package also facilitates creating a map from a `RasterLayer` with the `ggplot2` package.
+
+
+You can also use the a number of other plotting functions with a `raster` object as argument, including `hist`, `persp`, `contour`}, and `density`. See the help files for more info. 
+
+
+## Basemaps
+
+From Google and others...
+
+Get a google map.
+
+```{r, raster-20d}
+library(dismo)
+g <- gmap("Belgium")
+# Lookup and make point for Brussels
+brus <- geocode('Brussels, Belgium')
+merc <- Mercator(brus[, c('longitude', 'latitude')])
+```
+
+Plot it
+
+```{r, raster-20e, fig.width=6}
+plot(g, interpolate=TRUE)
+points(merc, pch='*', col='red', cex=5)
+```
+
+
+## Specialized packages
+
+coming soon....

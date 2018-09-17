@@ -1,0 +1,45 @@
+	
+
+# Changing the spatial extent and/or resolution of Raster* objects
+
+
+## merge
+ Combine Raster* objects with different extents (but same origin and resolution)
+
+## mosaic
+ Combine RasterLayers with different extents and a function for overlap areas
+
+## crop
+ Select a geographic subset of a Raster* object
+
+## extend
+ Enlarge a Raster* object
+
+## trim
+ Trim a Raster* object by removing exterior rows and/or columns that only have NAs
+
+## aggregate
+ Combine cells of a Raster* object to create larger cells
+
+## disaggregate
+ Subdivide cells
+
+## resample
+ Warp values to a Raster* object with a different origin or resolution	
+
+## projectRaster
+ project values to a raster with a different coordinate reference system	
+
+## shift
+ Move the location of Raster
+
+## flip
+  Flip values horizontally or vertically
+
+## rotate
+ Rotate values around the date-line (for lon/lat data)
+
+## t
+ Transpose a Raster* object
+
+	

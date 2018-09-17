@@ -1,0 +1,20 @@
+
+# Raster algebra
+
+
+## Arith-methods
+ Arith functions (`+`, `-`, `*`, `^`, `%%`, `%/%`, `/`
+
+##Math-methods
+ Math functions like `abs`, `sqrt`, `trunc`, `log`, `log10`, `exp`, `sin`, `round`	
+
+## Logic-methods
+ Logical functions `!`, `&`, `|`
+
+## Summary-methods
+ Summary functions `mean`, `max`, `min`, `range`, `prod`, `sum`, `any`, `all`
+
+## Compare-methods
+ Compare functions `==`, `!=`, `>`, `<`, `<=`, `>=`
+  
+  

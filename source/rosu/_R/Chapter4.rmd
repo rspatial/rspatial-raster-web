@@ -1,0 +1,320 @@
+# 4. Fundamentals
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width  = 5,
+	fig.height = 5,
+	fig.cap='',
+	collapse   = TRUE
+)
+```
+
+## 4.1 Processes and patterns
+
+This handout accompanies Chapter 4 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html) by working out the examples in *R*. Figure 4.2 (on page 96) shows values for a deterministic spatial process z = 2x + 3y. Below are two ways to create such a plot in *R*. The first one uses "base" *R*. That is, it does not use explicitly spatial objects (classes). I use the expand.grid function to create a matrix with two columns with all combinations of `0:7` with `0:7`:
+
+```{r}
+x <- 0:7
+y <- 0:7
+xy <- expand.grid(x, y)
+colnames(xy) <- c('x', 'y')
+head(xy)
+```
+
+Now we can use these values to compute the values of `z` that correspond to the values of `x` (the first column of object `xy`) and `y` (the second column). 
+
+```{r}
+z <- 2*xy[,1] + 3*xy[,2]
+zm <- matrix(z, ncol=8)
+```
+
+
+Here I do the same thing, but using a *function* of my own making (called `detproc`); just to get used to the idea of writing and using your own functions.
+```{r}
+detproc <- function(x, y) {
+  z <- 2*x + 3*y
+  return(z)
+}
+
+v <- detproc(xy[,1], xy[,2])
+zm <- matrix(v, ncol=8)
+```
+
+
+Below, I use a trick "plot(x, y, type='n')" to set up a plot with the correct axes, that is otherwise blank. I do this because I do not want any dots on the plot. Instead of showing dots, I use the 'text' function to add the labels (as in the book).
+ 
+```{r, p4-1}
+plot(x, y, type='n')
+text(xy[,1], xy[,2], z)
+contour(x, y, zm, add=TRUE, lty=2)
+```
+
+
+Now, let's do the same thing as above, but now by using a spatial data approach. Instead of a matrix, we use RasterLayer objects. First we create an empty raster with eight rows and columns, and with x and y going from 0 to 7. The 'init' function sets the values of the cells to either the x or the y coordinate (or something else, see ?init).
+
+```{r, p4-2, fig.width=9}
+library(raster)
+r <- raster(xmn=0, xmx=7, ymn=0, ymx=7, ncol=8, nrow=8)
+X <- init(r, 'x')
+Y <- init(r, 'y')
+par(mfrow=c(1,2))
+plot(X, main='x')
+plot(Y, main='y')
+```
+
+We can use algebraic exprssions with RasterLayer objects 
+```{r}
+Z <- 2*X + 3*Y
+```
+
+*Do you think it is possible to do* `Z <- detproc(X, Y)`*?*
+
+Plot the result.
+```{r, p4-3, fig.cap=''}
+plot(Z)
+text(Z, cex=.75)
+contour(Z, add=T, labcex=1, lwd=2, col='red')
+```
+
+The above does not seem very interesting. But, if the process is complex, a map of the outcome of a deterministic process can actually be very interesting. For example, in ecology and associated sciences there are many 'mechanistic' (= process) models that dynamically (= over time) simulate ecosystem processes such as vegetation dynamics and soil greenhouse gas emissions that depend on interaction of the weather, soil type, genotypes, and management; making it hard to predict the model outcome over space. In this context, stochasticity still exists through the input variables (e.g. rainfall). Many other models exist that have a deterministic and stochastic components (e.g. global climate models). 
+
+Below I follow the book by adding a stochastic element to the deterministic process about by adding variable 'r' to the equation: z = 2x + 3y + r; where r is a random value that can be -1 or +1. You will see that many examples of *R* functions use randomly generated values to illustrate how they work. But much real data analysis also depends on randomly selected variables, often as a 'null model' (such as CSR) to compare with an observed data set. 
+
+There are different ways to get random numbers, and you should pay attention to that. The `sample` function returns randomly selected values from a set that you provide (by default this is done without replacement). We need a random value for each cell of raster 'r', and assign these to a new RasterLayer with the same properties (spatial extent and resolution). When you work with using random values, the results will be different each time you run some code (that is the point); but sometimes it is desireable to recreate exactly the same random sequence. Function `set.seed` allows you to do that (after all, in computers we can only create pseudo-random values). 
+
+```{r, p4-4}
+set.seed(987)
+s <- sample(c(-1, 1), ncell(r), replace=TRUE)
+s[1:8]
+R <- setValues(r, s)
+plot(R)
+```
+
+Now we can solve the formula and look at the result
+```{r, p4-5}
+Z <- 2*X + 3*Y + R
+plot(Z)
+text(Z, cex=.75)
+contour(Z, add=T, labcex=1, lwd=2, col='red')
+```
+
+The figure above is a pattern from a (partly) random process. The process can generate other patterns, as is shown below. Because we want to repeat the same thing (process, code) a number of times, it is convenient to define a (pattern generating) function.
+
+```{r}
+f <- function() {
+	s <- sample(c(-1, 1), ncell(r), replace=TRUE)
+	S <- setValues(r, s)
+	Z <- 2*X + 3*Y + S
+	return(Z)
+}
+```
+
+We can call function `f` as many times as we like, bewlow I use it four times. Note that the functions has no arguments, but we still need to use the parenthesis `f()` to distinguish it from `f`, the function definition.
+
+```{r, p4-6, fig.width=10, fig.height=10}
+set.seed(777)
+par(mfrow=c(2,2), mai=c(0.5,0.5,0.5,0.5))
+for (i in 1:4) {
+	pattern <- f()
+	plot(pattern)
+	text(pattern, cex=.75)
+	contour(pattern, add=TRUE, labcex=1, lwd=2, col='red')
+}
+```
+
+As you can see, there is variation between the four plots, but not much. The deterministic process has an overriding influence as the random component only adds or subtracts a value of 1.
+
+So far we have created regular, gridded, patterns. Locations of 'events' normally do not follow such a pattern (but they may be summarized that way). Here is how you can create simple dot maps of random events (following box "All the way: a chance map"; OSU page 98). I first create a function for a complete spatial random (CSR) process. Note the use of the `runif` (probably pronounced as r-unif as it stands for 'random uniform', there is also a `rnorm`, `rpois`, ...) function to create the x and y coordinates. For convenience, this function also plots the value. That is not typical, as in many cases you may want to create many random draws, but not plot them all. Therefore I added the Boolean argument 'plot' (with default value `FALSE`) to the function.
+
+```{r, p4-7}
+csr <- function(n, r=99, plot=FALSE) {
+	x <- runif(n, max=r)
+	y <- runif(n, max=r)
+	if (plot) {
+		plot(x, y, xlim=c(0,r), ylim=c(0,r))
+	}
+}
+```
+
+Let's run the function four times; to create four realizations. Again, I use `set.seed` to assure that the maps are always the same "random" draws.
+
+```{r, p4-8, fig.width=10, fig.height=10}
+set.seed(0)
+par(mfrow=c(2,2), mai=c(.5, .5, .5, .5))
+for (i in 1:4) {
+	csr(50, plot=TRUE)
+}
+```
+
+
+
+## 4.2 Predicting patterns
+
+I first show how you can recreate Table 4.1 with *R*. Note the use of function 'choose' to get the 'binomial coefficients' from this formula.
+
+$$
+\frac{n!}{k!(n-k)!} = \binom{n}{k}
+$$
+
+Everything else is just basic math. 
+```{r}
+events <- 0:10
+combinations <- choose(10, events)
+prob1 <- (1/8)^events
+prob2 <- (7/8)^(10-events)
+Pk <- combinations * prob1 * prob2
+d <- data.frame(events, combinations, prob1, prob2, Pk)
+round(d, 8)
+sum(d$Pk)
+```
+
+Table 4.1 explains how value for the binomial distribution can be computed. As this is a 'well-known' distribution (after all, it is the distribution you get when tossing a fair coin) there is a function to compute this directly. 
+
+
+```{r}
+b <- dbinom(0:10, 10, 1/8)
+round(b, 8)
+```
+
+Similar functions exists for other commonly used distributions such as the uniform, normal, and Poisson distribution. 
+
+Now, let's generate some quadrat counts and then compare the generated (observed) frequencies with the theoretical expectation. First the random points.
+
+```{r}
+set.seed(1234)
+x <- runif(50) * 99
+y <- runif(50) * 99
+```
+
+Then the quadrats.
+
+```{r}
+r <- raster(xmn=0, xmx=99, ymn=0, ymx=99, ncol=10, nrow=10)
+quads <- rasterToPolygons(r)
+```
+
+And a plot to inspect them.
+
+```{r, p4-9, fig.cap=''}
+plot(x, y, xlim=c(0,99), ylim=c(0,99), col='red', pch=20, axes=F)
+plot(quads, add=TRUE, border='gray')
+```
+
+A standard question is now to ask whether it is likely that this pattern was generated by random process. We can do this by comparing the observed frequencies with the theoretically expected frequencies. Note that in a coin toss the probability of success is 1/2; here the probability of success (the random chance that a point lands in quadrat is 1/(number of quadrats).
+
+First I count the number of points by quadrat (grid cell). 
+
+```{r, p4-10, fig.cap=''}
+xy <- cbind(x,y)
+p <- rasterize(xy, r, fun='count', background=0)
+plot(p)
+plot(quads, add=TRUE, border='gray')
+points(x, y, pch=20)
+```
+
+Then I get the frequency of the counts and make a barplot.
+
+```{r, p4-12, fig.cap=''}
+f <- freq(p)
+f
+barplot(p)
+```
+
+To compare these observed values to the expected frequencies from the binomial distribution we can use `expected <- dbinom(n, size, prob)`. In the book, this is P(k, n, x).
+
+
+```{r, p4-13, fig.cap=''}
+n <- 0:8
+prob <- 1 / ncell(r) 
+size <- 50
+expected <- dbinom(n, size, prob)
+round(expected, 5)
+plot(n, expected, cex=2, pch='x', col='blue')
+```
+
+These numbers indicate that you would expect that most quadrats would have a point count of zero, a few would have 1 point, and very few more than that. Six or more points in a single cell is highly unlikely to happen if this data generating process in spatially random. 
+
+
+```{r, p4-15, fig.cap=''}
+m <- rbind(f[,2]/100, expected[1:nrow(f)])
+bp <- barplot(m, beside=T, names.arg =1:nrow(f), space=c(0.1, 0.5),
+   ylim=c(0,0.7), col=c('red', 'blue'))
+text(bp, m, labels=round(m, 2), pos = 3, cex = .75)
+legend(11, 0.7, c('Observed', 'Expected'), fill=c('red', 'blue'))
+```
+
+
+On page 106 it is discussed that the Poisson distribution can be a good approximation of the binomial distribution.
+Let's get the expected values for the Poisson distribution. The intensity $\lambda$ (lambda) is the number of points divided by the number of quadrats.
+
+```{r, p4-16, fig.cap=''}
+poisexp <- dpois(0:8, lambda=50/100)
+poisexp
+plot(expected, poisexp, cex=2)
+abline(0,1)
+```
+
+Pretty much the same, indeed. 
+
+
+## 4.3 Random areas
+
+
+Here is how you can create a function to create a "random chessboard" as described on page 114.
+
+```{r, p4-19}
+r <- raster(xmn=0, xmx=1, ymn=0, ymx=1, ncol=8, nrow=8)
+p <- rasterToPolygons(r)
+
+chess <- function() {
+	s <- sample(c(-1, 1), 64, replace=TRUE)
+	values(r) <- s
+	plot(r, col=c('black', 'white'), legend=FALSE, axes=FALSE, box=FALSE)
+	plot(p, add=T, border='gray')
+}
+```
+
+And create four realizations:
+
+```{r, p4-20}
+set.seed(0)
+par(mfrow=c(2,2), mai=c(0.2, 0.1, 0.2, 0.1))
+for (i in 1:4) {
+	chess()
+}
+```
+
+
+This is how you can create a random field (page 114/115)
+
+```{r, p4-21}
+r <- raster(xmn=0, xmx=1, ymn=0, ymx=1, ncol=20, nrow=20)
+r[] <- rnorm(ncell(r), 0, 2)
+plot(r)
+contour(r, add=T)
+```
+
+But a more realistic random field will have some spatial autocorrelation. The RandomFields has functions to create these. Here is just an example for illustration purposes on you can create a stationary random field with that package.
+
+```{r, p4-22, message=FALSE}
+library(RandomFields)
+x <- seq(0, 20, .1) 
+y <- seq(0, 20, .1)
+model <- RMexp(var=4, scale=10) + RMnugget(var=1)
+rf <- RFsimulate(RPgauss(model), x=x, y=y, seed=0)
+r <- raster(rf)
+plot(r)
+```
+
+
+__Questions__
+
+1. *Use the examples provided above to write a script that follows the 'thought exercise to fix ideas' on page 98 of OSU.*
+
+2. *Use the example of the CSR points maps to write a script that uses a normal distribution, rather than a random uniform distribution (also see box 'different distributions'; on page 99 of OSU)*.
+
+3. *Do the generated chess boards look (positively or negatively) spatially autocorrelated?*
+
+4. *How would you, conceptually, statistically test whether the real chessboard used in games is generated by an independent random process?*
+

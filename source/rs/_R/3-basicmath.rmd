@@ -1,0 +1,146 @@
+# 3 Basic mathematical operations
+
+
+```{r setup, echo=TRUE, include=FALSE}
+library(knitr)
+```
+
+
+## Introduction  
+
+
+The `raster` package supports many mathematical operations. Math operations are generally performed per pixel. First we will learn about basic arithmetic operations on bands. First example is a custom math function that calculates the Normalized Difference Vegetation Index (NDVI). Learn more about [vegetation indices here](http://www.un-spider.org/links-and-resources/data-sources/daotm/daotm-vegetation) and [NDVI](http://phenology.cr.usgs.gov/ndvi_foundation.php).
+
+
+We will use the same Landsat data as in Chapter 2.
+```{r lsstack}
+library(raster)
+raslist <- paste0('data/rs/LC08_044034_20170614_B', 1:11, ".tif")
+landsat <- stack(raslist)
+landsatRGB <- landsat[[c(4,3,2)]]
+landsatFCC <- landsat[[c(5,4,3)]]
+```
+
+## Vegetation indices
+
+Let's define a general function for a ratio based (vegetation) index. In the function below, `img` is a mutilayer Raster* object and `i` and `k` are the indices of the layers to compute the vegetation index.
+
+
+```{r rs3vi}
+VI <- function(img, k, i) {
+  bk <- img[[k]] 
+  bi <- img[[i]]
+  vi <- (bk - bi) / (bk + bi)
+  return(vi)
+}
+```
+
+
+```{r rs3ndvi}
+# For Landsat NIR = 5, red = 4.
+ndvi <- VI(landsat, 5, 4)
+plot(ndvi, col = rev(terrain.colors(10)), main = 'Landsat-NDVI')
+
+```
+
+You can see the variation in greenness from the plot.
+
+**Exercise 1** Adapt the function to compute indices which will highlight i) water and ii) built-up. Hint: Use the spectral profile plot to find the bands having maximum and minimum reflectance for these two classes. 
+
+## Histogram
+We can explore the distribution of values contained within our raster using the hist() function which produces a histogram. Histograms are often useful in identifying outliers and bad data values in our raster data. 
+
+```{r rs2hist}
+# view histogram of data
+hist(ndvi,
+     main = "Distribution of NDVI values",
+     xlab = "NDVI",
+     ylab= "Frequency",
+     col = "wheat",
+     xlim = c(-0.5, 1),
+     breaks = 30,
+     xaxt = 'n')
+axis(side=1, at = seq(-0.5,1, 0.05), labels = seq(-0.5,1, 0.05))
+```
+
+We will refer to this histogram for the following sub-section on thresholding.
+
+**Exercise 2** Make a histogram of the values of another vegetation index than NDVI.
+
+
+## Thresholding
+
+We can apply basic rules to get an estimate of spatial extent of different Earth surface features. Note that NDVI values are standardized and ranges between -1 to +1. Higher values indicate more green cover. 
+
+Cells with NDVI values greater than 0.4 are definitely vegetation. The following operation masks all cells that are perhaps not vegetation.
+
+```{r rs3veg1}
+veg <- reclassify(ndvi, cbind(-Inf, 0.4, NA))
+plot(veg, main = 'Veg cover')
+```
+
+Let's map the area that corresponds to the peak between 0.25 and 0.3 in the NDVI histogram.
+
+```{r rs3land}
+land <- reclassify(ndvi, c(-Inf, 0.25, NA,  0.25, 0.3, 1,  0.3, Inf, NA))
+plot(land, main = 'What is it?')
+```
+
+These may be  the open areas. You can plot `land` over original `landsatFCC` raster to find out more.
+
+```{r rs3rgb1}
+plotRGB(landsatRGB, r=1, g=2, b=3, axes=TRUE, stretch="lin", main="Landsat False Color Composite")
+plot(land, add=TRUE, legend=FALSE)
+```
+
+You can also create classes for different amount of vegetation presence. 
+
+```{r rs3veg2}
+vegc <- reclassify(veg, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
+plot(vegc,col = rev(terrain.colors(4)), main = 'NDVI based thresholding')
+```
+
+**Exercise 3** Is it possible to find water using thresholding of NDVI or any other indices?
+
+
+## Principal component analysis
+
+Multi-spectral data are sometimes transformed to helps to reduce the dimensioanlity and noise in the data. The principal components transform is a generic data reduction method that can be used to create a few uncorrelated bands from a larger set of correlated bands.
+
+You can calculate the same number of principal components  as the number of input bands. The first principal component (PC) explains the largest percentage of variance and other PCs explain additional the variance in decreasing order. 
+
+```{r rs3pca1}
+set.seed(1)
+sr <- sampleRandom(landsat, 10000)
+plot(sr[,c(4,5)], main = "NIR-Red plot")
+```
+
+This is known as vegetation and soil-line plot (Same as the scatter plot in earlier section).  
+
+**Exercise 4** Can you guess the directions of 'principal components' from this scatter plot?
+
+```{r rs3pca2}
+pca <- prcomp(sr, scale = TRUE)
+pca
+screeplot(pca)
+
+pci <- predict(landsat, pca, index = 1:2)
+plot(pci[[1]])
+```
+
+The first principal component highlights the boundaries between land use classes or spatial details, which is the most common information among all wavelengths. it is difficult to understand what the second principal component is highlighting. Lets try thresholding again:
+
+```{r rs3rgb2, fig.width = 8, fig.height = 4}
+pc2 <- reclassify(pci[[2]], c(-Inf,0,1,0,Inf,NA))
+par(mfrow = c(1,2))
+plotRGB(landsatFCC, r = 1, g = 2, b = 3, axes = TRUE, stretch = "lin", main = "Landsat False Color Composite")
+plotRGB(landsatFCC, r = 1, g = 2, b = 3, axes = TRUE, stretch = "lin", main = "Landsat False Color Composite")
+plot(pc2, legend = FALSE, add = TRUE)
+```
+
+**Exercise 5** Can you guess the surface features dominating second principal component? (*hint*: Inspect the unmasked areas; there could be multiple features).
+
+
+To learn more about the information contained in the vegetation and soil line plots read this paper by [Gitelson et al](http://www.tandfonline.com/doi/abs/10.1080/01431160110107806#.V6hp_LgrKhd). An extension of PCA in remote sensing is known as [Tasseled-cap Transformation](http://wiki.landscapetoolbox.org/doku.php/remote_sensing_methods:tasseled-cap_transformation).
+
+

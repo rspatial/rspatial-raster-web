@@ -1,0 +1,434 @@
+# 7. Spatial autocorrelation
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap='',
+  collapse = TRUE
+)
+library(rgeos)
+library(raster)
+library(spdep)
+library(deldir)
+#Set path to data folder once
+datapath <- "../../data/"
+```
+
+## 7.1 Introduction
+
+This handout accompanies Chapter 7 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
+
+### Get the data
+
+You can download the data here: [auctb](https://biogeo.ucdavis.edu/data/rspatial/auctb.rds), or with the script below.
+
+```{r getData, echo=TRUE}
+dir.create('data', showWarnings = FALSE)
+filename <- 'auctb.rds'
+localfile <- file.path('data', filename)
+if (!file.exists(localfile)) {
+	download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+}
+```
+
+
+## 7.2 Area of a polygon
+
+Create a polygon like in Figure 7.2 (page 192).
+
+```{r}
+pol <- matrix(c(1.7, 2.6, 5.6, 8.1, 7.2, 3.3, 1.7, 4.9, 7, 7.6, 6.1, 2.7, 2.7, 4.9), ncol=2)
+library(raster)
+sppol <- spPolygons(pol)
+```
+
+For illustration purposes, we create the "negative area" polygon as well
+```{r}
+negpol <- rbind(pol[c(1,6:4),], cbind(pol[4,1], 0), cbind(pol[1,1], 0))
+spneg <- spPolygons(negpol)
+```
+
+Now plot
+```{r, polygons}
+
+cols <- c('light gray', 'light blue')
+plot(sppol, xlim=c(1,9), ylim=c(1,10), col=cols[1], axes=FALSE, xlab='', ylab='', 
+      lwd=2, yaxs="i", xaxs="i")
+plot(spneg, col=cols[2], add=T)
+plot(spneg, add=T, density=8, angle=-45, lwd=1)
+segments(pol[,1], pol[,2], pol[,1], 0)
+text(pol, LETTERS[1:6], pos=3, col='red', font=4)
+arrows(1, 1, 9, 1, 0.1, xpd=T)
+arrows(1, 1, 1, 9, 0.1, xpd=T)
+text(1, 9.5, 'y axis', xpd=T)
+text(10, 1, 'x axis', xpd=T)
+legend(6, 9.5, c('"positive" area', '"negative" area'), fill=cols, bty = "n")
+``` 
+ 
+
+Compute area
+```{r}
+p <- rbind(pol, pol[1,])
+x <- p[-1,1] - p[-nrow(p),1]
+y <- (p[-1,2] + p[-nrow(p),2]) / 2
+sum(x * y)
+```
+
+Or simply use an existing function
+
+```{r}
+# make sure that the coordinates are interpreted as planar (not longitude/latitude)
+crs(sppol) <- '+proj=utm +zone=1'
+area(sppol)
+``` 
+
+## 7.3 Contact numbers
+
+"Contact numbers" for the lower 48 states. Get the polygons:
+```{r}
+library(raster)
+usa <- getData('GADM', country='USA', level=1)
+usa <- usa[! usa$NAME_1 %in% c('Alaska', 'Hawaii'), ]
+```
+
+To find adjacent polygons, we can use the `spdep` package.
+
+```{r, message=FALSE}
+library(spdep)
+``` 
+
+We use `poly2nb` to create a neighbors-list. And from that a neighbors matrix.
+
+```{r}
+# patience, this takes a while: 
+wus <- poly2nb(usa, row.names=usa$OBJECTID, queen=FALSE)
+wus
+wmus <- nb2mat(wus, style='B', zero.policy = TRUE)
+dim(wmus)
+```
+Compute the number of neighbors for each state.
+
+```{r}
+i <- rowSums(wmus)
+round(100 * table(i) / length(i), 1)
+```
+
+Apparantly, I am using a different data set than OSU (compare the above with table 7.1). By changing the `level` argument to `2` in the `getData` function you can run the same for counties. Which county has 13 neighbors?
+
+## 7.4 Spatial structure
+
+
+Read the Auckland data (download [here](data/auctb.rds)).
+
+```{r, auck1}
+library(raster)
+pols <- readRDS('data/auctb.rds')
+``` 
+
+
+I did not have the tuberculosis data so I guestimated them from figure 7.7. Compare:
+
+```{r, auck2, fig.width=8}
+par(mai=c(0,0,0,0))
+classes <- seq(0,450,50)
+cuts <- cut(pols$TB, classes)
+n <- length(classes)
+cols <- rev(gray(0:n / n))
+plot(pols, col=cols[as.integer(cuts)])
+legend('bottomleft', levels(cuts), fill=cols)
+```
+
+
+Create a Rooks' case neighborhood object.
+```{r}
+wr <- poly2nb(pols, row.names=pols$Id, queen=FALSE)
+class(wr)
+summary(wr)
+``` 
+
+Plot the links between the polygons.
+```{r, links, fig.width=6}
+par(mai=c(0,0,0,0))
+plot(pols, col='gray', border='blue')
+xy <- coordinates(pols)
+plot(wr, xy, col='red', lwd=2, add=TRUE)
+``` 
+
+We can create a matrix from the links list.
+```{r}
+wm <- nb2mat(wr, style='B')
+dim(wm)
+```
+ 
+And inspect the content or `wr` and `wm`
+
+```{r}
+wr[1:6]
+wm[1:6,1:11]
+``` 
+
+__Question 1__:*Explain the meaning of the first lines returned by wr[1:6])*
+
+
+Now let's recreate Figure 7.6 (page 202).
+
+We already have the first one (Rook's case adjacency, plotted above). Queen's case adjacency:
+```{r}
+wq <- poly2nb(pols, row.names=pols$Id, queen=TRUE)
+``` 
+
+Distance based:
+```{r}
+wd1 <- dnearneigh(xy, 0, 1000)
+wd25 <- dnearneigh(xy, 0, 2500)
+```
+
+Nearest neighbors:
+```{r}
+k3 <- knn2nb(knearneigh(xy, k=3, RANN=FALSE))
+k6 <- knn2nb(knearneigh(xy, k=6, RANN=FALSE))
+```
+
+Delauny:
+```{r}
+library(deldir)
+d <- deldir(xy[,1], xy[,2], suppressMsge=TRUE)
+```
+
+Lag-two Rook:
+```{r}
+wr2 <- wr
+for (i in 1:length(wr)) {
+	lag1 <- wr[[i]]
+	lag2 <- wr[lag1]
+	lag2 <- sort(unique(unlist(lag2)))
+	lag2 <- lag2[!(lag2 %in% c(wr[[i]], i))] 
+	wr2[[i]] <- lag2
+}
+```
+
+And now we plot them all using the `plotit` function. 
+
+```{r, weights, fig.height=12, fig.width=9}
+  plotit <- function(nb, lab='') {
+  plot(pols, col='gray', border='white')
+  plot(nb, xy, add=TRUE, pch=20)
+  text(2659066, 6482808, paste0('(', lab, ')'), cex=1.25)
+}
+
+par(mfrow=c(4, 2), mai=c(0,0,0,0))
+plotit(wr, 'i')
+plotit(wq, 'ii')
+plotit(wd1, 'iii')
+plotit(wd25, 'iv')
+plotit(k3, 'v')
+plotit(k6, 'vi')
+plot(pols, col='gray', border='white')
+plot(d, wlines='triang', add=TRUE, pch=20)
+text(2659066, 6482808, '(vii)', cex=1.25)
+plotit(wr2, 'viii')
+```
+
+## 7.5 Moran's *I*
+
+Below I compute Moran's index according to formula 7.7 on page 205 of OSU.
+
+$$
+I = \frac{n}{\sum_{i=1}^n (y_i - \bar{y})^2} \frac{\sum_{i=1}^n \sum_{j=1}^n w_{ij}(y_i - \bar{y})(y_j - \bar{y})}{\sum_{i=1}^n \sum_{j=1}^n w_{ij}}
+$$
+
+
+The number of observations
+```{r}
+n <- length(pols)
+``` 
+
+Values 'y' and 'ybar' (the mean of y).
+
+```{r}
+y <- pols$TB
+ybar <- mean(y)
+``` 
+
+Now we need 
+
+$$ 
+(y_i - \bar{y})(y_j - \bar{y}) 
+$$ 
+
+That is, (yi-ybar)(yj-ybar) for all pairs. 
+I show two methods to compute that.
+
+Method 1:
+```{r}
+dy <- y - ybar
+g <- expand.grid(dy, dy)
+yiyj <- g[,1] * g[,2]
+``` 
+
+Method 2:
+```{r}
+yi <- rep(dy, each=n)
+yj <- rep(dy)
+yiyj <- yi * yj
+``` 
+
+Make a matrix of the multiplied pairs
+```{r}
+pm <- matrix(yiyj, ncol=n)
+round(pm[1:6, 1:9])
+``` 
+
+And multiply this matrix with the weights to set to zero the value for the pairs that are not adjacent.
+```{r}
+pmw <- pm * wm
+wm[1:6, 1:9]
+round(pmw[1:6, 1:9])
+``` 
+
+We sum the values, to get this bit of Moran's *I*:
+
+$$
+\sum_{i=1}^n \sum_{j=1}^n w_{ij}(y_i - \bar{y})(y_j - \bar{y})
+$$
+
+```{r}
+spmw <- sum(pmw) 
+spmw
+``` 
+
+The next step is to divide this value by the sum of weights. That is easy.
+```{r}
+smw <- sum(wm)
+sw  <- spmw / smw
+``` 
+
+And compute the inverse variance of y
+```{r}
+vr <- n / sum(dy^2)
+``` 
+
+The final step to compute Moran's *I*
+```{r}
+MI <- vr * sw
+MI
+``` 
+
+This is how you can (theoretically) estimate the expected value of Moran's *I*. That is, the value you would get in the absence of spatial autocorrelation. Note that it is not zero for small values of *n*.
+```{r}
+EI <- -1/(n-1)
+EI
+``` 
+
+
+After doing this 'by hand', now let's use the spdep package to compute Moran's *I* and do a significance test. To do this we need to create a `listw` type spatial weights object. To get the same value as above we use `style='B'` to use binary (TRUE/FALSE) distance weights. 
+
+```{r}
+ww <- nb2listw(wr, style='B')
+ww
+``` 
+
+
+On to the `moran` function. Have a look at ?moran. The function is defined as `moran(y, ww, n, Szero(ww))`. Note the odd arguments `n` and `S0`. I think they are odd, because `ww` has that information. Anyway, we supply them and it works. There probably are cases where it makes sense to use other values.
+
+
+```{r}
+moran(pols$TB, ww, n=length(ww$neighbours), S0=Szero(ww))
+```
+
+Note that the global sum ow weights
+```{r}
+Szero(ww)
+``` 
+Should be the same as
+```{r}
+sum(pmw != 0)
+``` 
+
+Now we can test for significance. First analytically, using linear regression based logic and assumptions.
+
+```{r}
+moran.test(pols$TB, ww, randomisation=FALSE)
+``` 
+
+And now using Monte Carlo simulation --- which is the preferred method. In fact, the only good method to use.
+
+```{r}
+moran.mc(pols$TB, ww, nsim=99)
+``` 
+
+
+__Question 2__: *How do you interpret these results (the significance tests)?*
+
+
+
+__Question 3__: *What would a good value be for `nsim`?*
+
+
+
+To make a Moran scatter plot we first get the neighbouring values for each value.
+```{r}
+n <- length(pols)
+ms <- cbind(id=rep(1:n, each=n), y=rep(y, each=n), value=as.vector(wm * y))
+``` 
+
+Remove the zeros
+
+```{r}
+ms <- ms[ms[,3] > 0, ]
+``` 
+
+And compute the average neighbour value
+```{r}
+ams <- aggregate(ms[,2:3], list(ms[,1]), FUN=mean)
+ams <- ams[,-1]
+colnames(ams) <- c('y', 'spatially lagged y')
+head(ams)
+``` 
+
+Finally, the plot.
+```{r, ngb}
+plot(ams)
+reg <- lm(ams[,2] ~ ams[,1])
+abline(reg, lwd=2)
+abline(h=mean(ams[,2]), lt=2)
+abline(v=ybar, lt=2)
+``` 
+
+Note that the slope of the regression line:
+
+```{r, ngb2}
+coefficients(reg)[2]
+```
+is almost the same as Moran's *I*.
+ 
+
+Here is a more direct approach to accomplish the same thing (but hopefully the above makes it clearer how this is actually computed). Note the row standardisation of the weights matrix:
+
+```{r}
+rwm <- mat2listw(wm, style='W')
+# Checking if rows add up to 1
+mat <- listw2mat(rwm)
+apply(mat, 1, sum)[1:15]
+``` 
+
+Now we can plot
+
+```{r, mplot}
+moran.plot(y, rwm)
+```  
+
+__Question 4__: *Show how to use the 'geary' function to compute Geary's C*
+
+
+__Question 5__: *Write your own Monte Carlo simulation test to compute p-values for Moran's *I*, replicating the results we obtained with the function from spdep*. Show a figure similar to Figure 7.9 in OSU.
+
+
+__Question 6__: *Write your own Geary C function, by completing the function below*
+
+```
+gearyC <- ((n-1)/sum(( "----")\^2)) * sum(wm * (" --- ")\^2) / (2 * sum(wm))
+```
+

@@ -1,0 +1,10 @@
+# 1. Introduction
+
+This is an introduction to spatial data manipulation with *R*. In this context "spatial data" refers to data about geographical locations, that is, places on earth. So to be more precise, we should speak about "geospatial" data, but we use the shorthand "spatial". 
+
+This is the introductory part of a [set of resources](/) for learning about spatial analysis and modeling with *R*. Here we cover the basics of data manipulation. When you are done with this section, you can continue with the introduction to [spatial data analysis](/analysis).
+
+You need to need to know some of the basics of the *R* language before you can work with *spatial data* in *R*. If you have not worked with *R* before, or not recently, have a look at this brief [introduction to R](../../intr). 
+
+You can [download this manual as a pdf](/_sources/spatial/rst/RSpatial.pdf).
+

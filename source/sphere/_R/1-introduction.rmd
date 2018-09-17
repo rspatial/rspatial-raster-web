@@ -1,0 +1,60 @@
+# 1. Introduction
+
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+```
+
+
+This chapter introduces a number of functions to compute distance, direction, area and related quantities for spatial data with angular (longitude/latitude) coordinates. All of the functions are implemented in the R package `geosphere`. So to reproduce the examples shown you need to open R and install the latest verssion of the package `install.packages("geosphere")`.
+
+It is generally easier to do such computations for data with planar coordinates. For example, with planar coordinates, ("Euclidian") distance can be computed with Pythagoras' theorem (a^2^+b^2^=c^2^), and the direction between a and b is ... Therefore, a common approach to compute certain quantities for angular data is to first transform ("project") the coordinates to a planar coordinate reference system (crs). However, such projections inevitably lead to  distortions of one type or another (shape, distance, area, direction), and hence the quantities computed may not be accurate. The amount of disortion will vary, and may be minimal for smaller areas, as long an appropriate crs is used. For larger areas (for example with data covering a continent, or the entire world), it may be impossible, or impractical, to avoid marjor inaccuracies with this approach.
+
+Computing quantities directly from the angular coordinates can be more precise, but it also has its shortcomings (that are shared with the planar approaches). Computations based on ellipsoids are refered to as geodesic computations. The main problem is that the earth has a  irregular shape, which needs to be approximated to allow for the use of simple algoritms computations. The simplest approach is to treat the earth like a sphere -- a three dimensional circle -- defined by a radius. That allows for the use of spherical trigonometry functions. The shortest distance between two points on a sphere are on is part of a "great circle". 
+
+A more refined approach is to treat the earth like an ellipsoid (also termed sheroid), which is more accurate, as the earth is relatively flat at the poles, and bulges at the equator. Computations based on ellipsoids are refered to as geodesic computations; they are much more complex than spherical approximations. Ellipsoids are defined by three parameters: major axis a, minor axis b, and the flatting f (a small number, and therefore f is commonly expressed as the inverse flattening, 1/f. In geosphere, the default parameters for a, b, f are those that represent the ellipsoid used in the 1984 World Geodetic System (WGS84). This is a good average approximation for the entire world, but in more regional studies, more accurate computations may be possible using a locally preferred ellipsoid (as may be used by the national cartographic organization(s). 
+
+In this text, geographic locations are always expressed in longitude and latitude, in that order (!), because on most maps longitude varies (most) along the horizontal (x) axis and latitude along the vertical axis (y). The unit is always degrees, not radians, although many of the functions used internally transform degree data to radians before the main (trigonometric) computations take place. 
+ 
+Degrees are (obviously) expressed as decimal numbers such as (5.34, 52.12) and not with the obsolete sexagesimal system of degrees, minutes, and seconds. It is not hard to transform values between these two systems, but errors are commonly made. 12 degrees, 10 minutes, 30 seconds = 12 + 10/60 + 30/3600 =  12.175 degrees. The southern and western hemispheres have a negative sign.
+
+
+dec2sex <- function(sd, latitude=TRUE) {
+	d <- trunc(sd)
+	r <- 60 * (sd - d)
+	m <- trunc(r)
+	r <- 60 * (m - r)
+	s <- r / 3600
+	if (latitude) {
+		if (d < 0) {
+			h = 'S'
+		} else {
+			h = 'N'
+		}
+	} else {
+		if (d < 0) {
+			h = 'W'
+		} else {
+			h = 'E'
+		}
+	}
+	paste0(d, 'd ', m, 'm ', s, 's ', h)
+}
+
+
+sex2dec <- function(d, m, s, h=c(N,S,E,W)) {
+	d  + m / 60 + s / 3600
+	if (h %in% c('S', 'W') {
+		d <- -d
+	}
+	return(d)
+}
+
+
+

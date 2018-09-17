@@ -1,0 +1,130 @@
+# 3. Vector data
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+```
+
+## 3.1 Introduction
+
+Package `sp` is the central package supporting spatial data analysis in *R*. `sp` defines a set of *classes* to represent spatial data. A class defines a particular data type. The `data.frame` is an example of a class. Any particular `data.frame` you create is an *object* (instantiation) of that class. 
+
+The main reason for defining classes is to create a standard representation of a particular data type to make it easier to write functions (also known as 'methods') for them. In fact, the `sp` package does not provide many functions to modify or analyze spatial data; but the classes it defines are used in more than 100 other *R* packages that provide specific functionality. See Hadley Wickham's [Advanced R](http://adv-r.had.co.nz/) or John Chambers' [Software for data analysis](http://www.springer.com/us/book/9780387759357) for a detailed discussion of the use of classes in *R*). 
+
+We will be using the `sp` package here. Note that this package will eventually be replaced by the newer `sf` package --- but `sp` is still more commonly used. 
+
+Package `sp` introduces a number of classes with names that start with `Spatial`. For vector data, the basic types are the `SpatialPoints`, `SpatialLines`, and `SpatialPolygons`. These classes only represent geometries. To also store attributes, classes are available with these names plus `DataFrame`, for example, `SpatialPolygonsDataFrame` and `SpatialPointsDataFrame`. When referring to any object with a name that starts with `Spatial`, it is common to write  `Spatial*`. When referring to a `SpatialPolygons` or `SpatialPolygonsDataFrame` object it is common to write `SpatialPolygons*`. The `Spatial` classes (and their use) are described in detail by [Bivand, Pebesma and Gómez-Rubio](http://www.springer.com/us/book/9781461476177).
+
+It is possible to create `Spatial*` objects from scratch with *R* code. That can be very useful to create small self contained example to illustrate something, for example to ask a question about how to do a particular operation without needing to give access to the real data you are using (which is always cumbersome). But in real life you will read these from a file or database, for example from a "shapefile" [see Chapter 5](./5-files.html). 
+
+To get started, let's make some Spatial objects from scratch anyway, using the same data as were used in the previous chapter. 
+
+
+## 3.2 SpatialPoints
+
+
+```{r}
+longitude <- c(-116.7, -120.4, -116.7, -113.5, -115.5, -120.8, -119.5, -113.7, -113.7, -110.7)
+latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9, 36.2, 39, 41.6, 36.9)
+lonlat <- cbind(longitude, latitude)
+```
+
+Now create a `SpatialPoints` object
+
+```{r}
+library(sp)
+pts <- SpatialPoints(lonlat)
+```
+
+Let's check what kind of object `pts` is. 
+```{r}
+class (pts)
+```
+
+And what is inside of it 
+```{r}
+showDefault(pts)
+```
+
+So we see that the object has the coordinates we supplied, but also a `bbox`. This is a 'bounding box', or the 'spatial extent' that was computed from the coordinates. There is also a "proj4string". This stores the coordinate reference system ("crs", discussed in more detail later). We did not provide the crs so it is unknown (`NA`). That is not good, so let's recreate the object, and now provide a crs. 
+ 
+```{r}
+crdref <- CRS('+proj=longlat +datum=WGS84')
+pts <- SpatialPoints(lonlat, proj4string=crdref)
+```
+
+I load to `raster` package to improve how Spatial objects are printed.
+
+```{r}
+library(raster)
+pts
+```
+
+We can use the `SpatialPoints` object to create a `SpatialPointsDataFrame` object. First we need a `data.frame` with the same number of rows as there are geometries.
+
+```{r}
+# Generate random precipitation values, same quantity as points
+precipvalue <- runif(nrow(lonlat), min=0, max=100)
+df <- data.frame(ID=1:nrow(lonlat), precip=precipvalue)
+```
+
+Combine the `SpatialPoints` with the `data.frame`.
+
+
+```{r}
+ptsdf <- SpatialPointsDataFrame(pts, data=df)
+ptsdf
+```
+
+To see what is inside:
+```{r}
+str(ptsdf)
+```
+
+Or
+
+```{r}
+showDefault(ptsdf)
+```
+
+## 3.3 SpatialLines and SpatialPolygons
+
+Making a `SpatialPoints` object was easy. Making a `SpatialLines` and `SpatialPolygons` object is a bit harder, but stil relatively straightforward with the `spLines` and `spPolygons` functions (from the `raster` package). 
+
+```{r}
+lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
+lat <- c(41.3, 42.9, 42.4, 39.8, 37.6, 38.3, 37.6) 
+lonlat <- cbind(lon, lat)
+lns <- spLines(lonlat, crs=crdref)
+lns
+```
+
+
+```{r}
+pols <- spPolygons(lonlat, crs=crdref)
+pols
+```
+
+The structure of the SpatialPolygons class is somewhat complex as it needs to accommodate the possibility of multiple polygons, each consisting of multiple sub-polygons, some of which may be "holes". 
+
+```{r}
+str(pols)
+```
+
+Fortunately, you do not need to understand how these structures are organized. The main take home message is that they store geometries (coordinates), the name of the coordinate reference system, and attributes. 
+
+We can make use generic *R* function plot to make a map.
+
+```{r, vectordata-1}
+plot(pols, axes=TRUE, las=1)
+plot(pols, border='blue', col='yellow', lwd=3, add=TRUE)
+points(pts, col='red', pch=20, cex=3)
+```
+
+We'll make more fancy maps [later](9-maps.html).
+

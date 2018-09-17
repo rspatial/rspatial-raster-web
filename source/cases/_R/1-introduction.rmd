@@ -1,0 +1,7 @@
+# 1. Introduction
+
+This is a (still very small) collection of case studies of spatial data analyis with *R*. 
+
+It is part of these [Introduction to Spatial Data Analysis with *R*](http://www.rspatial.org) resources.
+
+

@@ -1,0 +1,162 @@
+# 3. Basic data structures
+
+In the previous chapter we saw the most basic data types in *R*: vectors of numeric, integer, character, factor and boolean values. These were all stored in a vector. In this chapter we look at additional data structures that can store basic data: the `matrix`, `data.frame` and `list`.
+
+## Matrix
+
+A vector is a one-dimensional array. A two-dimensional array can be represented with a matrix. Here is how you can create a matrix with two rows and three columns.
+
+```{r}
+matrix(ncol=3, nrow=2)
+```
+
+The matrix above did not have any values: all values were [missing](2-basic-data-types.html#missing-values) (`NA`). Let's make a matrix with values 1 to 6. 
+```{r}
+matrix(1:6, ncol=3, nrow=2)
+```
+
+Note that by default the values are distributed column-wise. To go row-wise you can use the `byrow=TRUE` argument.
+
+```{r}
+matrix(1:6, ncol=3, nrow=2, byrow=TRUE)
+```
+
+This can also be achieved by switching the number of columns and rows and using the `t` (transpose) function.
+```{r}
+m <- matrix(1:6, ncol=2, nrow=3)
+t(m)
+```
+
+It is common to create a matrix by column-binding and/or row-binding vectors using `cbind` and `rbind`. These are two of the most commonly used functions in *R* so pay close attention!
+ 
+```{r}
+a <- c(1,2,3)
+b <- 5:7
+```
+
+column binding
+```{r}
+m1 <- cbind(a, b)
+m1
+```
+
+row binding
+```{r}
+m2 <- rbind(a, b)
+m2
+```
+
+You can use `cbind` and `rbind` also to combine matrices, as long as the number of rows or columns of the two objects are the same.
+
+```{r}
+m3 <- cbind(b, b, a)
+m <- cbind(m1, m3)
+m
+```
+
+We can get some of the structural properties of a matrix with functions such as `nrow`, `ncol`, `dim` and `length`.
+```{r}
+nrow(m)
+ncol(m)
+# dimensions of m (nrow, ncol))
+dim(m)
+# number of cells, or nrow(m) * ncol(m)
+length(m)
+```
+
+Columns have (variable) names that can be changed. 
+```{r}
+# get the column names
+colnames(m)
+# set the column names
+colnames(m) <- c('ID', 'X', 'Y', 'v1', 'v2')
+m
+```
+
+Likewise there are row names, but these are less important.
+```{r}
+rownames(m) <- paste0('row_', 1:nrow(m))
+m 
+```
+
+
+A matrix can only store a single data type. If you try to mix character and numeric values, all values will become character values (as the other way around may not be possible).
+  
+```{r}
+cbind(vchar=c('a','b'), vnumb=1:2)
+```
+You can see that 1 and 2 are character values because they are quoted. You could not use them in algebra without first converting them back to numbers. Note that the column names were set by providing them to `cbind`
+
+A matrix is a two dimensional array. Higher dimensional arrays can also be created. See `help(array)`, but these are not that commonly used, so we do not discuss them here.
+
+## List
+
+A `list` is a very flexible container to store data. Each element of a list can contain any type of *R* object, e.g. a vector, matrix, data.frame, another list, or more complex data types. 
+
+A simple list:
+```{r}
+list(1:3)
+```
+
+It shows that the first element `[[1]]` contains a vector of `1, 2, 3`
+
+Here is one with two data types.
+```{r}
+e <- list(c(2,5), 'abc')
+e
+```
+
+List elements can be named.
+```{r}
+names(e) <- c('first', 'last')
+e
+```
+
+
+And a more complex list.
+```{r}
+m <- matrix(1:6, ncol=3, nrow=2)
+f <- list(e, m, 'abc')
+f
+```
+
+Note that the first element of list `f` is itself a list of two elements.
+
+
+
+## Data frame
+
+The `data.frame` is the workhorse for statistical data analysis in *R*. It is rectangular like a matrix, but unlike matrices a `data.frame` can have columns (variables) of different data types. A `data.frame` is what you get when you read spreadsheet-like data into *R* with functions like `read.table` or `read.csv`. We'll show that in a later chapter. We can also create a `data.frame` with some simple code.
+
+```{r}
+# four vectors
+ID <- as.integer(1:4)
+name <- c('Ana', 'Rob', 'Liu', 'Veronica')
+sex <- as.factor(c('F','M','M','F'))
+score <- c(10.2, 9, 13.5, 18)
+
+d <- data.frame(ID, name, sex, score, stringsAsFactors=FALSE)
+d
+```
+
+I used the argument `stringsAsFactors=FALSE` to avoid converting the character variable `name` to a factor. `d` is a data.frame, but individual columns can be of any class. Note that the length of a data.frame is defined as the number of variables (columns), while the length of a matrix is defined as the number of cells! This is because a matrix is a special kind of `vector`, while a `data.frame` is a special kind of `list` in which each element has the same size.
+
+```{r}
+class(d)
+length(d)
+```
+
+Because a `data.frame` is a special kind of list, you can do with a data.frame what you can do with a list.
+```{r}
+is.list(d)
+names(d)
+```
+
+But in other ways, a `data.frame` is also similar to a matrix (which normal lists are not).
+
+```{r}
+nrow(d)
+dim(d)
+colnames(d)
+```
+

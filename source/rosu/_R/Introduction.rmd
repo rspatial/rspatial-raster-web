@@ -1,0 +1,9 @@
+# Introduction
+
+These pages accompany the book "Geographic Information Analysis" by David O'Sullivan and David J. Unwin [(2nd Edition, 2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
+
+This book is an excellent and very accessible introduction to spatial data analysis; but it does not show how to practially implement the approaches that are discussed. 
+
+Many of the numerical examples in the text are implemented here, and some of the other techniques discussed are illustrated here as well. We hope that this is a useful contribution that allows readers of the book to get a more hands-on way to understand the material covered; and to apply such approaches in their own work. 
+
+The examples are all implemented with *R*. If you are new to *R*, first go through this [introduction](http://rspatial.org/intr/). 

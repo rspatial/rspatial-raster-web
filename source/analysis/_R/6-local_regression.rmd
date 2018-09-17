@@ -1,0 +1,406 @@
+# 6. Local regression
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+```
+
+Regression models are typically "global". That is, all date are used simultaneously to fit a single model. In some cases it can make sense to fit more flexible "local" models. Such models exist in a general regression framework (e.g. generalized additive models), where "local" refers to the values of the predictor values. In a spatial context local refers to location. Rather than fitting a single regression model, it is possible to fit several models, one for each location (out of possibly very many) locations. This technique is sometimes called "geographically weighted regression" (GWR). GWR is a data exploration technique that allows to understand changes in importance of different variables over space (which may indicate that the model used is misspecified and can be improved). 
+
+There are two examples here. One short example with California precipitation data, and than a more elaborate example with house price data.
+
+### Get the data
+
+```{r getData}
+# Make sure the data directory exists if not make it
+dir.create('data', showWarnings = FALSE)
+files <- c('precipitation.csv', 'counties.rds', 'houses1990.csv')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+## California precipitation
+
+Here is an example of GWR with California precipitation data.  Get the data with the script above, or download it here: (precipitation data](https://biogeo.ucdavis.edu/data/rspatial/precipitation.csv) and [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds).
+
+
+```{r, loca10}
+cts <- readRDS('data/counties.rds')
+p <- read.csv('data/precipitation.csv')
+head(p)
+
+plot(cts)
+points(p[,c('LONG', 'LAT')], col='red', pch=20)
+```
+
+Compute annual average precipitation
+```{r, loca11}
+p$pan <- rowSums(p[,6:17])
+```
+
+Global regression model
+```{r, loca12}
+m <- lm(pan ~ ALT, data=p)
+m
+```
+
+Create `Spatial*` objects with a planar crs.
+
+```{r, loca13}
+alb <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+sp <- p
+coordinates(sp) = ~ LONG + LAT
+crs(sp) <- "+proj=longlat +datum=NAD83"
+spt <- spTransform(sp, alb)
+ctst <- spTransform(cts, alb)
+```
+
+
+Get the optimal bandwidth
+```{r, loca14}
+library( spgwr )
+bw <- gwr.sel(pan ~ ALT, data=spt)
+bw
+``` 
+
+Create a regular set of points to estimate parameters for.
+```{r, loca16}
+r <- raster(ctst, res=10000)
+r <- rasterize(ctst, r)
+newpts <- rasterToPoints(r)
+```
+
+Run the `gwr` function
+```{r, loca17}
+g <- gwr(pan ~ ALT, data=spt, bandwidth=bw, fit.points=newpts[, 1:2])
+g
+```
+
+Link the results back to the raster
+```{r, loca18, fig.width=9}
+slope <- r
+intercept <- r
+slope[!is.na(slope)] <- g$SDF$ALT 
+intercept[!is.na(intercept)] <- g$SDF$'(Intercept)'
+s <- stack(intercept, slope)
+names(s) <- c('intercept', 'slope')
+plot(s)
+```
+
+
+## California House Price Data
+
+We will use house prices data from the 1990 census, taken from "Pace, R.K. and R. Barry, 1997. Sparse Spatial Autoregressions. Statistics and Probability Letters 33: 291-297."
+You can download the data [here](https://biogeo.ucdavis.edu/data/rspatial/houses1990.csv)
+
+```{r}
+houses <- read.csv("data/houses1990.csv")
+dim(houses)
+head(houses)
+```
+
+Each record represents a census "blockgroup". The longitude and latitude of the centroids of each block group are available. We can use that to make a map and we can also use these to link the data to other spatial data. For example to get county-membership of each block group. To do that, let's first turn this into a SpatialPointsDataFrame to find out to which county each point belongs.
+
+```{r}
+library(sp)
+coordinates(houses) <- ~longitude+latitude
+```
+
+```{r, gwr1}
+plot(houses, cex=0.5, pch=1, axes=TRUE)
+```
+
+Now get the county boundaries and assign CRS of the houses data matches that of the counties (because they are both in longitude/latitude!).
+
+```{r}
+library(raster)
+counties <- readRDS("data/counties.rds")
+crs(houses) <- crs(counties)
+```
+
+Do a spatial query (points in polygon)
+```{r}
+cnty <- over(houses, counties)
+head(cnty)
+```
+
+
+## Summarize
+
+We can summarize the data by county. First combine the extracted county data with the original data. 
+
+```{r}
+hd <- cbind(data.frame(houses), cnty)
+```
+
+Compute the population by county
+```{r}
+totpop <- tapply(hd$population, hd$NAME, sum)
+totpop
+```
+
+Income is harder because we have the median household income by blockgroup. But it can be approximated by first computing total income by blockgroup, summing that, and dividing that by the total number of households.
+
+```{r}
+# total income
+hd$suminc <- hd$income * hd$households
+# now use aggregate (similar to tapply)
+csum <- aggregate(hd[, c('suminc', 'households')], list(hd$NAME), sum)
+# divide total income by number of housefholds
+csum$income <- 10000 * csum$suminc / csum$households
+# sort
+csum <- csum[order(csum$income), ]
+head(csum)
+tail(csum)
+```
+
+
+## Regression
+
+Before we make a regression model, let's first add some new variables that we might use, and then see if we can build a regression model with house price as dependent variable. The authors of the paper used a lot of log tranforms, so you can also try that.
+
+
+```{r}
+hd$roomhead <- hd$rooms / hd$population
+hd$bedroomhead <- hd$bedrooms / hd$population
+hd$hhsize <- hd$population / hd$households
+```
+
+Ordinary least squares regression:
+
+```{r}
+# OLS
+m <- glm( houseValue ~ income + houseAge + roomhead + bedroomhead + population, data=hd)
+summary(m)
+coefficients(m)
+```
+
+## Geographicaly Weighted Regression
+
+### By county
+
+Of course we could make the model more complex, with e.g. squared income, and interactions.
+But let's see if we can do Geographically Weighted regression. One approach could be to use counties.
+
+First I remove records that were outside the county boundaries
+```{r}
+ hd2 <- hd[!is.na(hd$NAME), ]
+```
+
+Then I write a function to get what I want from the regression (the coefficients in this case)
+
+```{r}
+regfun <- function(x)  {
+  dat <- hd2[hd2$NAME == x, ]
+  m <- glm(houseValue~income+houseAge+roomhead+bedroomhead+population, data=dat)
+  coefficients(m)
+}
+```
+
+And now run this for all counties using sapply:
+```{r}
+countynames <- unique(hd2$NAME)
+res <- sapply(countynames, regfun)
+```
+
+
+Plot of a single coefficient
+```{r, gwr3, fig.height=10}
+dotchart(sort(res['income', ]), cex=0.65)
+```
+
+There clearly is variation in the coefficient ($beta$) for income. How does this look on a map?
+
+First make a data.frame of the results
+```{r}
+resdf <- data.frame(NAME=colnames(res), t(res))
+head(resdf)
+```
+
+Fix the counties object. There are too many counties because of the presence of islands. I first aggregate ('dissolve' in GIS-speak') the counties such that a single county becomes a single (multi-)polygon.
+
+```{r}
+dim(counties)
+dcounties <- aggregate(counties, vars='NAME')
+dim(dcounties)
+```
+
+Now we can merge this SpatialPolygonsDataFrame with data.frame with the regression results. 
+
+```{r, gwr5}
+cnres <- merge(dcounties, resdf, by='NAME')
+spplot(cnres, 'income')
+```
+
+To show all parameters in a 'conditioning plot', we need to first scale the values to get similar ranges.
+
+```{r, gwr6}
+# a copy of the data
+cnres2 <- cnres
+
+# scale all variables, except the first one (county name)
+# assigning values to a "@data" slot is risky, but (I think) OK here
+cnres2@data = data.frame(scale(data.frame(cnres)[, -1]))
+spplot(cnres2)
+```
+
+
+Is this just random noise, or is there spatial autocorrelation?
+
+```{r, gwr10}
+library(spdep)
+nb <- poly2nb(cnres)
+plot(cnres)
+plot(nb, coordinates(cnres), add=T, col='red')
+
+lw <- nb2listw(nb)
+moran.test(cnres$income, lw)
+moran.test(cnres$roomhead, lw, na.action=na.omit)
+```
+
+
+### By grid cell
+
+An alternative approach would be to compute a model for grid cells. 
+Let's use the 'Teale Albers' projection (often used when mapping the entire state of California). 
+
+```{r}
+TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000
+              +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+countiesTA <- spTransform(counties, TA)
+```
+
+Create a RasteLayer using the extent of the counties, and setting an arbitrary resolution of 50 by 50 km cells
+```{r}
+library(raster)
+r <- raster(countiesTA)
+res(r) <- 50000
+```
+
+Get the xy coordinates for each raster cell:
+```{r}
+xy <- xyFromCell(r, 1:ncell(r))
+```
+
+For each cell, we need to select a number of observations, let's say within 50 km of the center of each cell (thus the data that are used in different cells overlap). And let's require at least 50 observations to do a regression.
+
+First transform the houses data to Teale-Albers
+```{r}
+housesTA <- spTransform(houses, TA)
+crds <- coordinates(housesTA)
+```
+
+Set up a new regression function.
+```{r}
+regfun2 <- function(d)  {
+ m <- glm(houseValue~income+houseAge+roomhead+bedroomhead+population, data=d)
+ coefficients(m)
+}
+```
+
+Run the model for al cells if there are at least 50 observations within a radius of 50 km.
+```{r}
+res <- list()
+for (i in 1:nrow(xy)) {
+	d <- sqrt((xy[i,1]-crds[,1])^2 + (xy[i,2]-crds[,2])^2)
+	j <- which(d < 50000)
+	if (length(j) > 49) {
+		d <- hd[j,]
+		res[[i]] <- regfun2(d)
+	} else {
+		res[[i]] <- NA
+	}
+}
+```
+
+For each cell get the income coefficient:
+```{r}
+inc <- sapply(res, function(x) x['income'])
+```
+
+Use these values in a RasterLayer
+```{r, gwr20}
+rinc <- setValues(r, inc)
+plot(rinc)
+plot(countiesTA, add=T)
+Moran(rinc)
+```
+
+So that was a lot of 'home-brew-GWR'. 
+
+__Question 1__: *Can you comment on weaknesses (and perhaps strengths) of the approaches I have shown?*
+
+__Question 2__: *Can you do it the easier and more professional way for these data, using the spgwr package?*
+
+
+## spgwr package
+
+Now use the spgwr package (and the the `gwr` function) to fit the model. You can do this with all data, as long as you supply and argument `fit.points` (to avoid estimating a model for each observation point. You can use a raster similar to the one I used above (perhaps disaggregate with a factor 2 first).
+
+This is how you can get the points to use:
+
+Create a RasterLayer with the correct extent
+```{r}
+r <- raster(countiesTA)
+```
+
+Set to a desired resolution. I choose 25 km
+```{r}
+res(r) <- 25000
+```
+
+I only want cells inside of CA, so I add some more steps.
+```{r}
+ca <- rasterize(countiesTA, r)
+```
+
+Extract the coordinates that are not `NA`.
+
+```{r}
+fitpoints <- rasterToPoints(ca)
+```
+
+I don't want the third column
+```{r}
+fitpoints <- fitpoints[,-3]
+```
+
+Now specificy the model
+
+```
+gwr.model <- ______ 
+```
+
+`gwr` returns a list-like object that includes (as first element) a `SpatialPointsDataFrame` that has the model coeffients. Plot these using `spplot`, and after that, transfer them to a `RasterBrick` object.
+
+To extract the SpatialPointsDataFrame:
+
+```
+sp <- gwr.model$SDF
+spplot(sp)
+```
+
+To reconnect these values to the raster structure (etc.)
+
+```
+cells <- cellFromXY(r, fitpoints)
+dd <- as.matrix(data.frame(sp))
+b <- brick(r, values=FALSE, nl=nrow(dd))
+b[cells] <- dd
+names(b) <- colnames(dd)
+plot(b)
+```
+
+
+__Question 3__: *Briefly comment on the results and the differences (if any) with the two home-brew examples.*
+
+

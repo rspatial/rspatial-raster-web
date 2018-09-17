@@ -1,0 +1,72 @@
+
+# Maps and other plots
+
+See the rasterVis package for additional plotting methods for Raster* objects using methods from 'lattice' and other packages.
+
+Maps
+
+## plot
+ Plot a Raster* object. The main method to create a map
+
+## plotRGB
+ Combine three layers (red, green, blue channels) into a single 'real color' image
+
+## spplot
+ Plot a Raster* with the spplot function (sp package)
+
+## image
+ Plot a Raster* with the image function
+
+## persp
+ Perspective plot of a RasterLayer
+
+## contour
+ Contour plot of a RasterLayer
+
+## filledContour
+ Filled contour plot of a RasterLayer
+
+## text
+ Plot the values of a RasterLayer on top of a map
+    .
+
+Interacting with a map
+
+## zoom
+ Zoom in to a part of a map
+
+## click
+ Query values of Raster* or Spatial* objects by clicking on a map
+
+## select
+ Select a geometric subset of a Raster* or Spatial* object
+
+## drawPoly
+ Create a SpatialPolygons object by drawing it
+
+## drawLine
+ Create a SpatialLines object by drawing it
+
+## drawExtent
+ Create an Extent object by drawing it	
+    .
+Other plots
+
+## plot
+ x-y scatter plot of the values of two RasterLayer objects
+
+## hist
+ Histogram of Raster* object values
+
+## barplot
+ barplot of a RasterLayer
+
+## density
+ Density plot of Raster* object values
+
+## pairs
+ Pairs plot for layers in a RasterStack or RasterBrick
+
+## boxplot
+ Box plot of the values of one or multiple layers
+

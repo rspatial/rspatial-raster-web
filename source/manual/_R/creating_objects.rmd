@@ -1,0 +1,37 @@
+# Creating spatial objects
+
+## Vector objects
+
+
+## Raster objects
+
+### raster
+To create a RasterLayer
+
+### stack
+To create a RasterStack (multiple layers)
+
+### brick
+To create a RasterBrick (multiple layers)
+
+### subset
+Select layers of a RasterStack/Brick
+
+### addLayer
+Add a layer to a Raster* object
+
+### dropLayer
+Remove a layer from a RasterStack or RasterBrick
+
+### unstack
+Create a list of RasterLayer objects from a RasterStack
+
+
+### SpatialPixels
+
+
+### SpatialGrid
+
+
+### RasterLayer from SpatialGrid*, image, or matrix objects
+

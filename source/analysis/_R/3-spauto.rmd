@@ -1,0 +1,336 @@
+# 3. Spatial autocorrelation
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap='',
+  collapse = TRUE
+)
+library(rgeos)
+library(raster)
+library(spdep)
+library(deldir)
+library(rgdal)
+```
+
+## Introduction
+
+Spatial autocorrelation is an important concept in spatial statistics. It is a both a nuisance, as it complicates statistical tests, and a feature, as it allows for spatial interpolation. Its computation and properties are often misunderstood. This chapter discusses what it is, and how statistics describing it can be computed. 
+
+Autocorrelation (whether spatial or not) is a measure of similarity (correlation) between nearby observations. To understand spatial autocorrelation, it helps to first consider temporal autocorrelation. 
+
+### Temporal autocorrelation
+
+If you measure something about the same object over time, for example a persons weight or wealth, it is likely that two observations that are close to each other in time are also similar in measurement. Say that over a couple of years your weight went from 50 to 80 kg. It is unlikely that it was 60 kg one day, 50 kg the next and 80 the day after that. Rather it probably went up gradually, with the occasional tapering off, or even reverse in direction. The same may be true with your bank account, but that may also have a marked monthly trend. To measure the degree of association over time, we can compute the correlation of each observation with the next observation. 
+
+Let `d` be a vector of daily observations. 
+```{r}
+set.seed(0)
+d <- sample(100, 10)
+d
+```
+
+Compute auto-correlation.
+
+```{r, autocor1}
+a <- d[-length(d)]
+b <- d[-1]
+plot(a, b, xlab='t', ylab='t-1')
+cor(a, b)
+```
+
+The autocorrelation computed above is very small. Even though this is a random sample, you (almost) never get a value of zero. We computed the "one-lag" autocorrelation, that is, we compare each value to its immediate neighbour, and not to other nearby values.
+
+After sorting the numbers in `d` autocorrelation becomes very strong (unsurprisingly). 
+
+```{r, autocor2}
+d <- sort(d)
+d
+a <- d[-length(d)]
+b <- d[-1]
+plot(a, b, xlab='t', ylab='t-1')
+cor(a, b)
+```
+
+The `acf` function shows autocorrelation [computed in a slightly different way](http://stats.stackexchange.com/questions/10947/formula-for-autocorrelation-in-r-vs-excel) for several lags (it is 1 to each point it self, very high when comparing with the nearest neighbour, and than tapering off).
+
+```{r, acfplot}
+acf(d)
+```
+
+### Spatial autocorrelation
+
+The concept of *spatial* autocorrelation is an extension of temporal autocorrelation. It is a bit more complicated though. Time is one-dimensional, and only goes in one direction, ever forward. Spatial objects have (at least) two dimensions and complex shapes, and it may not be obvious how to determine what is "near". 
+
+Measures of spatial autocorrelation describe the degree two which observations (values) at spatial locations (whether they are points, areas, or raster cells), are similar to each other. So we need two things: observations and locations.
+
+Spatial autocorrelation in a variable can be exogenous (it is caused by another spatially autocorrelated variable, e.g. rainfall) or endogenous (it is caused by the process at play, e.g. the spread of a disease).
+
+A commonly used statistic that describes spatial autocorrelation is Moran's *I*, and we'll discuss that here in detail. Other indices include Geary's *C* and, for binary data, the join-count index. The semi-variogram also expresses the amount of spatial autocorrelation in a data set (see the chapter on interpolation).
+ 
+
+## Example data
+
+Read the example data
+
+```{r, message=FALSE}
+library(raster)
+p <- shapefile(system.file("external/lux.shp", package="raster"))
+p <- p[p$NAME_1=="Diekirch", ]
+p$value <- c(10, 6, 4, 11, 6) 
+data.frame(p)
+``` 
+
+Let's say we are interested in spatial autocorrelation in variable "AREA". If there were spatial autocorrelation, regions of a similar size would be spatially clustered. 
+
+Here is a plot of the polygons. I use the `coordinates` function to get the centroids of the polygons to place the labels.
+
+```{r, autocor3}
+par(mai=c(0,0,0,0))
+plot(p, col=2:7)
+xy <- coordinates(p)
+points(xy, cex=6, pch=20, col='white')
+text(p, 'ID_2', cex=1.5)
+``` 
+
+
+## Adjacent polygons
+
+Now we need to determine which polygons are "near", and how to quantify that. Here we'll use adjacency as criterion. To find adjacent polygons, we can use package 'spdep'.
+
+```{r, message=FALSE}
+library(spdep)
+w <- poly2nb(p, row.names=p$Id)
+class(w)
+summary(w)
+```
+
+`summary(w)` tells us something about the neighborhood. The average number of neighbors (adjacent polygons) is 2.8, 3 polygons have 2 neighbors and 1 has 4 neighbors (which one is that?). 
+
+For more details we can look at the `str`ucture of `w`.
+
+
+```{r}
+str(w)
+``` 
+
+__Question 1__:*Explain the meaning of the first 5 lines returned by str(w)*
+
+
+Plot the links between the polygons.
+```{r, autocor4}
+plot(p, col='gray', border='blue', lwd=2)
+plot(w, xy, col='red', lwd=2, add=TRUE)
+``` 
+
+We can transform `w` into a spatial weights matrix.  A spatial weights matrix reflects the intensity of the geographic relationship between observations (see previous chapter). 
+
+```{r}
+wm <- nb2mat(w, style='B')
+wm
+``` 
+
+
+## Compute Moran's *I*
+
+Now let's compute Moran's index of spatial autocorrelation 
+
+
+$$
+I = \frac{n}{\sum_{i=1}^n (y_i - \bar{y})^2} \frac{\sum_{i=1}^n \sum_{j=1}^n w_{ij}(y_i - \bar{y})(y_j - \bar{y})}{\sum_{i=1}^n \sum_{j=1}^n w_{ij}}
+$$
+
+Yes, that looks impressive. But it is not much more than an expanded version of the formula to compute the correlation coefficient. The main thing that was added is the spatial weights matrix. 
+
+The number of observations
+```{r}
+n <- length(p)
+``` 
+
+Get 'y' and 'ybar' (the mean value of y)
+
+```{r}
+y <- p$value
+ybar <- mean(y)
+``` 
+
+Now we need 
+$$ 
+(y_i - \bar{y})(y_j - \bar{y}) 
+$$ 
+
+That is, (yi-ybar)(yj-ybar) for all pairs. I show two methods to get that.
+
+
+Method 1:
+```{r}
+dy <- y - ybar
+g <- expand.grid(dy, dy)
+yiyj <- g[,1] * g[,2]
+``` 
+
+Method 2:
+```{r}
+yi <- rep(dy, each=n)
+yj <- rep(dy)
+yiyj <- yi * yj
+``` 
+
+Make a matrix of the multiplied pairs
+```{r}
+pm <- matrix(yiyj, ncol=n)
+``` 
+
+And multiply this matrix with the weights to set to zero the value for the pairs that are not adjacent.
+```{r}
+pmw <- pm * wm
+pmw
+``` 
+
+
+We now sum the values, to get this bit of Moran's *I*:
+
+$$
+\sum_{i=1}^n \sum_{j=1}^n w_{ij}(y_i - \bar{y})(y_j - \bar{y})
+$$
+
+```{r}
+spmw <- sum(pmw) 
+spmw
+``` 
+
+The next step is to divide this value by the sum of weights. That is easy.
+```{r}
+smw <- sum(wm)
+sw  <- spmw / smw
+``` 
+
+And compute the inverse variance of y
+```{r}
+vr <- n / sum(dy^2)
+``` 
+
+The final step to compute Moran's *I*
+```{r}
+MI <- vr * sw
+MI
+``` 
+
+This is a simple (but crude) way to estimate the expected value of Moran's *I*. That is, the value you would get in the absence of spatial autocorelation (if the data were spatially random). Of course you never really expect that, but that is how we do it in statistics. Note that the expected value approaches zero if *n* becomes large, but that it is not quite zero for small values of *n*.
+```{r}
+EI <- -1/(n-1)
+EI
+``` 
+
+
+After doing this 'by hand', now let's use the spdep package to compute Moran's *I* and do a significance test. To do this we need to create a 'listw' type spatial weights object (instead of the matrix we used above). To get the same value as above we use "style='B'" to use binary (TRUE/FALSE) distance weights. 
+```{r}
+ww <-  nb2listw(w, style='B')
+ww
+``` 
+
+Now we can use the `moran` function. Have a look at ?moran. The function is defined as 'moran(y, ww, n, Szero(ww))'.
+Note the odd arguments n and S0. I think they are odd, because "ww" has that information. Anyway, we supply them and it works. There probably are cases where it makes sense to use other values.
+
+```{r}
+moran(p$value, ww, n=length(ww$neighbours), S0=Szero(ww))
+
+#Note that
+Szero(ww)
+# is the same as 
+pmw
+sum(pmw==0)
+``` 
+
+Now we can test for significance. First analytically, using linear regression based logic and assumptions.
+
+```{r}
+moran.test(p$value, ww, randomisation=FALSE)
+``` 
+
+Instead of the approach above you should use Monte Carlo simulation. That is the preferred method (in fact, the only good method). The oay it works that the values are randomly assigned to the polygons, and the Moran's *I* is computed. This is repeated several times to establish a distribution of expected values. The observed value of Moran's *I* is then compared with the simulated distribution to see how likely it is that the observed values could be considered a random draw.
+
+```{r}
+moran.mc(p$value, ww, nsim=99)
+``` 
+
+__Question 2__: *How do you interpret these results (the significance tests)?*
+
+
+Also try this code, it gives an error: `moran.mc(p$value, ww, nsim=999)`
+
+
+__Question 3__: *What is the maximum value we can use for nsim?*
+
+
+We can make a "Moran scatter plot" to visualize spatial autocorrelation. We first get the neighbouring values for each value.
+
+```{r}
+n <- length(p)
+ms <- cbind(id=rep(1:n, each=n), y=rep(y, each=n), value=as.vector(wm * y))
+``` 
+
+Remove the zeros
+
+```{r}
+ms <- ms[ms[,3] > 0, ]
+``` 
+
+And compute the average neighbour value
+```{r}
+ams <- aggregate(ms[,2:3], list(ms[,1]), FUN=mean)
+ams <- ams[,-1]
+colnames(ams) <- c('y', 'spatially lagged y')
+head(ams)
+``` 
+
+Finally, the plot.
+
+```{r, auto5}
+plot(ams)
+reg <- lm(ams[,2] ~ ams[,1])
+abline(reg, lwd=2)
+abline(h=mean(ams[,2]), lt=2)
+abline(v=ybar, lt=2)
+``` 
+
+Note that the slope of the regression line:
+
+```{r, ngb2}
+coefficients(reg)[2]
+```
+is almost the same as Moran's *I*.
+ 
+
+Here is a more direct approach to accomplish the same thing (but hopefully the above makes it clearer how this is actually computed). Note the row standardisation of the weights matrix:
+
+```{r}
+rwm <- mat2listw(wm, style='W')
+# Checking if rows add up to 1
+mat <- listw2mat(rwm)
+apply(mat, 1, sum)[1:15]
+``` 
+
+Now we can plot
+
+```{r, auto10}
+moran.plot(y, rwm)
+```  
+
+__Question 4__: *Show how to use the 'geary' function to compute Geary's C*
+
+
+__Question 5__: *Write your own Monte Carlo simulation test to compute p-values for Moran's I, replicating the results we obtained with the function from spdep. Show a histogram of the simulated values*. 
+
+
+__Question 6__: *Write your own Geary C function, by completing the function below*
+
+```
+gearyC <- ((n-1)/sum(( "----")\^2)) * sum(wm * (" --- ")\^2) / (2 * sum(wm))
+```
+
+
+
+

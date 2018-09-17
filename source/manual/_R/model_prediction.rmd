@@ -1,0 +1,10 @@
+
+# Model predictions
+
+
+## predict
+ Predict a non-spatial model to a RasterLayer
+
+## interpolate
+ Predict a spatial model to a RasterLayer
+

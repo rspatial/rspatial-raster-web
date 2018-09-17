@@ -1,0 +1,98 @@
+# 14. Miscellaneous 
+
+## Packages
+
+Packages are collections of *R* functions. Typically around a related set of tasks. *R* comes with a standard "base" set of packages.  Others are available for download and installation. These packages are developed by (groups of) individuals independently of the "core R" development team. Most of these packages are developed by volunteers, who write them to support their research or other work. For that reason the are highly variable in design and quality. There is also a lot of overlap between packages and it can take a while to find the ones you need to best accomplish a task. 
+
+To install a package do `install.packages("packagename")`
+
+where "packagename" is replaced with the name of an actual package. For example `install.packages("raster")`
+
+Or install multiple packages at the same time `install.packages(c("randomForest", "raster", "gstat"))`
+
+The directory where packages are stored is called the library. Once installed, they have to be loaded into the session to be used. For example:
+
+`library(raster)`
+
+So you install a package only once (for each R version), or once in a while (to get updates), but you load a package every time you start a new R session (script) that needs it.
+
+It is very important to stay up to date with R and the packages, as they improve every day....  You should update the main *R* program every 6 months and update your packages more regularly, perhaps once a month. To update all your packages you can run `update.packages()`
+
+
+
+## Piping
+
+
+It has become quite common to use the `%>%` "piping" operator in R, from the defined in the `magrittr` package. We do not use it in our tutorials, but we show it here so that you can understand it when you come across it.
+
+In this example we have vector v. We want to change it into a data.frame with 1o rows and 3 columns, use apply to get the mean values per row, and show the first few results 
+
+```{r}
+v <- 1:30
+```
+
+The classic approach to this is 
+
+```{r}
+m <- matrix(v, nrow=10)
+d <- as.data.frame(m)
+a <- apply(d, 1, mean)
+head(a)
+```
+
+The above can also be written as nested function calls
+
+```{r}
+head(apply(as.data.frame(matrix(v, nrow=10)), 1, mean))
+```
+
+Nested function calls can be difficult to read, as they need to be read from the inside parentheses going out, but it can be hard to keep track of the parentheses. 
+
+The "piped" approach goes like this
+
+```{r}
+library(magrittr)
+x <- v %>%
+		matrix(nrow=10) %>% 
+		as.data.frame %>% 
+		apply(MARGIN=1, FUN=mean)
+
+head(x)
+```
+
+Or on one line
+
+```{r}
+v %>% matrix(nrow=10) %>%  as.data.frame %>%  apply(MARGIN=1, FUN=mean) %>% head
+```
+
+Note that we start with an object `v` that gets passed to the first function (`as.data.frame`) as its first argument. The output of that function becomes the first argument of the next function and so on. 
+
+Compared to nested function calls, the benefit of this approach is that the operation sequence is read from left-to-right (not from the inside and out). Compared with non-nested function calls, the benefit of this approach is that there are fewer variables created.
+
+
+  
+
+## How to write a good script?
+
+Read and follow [this style guide](https://google.github.io/styleguide/Rguide.xml).
+
+Only use a path name at the very top of your script. After that, all path names should be relative.
+
+Do not copy and paste the same code (and make minor changes). Rather, write functions to put code together.
+Perhaps store these in a separate .R file and access them via `source('myfunctions.R)`
+
+
+
+## Help! 
+
+How to get help when you are stuck? How to find and fix errors? That is the hardest part for beginners. You can start by checking the list of [frequently used functions](http://cran.r-project.org/doc/contrib/Short-refcard.pdf). And, there is always [Google](https://www.google.com/)... Any question you may have as a beginner has been asked and answered before. Often on [Stackoverlfow](http://stackoverflow.com).
+
+But at first it is hard to find the right search terms, and to distinguish between good answers, and "solutions" that just pull you down further into the hole you are in. 
+
+When asking a question about how to do something in *R*, it is very important to simplify it as much as possible, and focus on the nucleus of the problem only. That is, do not show a long script where all kinds of things happen that are OK.  Show a short script that gets you up to the point where you are stuck. Such as script should be reproducible and self-contained.
+
+Reproducible means that anyone can run it in *R* and get the same results. So you need to include `set.seed`. Self-contained means that it should not point to files you only have. You could make these available, but why complicate things? Just create some data with code or use a data set that comes with *R* (e.g. "cars", "iris", but there are many). See the examples in the *R* help files for 1000s of ideas of how you can do this.
+
+For more discussion see [this posting guide](https://www.r-project.org/posting-guide.html) and this [discussion](http://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example)
+

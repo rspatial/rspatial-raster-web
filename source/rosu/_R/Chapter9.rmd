@@ -1,0 +1,112 @@
+# 9. Fields
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap = '',
+  collapse = TRUE
+)
+
+library(rasterVis)
+library(rgdal)
+library(deldir)
+```
+
+## 9.1 Introduction
+
+This handout accompanies Chapter 9 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
+
+Download the data for this lesson here: download here: [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds), [precipitation](https://biogeo.ucdavis.edu/data/rspatial/precipitation.rds). Or with the script below.
+
+
+```{r getData, echo=TRUE}
+dir.create('data', showWarnings = FALSE)
+files <- c('precipitation.csv', 'counties.rds')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+
+Here is how you can set up and use the continuous function on page 246. 
+
+```{r}
+z <- function(x, y) { -12 * x^3 + 10 * x^2 * y - 14 * x * y^2 + 25 * y^3 + 50 }
+z(.5, 0.8)
+```
+
+Function `zf` adds some complexity to make it usable in the 'interpolate' function below.
+```{r}
+zf <- function(model, xy) {
+   x <- xy[,1]
+   y <- xy[,2]
+   z(x, y)
+}
+```
+
+Now use it
+
+```{r fields5}
+library(raster)
+r <- raster(xmn=0.5, xmx=1.4, ymn=0.6, ymx=1.5, ncol=9, nrow=9, crs=NA)
+z <- interpolate(r, model=NULL, fun=zf)
+names(z) <- 'z'
+
+vt <- persp(z, theta=30, phi=30, ticktype='detailed', expand=.8)
+```
+
+Note that persp returned something _invisibly_ (it won't be printed when not captured as a  variable, `vt`, in this case), the 3D transformation matrix that we use later. This is not uncommon in `R`. For example `hist` and `barplot` have similar behaviour.
+
+```{r fields6}
+pts <- rasterToPoints(z)
+pt <- trans3d(pts[,1], pts[,2], pts[,3], vt)
+points(pt, col=rainbow(9, .75, start=.2)[round(pts[,3]/10)-2], pch=20, cex=2)
+```
+
+
+For a more interactive experience, try:
+```
+library(rasterVis)
+library(rgl)
+# this opens a new window
+plot3D(z, zfac=5)
+```
+
+
+We will be working with temperature data for California. You can [download](/data/precipitation.csv) the climate data used in the examples. 
+
+```{r fields10}
+d <- read.csv(file.path(datapath,"precipitation.csv"))
+head(d)
+d$prec <- rowSums(d[, c(6:17)])
+plot(sort(d$prec), ylab='Annual precipitation (mm)', las=1, xlab='Stations')
+```
+
+A quick map (get the counties [here](/data/counties.rds)).
+
+```{r fields15}
+dsp <- SpatialPoints(d[,4:3], proj4string=CRS("+proj=longlat +datum=NAD83"))
+dsp <- SpatialPointsDataFrame(dsp, d)
+CA <- readRDS("data/counties.rds")
+
+cuts <- c(0,200,300,500,1000,3000)
+pols <- list("sp.polygons", CA, fill = "lightgray")
+# set up a palette of interpolated colors
+blues <- colorRampPalette(c('yellow', 'orange', 'blue', 'dark blue'))
+spplot(dsp, 'prec', cuts=cuts, col.regions=blues(5), sp.layout=pols, pch=20, cex=2)
+```
+
+Transform longitude/latitude to planar coordinates
+```{r}
+TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +ellps=GRS80 +towgs84=0,0,0")
+library(rgdal)
+dta <- spTransform(dsp, TA)
+cata <- spTransform(CA, TA)
+```
+
+Continue [here](/analysis/rst/4-interpolation.html)

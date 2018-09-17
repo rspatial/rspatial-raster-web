@@ -1,0 +1,122 @@
+# 3. Direction
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+```
+
+## Introduction
+
+
+
+## Point at distance and bearing
+
+Function destPoint returns the location of point given a point of origin, and a distance and bearing. Its perhaps obvious use in georeferencing locations of distant sitings. It can also be used to make circular polygons (with a fixed radius, but in longitude/latitude coordinates)
+
+```{r, geo5a}
+destPoint(LA, b=65, d=100000)
+circle=destPoint(c(0,80), b=1:365, d=1000000)
+circle2=destPoint(c(0,80), b=1:365, d=500000)
+circle3=destPoint(c(0,80), b=1:365, d=100000)
+plot(circle, type='l')
+polygon(circle, col='blue', border='black', lwd=4)
+polygon(circle2, col='red', lwd=4, border='orange')
+polygon(circle3, col='white', lwd=4, border='black')
+```
+
+
+## Triangulation
+
+Below is triangulation example. We have three locations (NY, LA, MS) and three directions (281, 60, 195) towards a target. Because we are on a sphere, there are two (antipodal) results. We only show one here (by only using int[,1:2]). We compute the centroid from the polygon defined with the three points. To accurately draw a spherical polygon, we can use makePoly. This function inserts intermediate points along the paths between the vertices provided (default is one point every 10 km).
+
+```{r, geo10}
+MS <- c(-93.26, 44.98)
+gc1 <- greatCircleBearing(NY, 281)
+gc2 <- greatCircleBearing(MS, 195)
+gc3 <- greatCircleBearing(LA, 55)
+plot(wrld, type='l', xlim=c(-125, -70), ylim=c(20, 60))
+lines(gc1, col='green')
+lines(gc2, col='blue')
+lines(gc3, col='red')
+
+int <- gcIntersectBearing(rbind(NY, NY, MS), 
+            c(281, 281, 195), rbind(MS, LA, LA), c(195, 55, 55))
+int
+distm(rbind(int[,1:2], int[,3:4]))
+int <- int[,1:2]
+points(int)
+poly <- rbind(int, int[1,])
+centr <- centroid(poly)
+poly2 <- makePoly(int)
+polygon(poly2, col='yellow')
+points(centr, pch='*', col='dark red', cex=2)
+```
+
+## Bearing
+
+Below we first compute the distance and bearing from Los Angeles (LA) to New York (NY). These are then used to compute the point from LA at that distance in that (initial) bearing (direction). Bearing changes continuously when traveling along a Great Circle. The final bearing, when approaching NY, is also given.  
+
+```{r, geo5b}
+d <- distCosine(LA, NY)
+d
+b <- bearing(LA, NY)
+b
+destPoint(LA, b, d)
+NY
+finalBearing(LA, NY)
+```
+
+
+## Getting off-track
+
+What if we went off-course and were flying over Minneapolis (MS)? The closest point on the planned route (p) can be computed with the alongTrackDistance and destPoint functions. The distance from 'p' to MS can be computed with the dist2gc (distance to great circle, or cross-track distance) function. The light green line represents the along-track distance, and the dark green line represents the cross-track distance.
+
+```{r, geo12}
+atd <- alongTrackDistance(LA, NY, MS)
+p <- destPoint(LA, b, atd)
+plot(wrld, type='l', xlim=c(-130,-60), ylim=c(22,52))
+lines(gci, col='blue', lwd=2)
+points(rbind(LA, NY), col='red', pch=20, cex=2)
+points(MS[1], MS[2], pch=20, col='blue', cex=2)
+lines(gcIntermediate(LA, p), col='green', lwd=3)
+lines(gcIntermediate(MS, p), col='dark green', lwd=3)
+points(p, pch=20, col='red', cex=2)
+dist2gc(LA, NY, MS)
+distCosine(p, MS)
+```
+
+## Rhumb lines
+
+Rhumb (from the Spanish word for course, 'rumbo') lines are straight lines on a Mercator projection map (and at most latitudes pretty straight on an equirectangular projection (=unprojected lon/lat) map). They were used in navigation because it is easier to follow a constant compass bearing than to continually adjust direction as is needed to follow a great circle, even though rhumb lines are normally longer than great-circle (orthodrome) routes. Most rhumb lines will gradually spiral towards one of the poles. 
+
+```{r, , geo16, fig.width=9}
+NP <- c(0, 85)
+bearing(SF, NP)
+b <- bearingRhumb(SF, NP)
+b
+dc <- distCosine(SF, NP)
+dr <- distRhumb(SF, NP)
+dc / dr
+
+pr <- destPointRhumb(SF, b, d=round(dr/100) * 1:100)
+pc <- rbind(SF, gcIntermediate(SF, NP), NP)
+par(mfrow=c(1,2))
+data(wrld)
+plot(wrld, type='l', xlim=c(-140,10), ylim=c(15,90), main='Equirectangular')
+lines(pr, col='blue')
+lines(pc, col='red')
+data(merc)
+plot(merc, type='l', xlim=c(-15584729, 1113195), 
+                     ylim=c(2500000, 22500000), main='Mercator')
+lines(mercator(pr), col='blue')
+lines(mercator(pc), col='red')
+```
+
+
+
+

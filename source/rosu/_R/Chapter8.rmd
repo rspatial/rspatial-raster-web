@@ -1,0 +1,175 @@
+# 8. Local statistics
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 8,
+  fig.height = 5,
+  fig.cap='',
+  collapse = TRUE
+)
+opts_knit$set(
+  progress = FALSE,
+  global.par = TRUE
+)
+
+library(raster)
+library(spdep)
+
+```
+
+## 8.1 Introduction
+
+This handout accompanies Chapter 8 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
+
+
+## 8.2 LISA
+
+### Get the data
+
+Download the data for this lesson here: download here: [auctb](https://biogeo.ucdavis.edu/data/rspatial/auctb.rds), [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds), [precipitation](https://biogeo.ucdavis.edu/data/rspatial/precipitation.rds). Or with the script below.
+
+
+```{r getData, echo=TRUE}
+dir.create('data', showWarnings = FALSE)
+files <- c('auctb.rds', 'counties.rds', 'precipitation.csv')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+Read the Auckland data.
+
+```{r, loca1}
+library(raster)
+auck <- readRDS('data/auctb.rds')
+``` 
+
+Local Getis *Gi*
+
+```{r, loca2}
+library(spdep)
+wr <- poly2nb(auck, row.names=auck$Id, queen=FALSE)
+lstw <- nb2listw(wr, style='B')
+Gi <- localG(auck$TB, lstw)
+head(Gi)
+```
+
+
+```{r, loca3}
+par(mai=c(0,0,0,0))
+Gcuts <- cut(Gi, 5)
+Gcutsi <- as.integer(Gcuts)
+cols <- rev(gray(seq(0,1,.2)))
+plot(auck, col=cols[Gcutsi])
+legend('bottomleft', levels(Gcuts), fill=cols)
+```
+
+To get the *Gi* * we need to include each polygon as its own 'neighbor'
+
+```{r, loca4}
+ws <- include.self(wr)
+lstws <- nb2listw(ws, style='B')
+Gis <- localG(auck$TB, lstws)
+Gscuts <- cut(Gis, 5)
+Gscutsi <- as.integer(Gscuts)
+cols <- rev(gray(seq(0,1,.2)))
+plot(auck, col=cols[Gscutsi])
+legend('bottomleft', levels(Gscuts), fill=cols)
+```
+
+
+This looks very similar to the local average.
+
+```{r, loca6}
+m <- sapply(ws, function(i) mean(auck$TB[i]))
+cts <- cut(m, 5)
+mcts <- as.integer(cts)
+plot(auck, col=cols[mcts])
+legend('bottomleft', levels(cts), fill=cols)
+```
+
+
+The local Moran *Ii* shows where there are locally high levels of autocorrelation.
+
+```{r, loca8}
+Ii <- localmoran(auck$TB, lstw)
+Icuts <- cut(Ii, 5)
+Icutsi <- as.integer(Icuts)
+plot(auck, col=cols[Icutsi])
+legend('bottomleft', levels(Icuts), fill=cols)
+```
+
+## 8.3 Geographically weighted regression
+
+Here is an example of GWR with California precipitation data (you can download the data with the scripts or links on the top of this page). 
+
+
+```{r, loca10}
+cts <- readRDS('data/counties.rds')
+p <- read.csv('data/precipitation.csv')
+head(p)
+
+plot(cts)
+points(p[,c('LONG', 'LAT')], col='red', pch=20)
+```
+
+Compute annual average precipitation
+```{r, loca11}
+p$pan <- rowSums(p[,6:17])
+```
+
+Global regression model
+```{r, loca12}
+m <- lm(pan ~ ALT, data=p)
+m
+```
+
+Create `Spatial*` objects with a planar crs.
+
+```{r, loca13}
+alb <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=GRS80 +datum=NAD83 +units=m +no_defs")
+sp <- p
+coordinates(sp) = ~ LONG + LAT
+crs(sp) <- "+proj=longlat +datum=NAD83"
+spt <- spTransform(sp, alb)
+ctst <- spTransform(cts, alb)
+```
+
+
+Get the optimal bandwidth
+```{r, loca14}
+library( spgwr )
+bw <- gwr.sel(pan ~ ALT, data=spt)
+bw
+``` 
+
+Create a regular set of points to estimate parameters for.
+```{r, loca16}
+r <- raster(ctst, res=10000)
+r <- rasterize(ctst, r)
+newpts <- rasterToPoints(r)
+```
+
+
+Run the `gwr` function
+```{r, loca17}
+g <- gwr(pan ~ ALT, data=spt, bandwidth=bw, fit.points=newpts[, 1:2])
+g
+```
+
+Link the results back to the raster
+```{r, loca18, fig.width=9}
+slope <- r
+intercept <- r
+slope[!is.na(slope)] <- g$SDF$ALT 
+intercept[!is.na(intercept)] <- g$SDF$'(Intercept)'
+s <- stack(intercept, slope)
+names(s) <- c('intercept', 'slope')
+plot(s)
+```
+
+See [this page](http://rspatial.org/analysis/rst/6-local_regression.html) for a more detailed example of Geographically weighted regression.

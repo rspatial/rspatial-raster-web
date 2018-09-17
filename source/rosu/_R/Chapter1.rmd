@@ -1,0 +1,16 @@
+# 1. The length of a coastline
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 4,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+library(raster)
+library(rgdal)
+```
+
+See http://rspatial.org/cases/rst/2-coastline.html to see how you can compute the fractal length of a coast line.
+

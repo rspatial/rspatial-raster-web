@@ -1,0 +1,301 @@
+# 11. Map overlay
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap = '',
+  collapse   = TRUE
+)
+library(rgeos)
+library(rgdal)
+```
+
+## 11.1 Introduction
+
+This document shows some example *R* code to do "overlays" and associated spatial data manipulation to accompany Chapter 11 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). You have already seen many of this type of data manipulation in previsous labs. And we have done perhaps more advanced things using regression type models (including LDA and RandomForest). This lab is very much a review of what you have already seen: basic spatial data operations in *R*. Below are some of the key packages for spatial data analysis that we have been using.
+
+**sp** - Defines classes (data structures) for points, lines, polygons, rasters, and their attributes, and related funcitons for e.g, plotting. The main classes are SpatialPoints, SpatialLines, SpatialPolygons, SpatialGrid (all also with 'DataFrame' appended if the geometries have attributes)
+
+**raster** - Defines alternative classes for raster data (RasterLayer, RasterStack, RasterBrick) that can be used for very large data sets. The package also provides many functions to manipulate raster data. It also extends to sp and rgeos packages for manipulating vector type data
+
+**rgdal** - Read or write spatial data files (raster uses it behind the scenes).
+
+**rgeos** - Geometry manipulation for vector data (e.g. intersection of polygons) and related matters.
+
+**spatstat** - The main package for point pattern analysis (here used for a density function).
+
+
+### Get the data
+
+You can download the data for this tutorial [here](https://biogeo.ucdavis.edu/data/rspatial/overlay.zip), or with the script below.
+
+```{r getData, echo=TRUE}
+dir.create('data', showWarnings = FALSE)
+files <- c('city.rds', 'counties.rds', 'parks.rds', 'yolo-rail.rds', 'elevation.tif')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+## 11.2 Selection by attribute
+
+By now, you are well aware that in *R*, polygons and their attributes can be represented by a 'SpatialPolygonsDataFrame' (a class defined in the sp package). Let's read the shapefile of California counties.
+
+```{r}
+library(raster)
+counties <- readRDS('data/counties.rds')
+```
+
+Selection by attribute of elements of a `SpatialPolygonsDataFrame` is similar to selecting rows from a `data.frame`. For example, to select Yolo county by its name:
+
+```{r, over1}
+yolo <- counties[counties$NAME == 'Yolo', ]
+plot(counties, col='light gray', border='gray')
+plot(yolo, add=TRUE, density=20, lwd=2, col='red')
+```
+
+You can interactively select counties this way:
+
+   `plot(counties)`
+
+   `s <- select(counties)`
+
+
+## 11.3 Intersection and buffer
+
+I want to select the railroads in the city of Davis from the railroads in Yolo county. First read the data, and do an important sanity check: are the coordinate reference systems ("projections") the same?
+
+```{r}
+rail <- readRDS('data/yolo-rail.rds')
+rail
+# removing attributes that I do not care about
+rail <- geometry(rail)
+class(rail)
+
+city <- readRDS(file.path(datapath,'city.rds'))
+class(city)
+city <- geometry(city)
+class(city)
+
+projection(yolo)
+projection(rail)
+projection(city)
+```
+
+Ay, we are dealing with two different coordinate reference systems (projections)! Let's settle for yet another one: Teale Albers (this is really the "Albers Equal Area projection with parameters suitable for California". This particular set of parameters was used by an California State organization called the Teale Data Center, hence the name.
+
+```{r}
+library(rgdal)
+TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +ellps=GRS80")
+countiesTA <- spTransform(counties, TA)
+yoloTA <- spTransform(yolo, TA)
+railTA <- spTransform(rail, TA)
+cityTA <- spTransform(city, TA)
+```
+
+Another check, let's see what county Davis is in, using two approaches. In the first one we get the centroid of Davis and do a point-in-polygon query.
+
+```{r}
+dav <- coordinates(cityTA)
+davis <- SpatialPoints(dav, proj4string=TA)
+over(davis, countiesTA)
+```
+
+An alternative approach is to intersect the two polygon datasets.
+```{r, over5}
+i <- intersect(cityTA, countiesTA)
+
+data.frame(i, area=area(i, byid=TRUE))
+
+plot(cityTA, col='blue')
+plot(yoloTA, add=TRUE, border='red', lwd=3)
+```
+
+So we have a little sliver of Davis inside of Solano.
+
+Everything looks OK. Now we can intersect rail and city, and make a buffer. 
+
+```{r}
+davis_rail <- intersect(railTA, cityTA)
+```
+
+Compute a 500 meter buffer around railroad inside Davis:
+
+```{r, over10}
+buf <- buffer(railTA, width=500)
+rail_buf <- intersect(buf, cityTA)
+
+plot(cityTA, col='light gray')
+plot(rail_buf, add=TRUE, col='light blue', border='light blue')
+plot(railTA, add=TRUE, lty=2, lwd=6)
+plot(cityTA, add=TRUE)
+plot(davis_rail, add=TRUE, col='red', lwd=6)
+box()
+```
+
+
+What is the percentage of the area of the city of Davis that is within 500 m of a railroad?
+```{r}
+round(100 * area(rail_buf) / area(cityTA))
+```
+
+
+
+## 11.4 Proximity
+
+Which park in Davis is furthest, and which is closest to the railroad? First get the parks data. 
+```{r}
+parks <- readRDS('data/parks.rds')
+proj4string(parks)
+parksTA <- spTransform(parks, TA)
+```
+
+Now plot the parks that are the furthest and the nearest from a railroad.
+```{r, over12}
+plot(cityTA, col='light gray', border='light gray')
+plot(railTA, add=T, col='blue', lwd=4)
+plot(parksTA, col='dark green', add=TRUE)
+
+d <- gDistance(parksTA, railTA, byid=TRUE)
+dmin <- apply(d, 2, min)
+parksTA$railDist <- dmin
+
+i <- which.max(dmin)
+data.frame(parksTA)[i,]
+plot(parksTA[i, ], add=TRUE, col='red', lwd=3, border='red')
+
+j <- which.min(dmin)
+data.frame(parksTA)[j,]
+plot(parksTA[j, ], add=TRUE, col='red', lwd=3, border='orange')
+```
+
+
+Another way to approach this is to first create a raster with distance to the railroad values. Here we compute the average distance to any place inside the park, not to its border. You could also compute the distance to the centroid of a park.
+ 
+```{r, over14, fig.width=8, fig.height=4.5}
+library(raster)
+# use cityTA to set the geogaphic extent
+r <- raster(cityTA)
+
+# arbitrary resolution
+dim(r) <- c(50, 100)
+
+# rasterize the railroad lines
+r <- rasterize(railTA, r, field=1)
+
+# compute distance
+d <- distance(r)
+
+# extract distance values for polygons
+dp <- extract(d, parksTA, fun=mean, small=TRUE)
+
+dp <- data.frame(parksTA$PARK, dist=dp)
+dp <- dp[order(dp$dist), ]
+
+plot(d)
+plot(parksTA, add=TRUE)
+plot(railTA, add=T, col='blue', lty=2)
+```
+
+
+### Thiessen polygons
+ 
+Here I compute Thiessen (or Voronoi) polygons for the Davis parks. Each polygon shows the area that is closest to (the centroid of) a particular park. 
+
+```{r, over16, fig.width=8}
+library(dismo)
+centroids <- coordinates(parksTA)
+v <- voronoi(centroids)
+plot(v)
+points(centroids, col='blue', pch=20)
+```
+
+To keep the polygons within Davis.
+
+```{r, over18, fig.width=8}
+proj4string(v) <- TA
+vc <- intersect(v, cityTA)
+plot(vc, border='red')
+plot(parksTA, add=T, col='green')
+``` 
+  
+
+## 11.5 Fields
+
+
+### Raster data
+
+raster data can be read with readGDAL to get a SpatialGridDataFrame. But I prefer to use the raster package to create Raster* objects. Raster* stands for RasterLayer, RasterStack, or RasterBrick. See the vignette for the raster package for more details: http://cran.r-project.org/web/packages/raster/vignettes/Raster.pdf
+
+
+```{r}
+library(raster)
+# create a RasterLayer object from a file
+alt <- raster("data/elevation.tif")
+alt
+```
+
+RasterLayer 'alt' is in lon/lat, and so is 'yolo'. However, 'yolo' has a different datum (NAD83) than 'alt' (WGS84). While there is no real difference between these, this will lead to errors, so we first transform yolo. It is generally better to match vector data to raster data than vice versa. 
+
+```{r, over20, fig.width=7}
+yolo <- spTransform(yolo, crs(alt))
+plot(alt)
+plot(yolo, add=TRUE)
+```
+
+
+Shaded relief is always nice to look at.
+
+```{r, over22, fig.width=7}
+slope <- terrain(alt, opt='slope')
+aspect <- terrain(alt, opt='aspect')
+hill <- hillShade(slope, aspect, 40, 270)
+plot(hill, col=grey(0:100/100), legend=FALSE, main='Elevation')
+plot(alt, col=rainbow(25, alpha=0.35), add=TRUE)
+```
+
+You can also try the `plot3D` function in the rasterVis package.
+
+
+### Query
+
+Now extract elevation data for Yolo county.
+
+```{r, over24}
+v <- extract(alt, yolo)
+hist(unlist(v), main='Elevation in Yolo county')
+```
+
+
+Another approach:
+```{r, over26}
+# cut out a rectangle (extent) of Yolo
+yalt <- crop(alt, yolo)
+# 'mask' out the values outside Yolo
+ymask <- mask(yalt, yolo)
+
+# summary of the raster cell values
+summary(ymask)
+
+plot(ymask)
+plot(yolo, add=T)
+```
+
+You can also get values (query) by clicking on the map (use `click(alt)`) 
+
+
+## 11.6 Exercise
+
+We want to travel by train in Yolo county and we want to get as close as possible to a hilly area; whenever we get there we'll jump from the train. It turns out that the railroad tracks are not all connected, we will ignore that inconvenience. 
+
+Define "hilly" as some vague notion of a combination of high elevation and slope (in degrees). Use some of the functions you have seen above, as well as function 'distance' to create a plot of distance from the railroad against hillyness. Make a map to illustrate the result, showing where you get off the train, where you go to, and what the elevation and slope profile would be if you follow the shortest (as the crow flies) path.
+
+Bonus: use package `gdistance` to find the least-cost path between these two points (assign a cost to slope, perhaps using Tobler's hiking function).
+
+
+

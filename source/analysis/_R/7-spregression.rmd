@@ -1,0 +1,255 @@
+# 7. Spatial regression models
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap = '',
+  collapse = TRUE
+)
+library(raster)
+library(rgeos)
+library(spdep)
+```
+## Introduction
+
+This chapter deals with the problem of inference in (regression) models with spatial data. Inference from regression models with spatial data can be suspect. In essence this is because nearby things are similar, and it may not be fair to consider individual cases as independent (they may be pseudo-replicates). Therefore, such models need to be diagnosed before reporting them. Specifically, it is important to evaluate the for spatial autocorrelation in the residuals (as these are supposed to be independent, not correlated). If the residuals are spatially autocorrelated, this indicates that the model is misspecified. In that case you should try to improve the model by adding (and perhaps removing) important variables. If that is not possible (either because there is no data available, or because you have no clue as to what variable to look for), you can try formulating a regression model that controls for spatial autocorrelation. We show some examples of that approach here.
+
+
+## Reading & aggregating data
+
+We use California house price data from the 2000 Census. 
+
+### Get the data
+
+You can [download the data here](https://biogeo.ucdavis.edu/data/rspatial/houses2000.rds) or with the script below. 
+
+```{r getData}
+dir.create('data', showWarnings = FALSE)
+filename <- 'houses2000.rds'
+localfile <- file.path('data', filename)
+if (!file.exists(localfile)) {
+	download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+}
+```
+
+I have selected some variables on on housing and population. You can get more data from the American Fact Finder http://factfinder2.census.gov (among other web sites). 
+
+```{r}
+library(raster)
+h <- readRDS('data/houses2000.rds')
+
+dim(h)
+names(h)
+```
+
+These are the variables we have:
+
+<table cellpadding=0 cellspacing=0 style='border-collapse: collapse;'><tr><td>variable</td><td>explanation</td></tr><tr><td>nhousingUn</td><td>number of housing units</td></tr><tr><td>recHouses</td><td>number of houses for recreational use</td></tr><tr><td>nMobileHom</td><td>number of mobile homes</td></tr><tr><td>nBadPlumbi</td><td>number of houses with incomplete plumbing</td></tr><tr><td>nBadKitche</td><td>number of houses with incomplete kitchens</td></tr><tr><td>Population</td><td>total population</td></tr><tr><td>Males</td><td>number of males</td></tr><tr><td>Females</td><td>number of females</td></tr><tr><td>Under5</td><td>number of persons under five</td></tr><tr><td>White</td><td>number of persons identifying themselves as white (only)</td></tr><tr><td>Black</td><td>number of persons identifying themselves African-american (only)</td></tr><tr><td>AmericanIn</td><td>number of persons identifying themselves American Indian (only)</td></tr><tr><td>Asian</td><td>number of persons identifying themselves as American Indian (only)</td></tr><tr><td>Hispanic</td><td>number of persons identifying themselves as hispanic (only)</td></tr><tr><td>PopInHouse</td><td>number of persons living in households</td></tr><tr><td>nHousehold</td><td>number of households</td></tr><tr><td>Families</td><td>number of families</td></tr><tr><td>houseValue</td><td>value of the house</td></tr><tr><td>yearBuilt</td><td>year house was built</td></tr><tr><td>nRooms</td><td>median number of rooms per house</td></tr><tr><td>nBedrooms</td><td>median number of bedrooms per house</td></tr><tr><td>medHHinc</td><td>median household income</td></tr><tr><td>MedianAge</td><td>median age of population</td></tr><tr><td>householdS</td><td>median household size</td></tr><tr><td>familySize</td><td>median family size</td></tr></table>
+
+
+First some data massaging. These are values for Census tracts. I want to analyze these data at the county level. So we need to aggregate the values. 
+```{r}
+hh <- aggregate(h, "County")
+```
+
+Now we have the county outlines, but we also need to get the values of interest at the county level. Although it is possible to do everything in one step in the aggregate function, I prefer to do this step by step. The simplest case is where we can sum the numbers. For example for the number of houses. 
+
+```{r}
+d1 <- data.frame(h)[, c("nhousingUn", "recHouses", "nMobileHom", "nBadPlumbi", 
+ "nBadKitche", "Population", "Males", "Females", "Under5", "White", 
+ "Black", "AmericanIn", "Asian", "Hispanic", "PopInHouse", "nHousehold", "Families")]
+
+ d1a <- aggregate(d1, list(County=h$County), sum, na.rm=TRUE)
+```
+
+In other cases we need to use a weighted mean. For example for houseValue
+
+```{r}
+d2 <- data.frame(h)[, c("houseValue", "yearBuilt", "nRooms", "nBedrooms", 
+       "medHHinc", "MedianAge", "householdS",  "familySize")]
+d2 <- cbind(d2 * h$nHousehold, hh=h$nHousehold)
+
+d2a <- aggregate(d2, list(County=h$County), sum, na.rm=TRUE)
+d2a[, 2:ncol(d2a)] <- d2a[, 2:ncol(d2a)] / d2a$hh
+```
+
+
+Combine these two groups:
+
+```{r}
+d12 <- merge(d1a, d2a, by='County')
+```
+
+And merge the aggregated (from census tract to county level) attribute data with the aggregated polygons
+```{r}
+hh <- merge(hh, d12, by='County')
+```
+
+
+Let's make some maps, at the orignal Census tract level. We are using a bit more advanced (and slower) plotting methods here. First the house value, using a legend with 10 intervals.
+
+```{r, spreg2}
+library(latticeExtra)
+
+grps <- 10
+brks <- quantile(h$houseValue, 0:(grps-1)/(grps-1), na.rm=TRUE)
+
+p <- spplot(h, "houseValue", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")), col="transparent" )
+p + layer(sp.polygons(hh))
+```
+
+This takes very long. spplot (levelplot) is a bit slow when using a large dataset...
+
+A map of the median household income.
+
+```{r, spreg4}
+brks <- quantile(h$medHHinc, 0:(grps-1)/(grps-1), na.rm=TRUE)
+
+p <- spplot(h, "medHHinc", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")), col="transparent")
+p + layer(sp.polygons(hh))
+```
+
+
+
+## Basic OLS model
+
+I'll now make some models with the county-level data. I first compute some new variables (that I might not all use).
+
+```{r}
+hh$fBadP <- pmax(hh$nBadPlumbi, hh$nBadKitche) / hh$nhousingUn
+hh$fWhite <- hh$White / hh$Population
+hh$age <- 2000 - hh$yearBuilt
+
+f1 <- houseValue ~ age +  nBedrooms 
+m1 <- lm(f1, data=hh)
+summary(m1)
+```
+
+Just for illustration, here is how you can do OLS with matrix algebra. First set up the data. I add a constant variable '1' to X, to get an intercept.
+
+```{r}
+y <- matrix(hh$houseValue)
+X <- cbind(1, hh$age, hh$nBedrooms)
+```
+
+Then use matrix algebra
+```{r}
+ols <- solve(t(X) %*% X) %*% t(X) %*% y
+rownames(ols) <- c('intercept', 'age', 'nBedroom')
+ols
+```
+
+So, according to this simple model, "age" is highly significant. The older a house, the more expensive. You pay 1,269,475  dollars more for a house that is 100 years old than a for new house! While the p-value for the number of bedrooms is not impressive, but every bedroom adds about 200,000 dollars to the value of a house.
+
+__Question 1__: *What would be the price be of a house built in 1999 with three bedrooms?*
+
+
+Let's see if the errors (model residuals) appear to be randomly distributed in space.
+
+```{r, spreg6}
+hh$residuals <- residuals(m1)
+
+brks <- quantile(hh$residuals, 0:(grps-1)/(grps-1), na.rm=TRUE)
+
+spplot(hh, "residuals", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")), col="black")
+```
+
+What do think? Is this random? Let's see what Mr. Moran would say. First make a neighborhoods list. I add two links: between San Francisco and Marin County and vice versa (to consider the Golden Gate bridge).
+
+```{r, spreg8}
+library(spdep)
+nb <- poly2nb(hh)
+nb[[21]] <- sort(as.integer(c(nb[[21]], 38)))
+nb[[38]] <- sort(as.integer(c(21, nb[[38]])))
+nb
+
+par(mai=c(0,0,0,0))
+plot(hh)
+plot(nb, coordinates(hh), col='red', lwd=2, add=TRUE)
+```
+
+We can use the neighbour list object to get the average value for the neighbors of each polygon.
+
+```{r, spreg10}
+resnb <- sapply(nb, function(x) mean(hh$residuals[x]))
+cor(hh$residuals, resnb)
+plot(hh$residuals, resnb, xlab='Residuals', ylab='Mean adjacent residuals')
+lw <- nb2listw(nb)
+```
+
+That does not look independent. 
+
+```{r}
+moran.mc(hh$residuals, lw, 999)
+```
+
+Clearly, there is spatial autocorrelation. Our *p*-values and regression model coefficients cannot be trusted. so let's try SAR models. 
+
+
+## Spatial lag model
+
+Here I show a how to do spatial regression with a spatial lag model (lagsarlm)
+
+```{r}
+m1s = lagsarlm(f1, data=hh, lw, tol.solve=1.0e-30)
+
+summary(m1s)
+
+hh$residuals <- residuals(m1s)
+moran.mc(hh$residuals, lw, 999)
+
+brks <- quantile(hh$residuals, 0:(grps-1)/(grps-1), na.rm=TRUE)
+p <- spplot(hh, "residuals", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")), col="transparent")
+print( p + layer(sp.polygons(hh)) )
+```
+
+
+## Spatial error model
+
+And now with a "Spatial error" (or spatial moving average) models (errorsarlm)
+
+```{r}
+m1e = errorsarlm(f1, data=hh, lw, tol.solve=1.0e-30)
+summary(m1e)
+
+hh$residuals <- residuals(m1e)
+moran.mc(hh$residuals, lw, 999)
+
+brks <- quantile(hh$residuals, 0:(grps-1)/(grps-1), na.rm=TRUE)
+p <- spplot(hh, "residuals", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")),
+ col="transparent")
+print( p + layer(sp.polygons(hh)) )
+
+```
+
+
+Are the resiudals spatially autocorrelated for either of these models? Let's plot them for the spatial error model.
+
+```{r}
+brks <- quantile(hh$residuals, 0:(grps-1)/(grps-1), na.rm=TRUE)
+
+p <- spplot(hh, "residuals", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")),
+ col="transparent")
+
+print( p + layer(sp.polygons(hh)) )
+```
+
+
+## Questions
+__Question 2__: *The last two maps still seem to show a lot of spatial autocorrelation. But according to the tests there is none. Now why might that be?*
+
+
+__Question 3__: *One of the most important, or perhaps THE most important aspect of modeling is variable selection. A misspecified model is never going to be any good, no matter how much you do to, e.g., correct for spatial autocorrelation.*
+a) Which variables would you choose from the list? 
+
+b) Which new variables could you propose to create from the variables in the list. 
+
+c) Which other variables could you add, created from the geometries/location (perhaps other geographic data).
+
+d) add a lot of variables and use stepAIC to select an 'optimal' OLS model
+
+e) check for spatial autocorrelation in the residuals of that model
+
+

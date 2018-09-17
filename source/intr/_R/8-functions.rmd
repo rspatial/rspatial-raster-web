@@ -1,0 +1,224 @@
+# 8. Functions
+
+We now have used many functions that come with *R*. For example `c`, `matrix`, `read.csv`, and `sum`. Functions are always used ('called') by typing their name, followed by parenthesis. In most, but not all, cases you supply 'arguments' within the parenthesis. If you do not type the parenthesis the function is not called. Instead, either the function definition or some of type of reference to it is shown.
+
+## Existing functions
+
+To see the content of a function, type its name:
+```{r}
+nrow
+```
+
+We see that `nrow` has a single argument called `x`. It calls another function, `dim` to which it provides the same argument (`x`) and returns its first element (`1L`) (recall that adding `L` ('literal') is a way to create an integer). Can you guess how `ncol` is implemented? (See for yourself if you are right!). Now, let's see what `dim` looks like.
+
+```{r}
+dim
+```
+It is a 'primitive' (low level) *R* function that we cannot easily learn more about. Well, you could, by looking at the source code of *R* --- but that is way out of scope of this tutorial.
+
+To run (instead of inspect) `nrow` we add parentheses:
+```{r}
+nrow()
+```
+But this fails, because the function requires a valid argument, like this:
+
+```{r}
+m <- matrix(1:6, nrow=2, ncol=3, byrow=TRUE)
+nrow(m)
+```
+
+Note `nrow(m)` and that this is equivalent to 
+
+```{r}
+nrow(x=m)
+```
+because the first argument of `nrow` is called `x`.
+
+
+## Writing functions
+
+*R* comes with thousands of functions for you to use. Nevertheless, it is often necessary to write your own functions. For example, you may want to write a function to:
+
+- more clearly describe and isolate a particular task in your data analysis workflow.
+- re-use code. Rather than repeating the same steps several times (e.g. for each of 200 cases you are analysing), you can write a function that gets called 200 times. This should lead to faster development of scripts and to fewer mistakes. And if there is a mistake it only needs to be fixed in one place. 
+- create a function that is an argument to another function (!). This is quite commonly done when using 'apply' type functions (see next chapter).
+
+
+Writing your own functions is not difficult. The below is a very simple function. It is called `f`. This is an entirely arbitrary name. You can also call it `myFirstFunction`. It takes no arguments, and always returns 'hello'.
+
+```{r}
+f <- function() {
+	return('hello')
+}
+```
+
+Look carefully how we assign a function to name `f` using the `function` keyword followed by parenthesis that enclose the arguments (there are none in this case). The *body* of the function is enclosed in braces (also known as "curly brackets" or "squiggly brackets"). 
+
+
+Now that we have the function, we can inspect it, and use it.
+```{r}
+#inspect 
+f
+#use 2 times
+f()
+f()
+```
+
+`f` is a very boring function. It takes no arguments and always returns the same result. Let's make it more interesting.
+
+```{r}
+f <- function(name) {
+	x <- paste('hello', name)
+	return(x)
+}
+
+f('Jasmin')
+```
+
+Note the `return` statement. This indicates that variable `x` (which is only known inside of the function) is returned to the caller of the function. Simply typing `x` would also suffice, and ending the function with `paste('hello', name)` would also do! So the below is equivalent but shorter, at the expense of being less explicit.
+
+```{r}
+f <- function(name) {
+	paste('hello', name)
+}
+
+f('Sviatoslav')
+```
+
+
+Here is a function that returns a sequence of letters. The length is determined by argument `n`.
+
+```{r}
+frs <- function(n) {
+	s <- sample(letters, n, replace=TRUE)
+	r <- paste0(s, collapse='')
+	return(r)
+}
+```
+
+Because the function uses randomization, I use `set.seed` to always get the same result (as we discussed [here](5-algebra.html#random-numbers).
+
+```{r}
+set.seed(0)
+frs(5)
+frs(5)
+x <- frs(10)
+x
+```
+
+Now an example of a functions that manipulates numbers. This function squares the sum of two numbers.
+
+```{r}
+sumsquare <- function(a, b) {
+	d <- a + b
+	dd <- d * d
+	return(dd)
+}
+```
+
+
+We can now use the sumsquare function. Note that it is vectorized (each argument can be more than one number)
+```{r}
+sumsquare(1,2)
+x <- 1:3
+y <- 5
+sumsquare(x,y)
+```
+
+You can name the arguments when using a function; that often makes your intentions clearer.
+```{r}
+sumsquare(a=1, b=2)
+```
+
+But the names must match
+```{r}
+sumsquare(a=1, d=2)
+```
+
+And both arguments need to be present
+```{r}
+sumsquare(1:5)
+```
+
+Unless we redefine the function with default arguments that will be used if a value for the argument is not provided.
+```{r}
+sumsquareD <- function(a=0, b=1) {
+	d <- a + b
+	dd <- d * d
+	return(dd)
+}
+
+sumsquareD(1:5, 2)
+```
+
+As both arguments have a default value, we can call `sumsquareD` without providing arguments
+
+```{r}
+sumsquareD()
+```
+
+Or with a single argument 
+
+```{r}
+sumsquareD(5)
+```
+
+Above the value `5` was assigned to argument `a` because the argument was matched "by position". If we only wanted to provide a value for `b`, we need to match "by name".
+
+```{r}
+sumsquareD(b=3)
+```
+
+
+Just another example, a function to compute the number of unique values in a vector:
+```{r}
+nunique <- function(x) { 
+    length(unique(x)) 
+}
+
+data <- c('a', 'b', 'a', 'c', 'b')
+nunique(data)
+```
+
+Of course, these were toy examples, but if you understand these, you should be able to write much longer and more useful functions. It can be difficult to "debug" (find errors in) a function. It is often best to first write the sequence of commands that you need outside a function, and only when it all works, wrap that code inside of a function block (`function( ) { }`).
+
+## Ellipses (...)
+
+Ellipses `...` are a special argument to many functions. It allows to pass optional additional arguments and/or arguments that are passed on to other functions. Consider these two functions (this is a bit advanced).
+
+```{r}
+f1 <- function(x, y=10) {
+	x * y
+}
+
+# f2 calls f1
+f2 <- function(x, ...) {
+	f1(x, ...)
+}
+
+f2(5)
+f2(5, y=5)
+```
+
+Even though `f2` does not have an argument `y` it can be provided and it is passed on to `f1`. This call returns an error :
+
+```{r}
+f2(5, z=5)
+```
+
+because `f1` does not have an argument `z`.
+
+
+## Functions overview
+
+A list of much used functions that we discuss in this introduction to *R*:
+
+`c`, `cbind`, `rbind` `length`, `dim`, `nrow`, `ncol`
+
+`sum`, `mean`, `prod`, `sqrt`
+
+`apply`, `sapply`, `tapply`, `aggregate` `rowSums`, `rowMeans`
+
+`merge`, `reshape`
+
+Also see this [cheatsheet](http://cran.r-project.org/doc/contrib/Short-refcard.pdf)

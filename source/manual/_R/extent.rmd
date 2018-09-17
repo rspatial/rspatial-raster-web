@@ -1,0 +1,20 @@
+
+# Extent objects
+
+## extent
+ Create an extent object
+
+## intersect
+ Intersect two extent objects 
+
+## union
+ Combine two extent objects
+
+## round
+ round/floor/ceiling of the coordinates of an Extent object			
+
+## alignExtent
+ Align an extent with a Raster* object
+
+## drawExtent
+ Create an Extent object by drawing it on top of a map (see plot)		

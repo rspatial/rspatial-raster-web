@@ -1,0 +1,108 @@
+# 10. Kriging
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap = '',
+  collapse = TRUE
+)
+library(rgdal)
+library(raster)
+library(gstat)
+library(fields)
+```
+
+
+## 10.1 Alberta Rainfall
+
+Recreating Figures 10.2, 10.13 & 10.14 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
+
+### Get the data
+
+You can download the data for this lesson [here](https://biogeo.ucdavis.edu/data/rspatial/alberta.csv) or with the code below.
+
+```{r getData, echo=TRUE}
+# Make sure the data directory exists. If not, make it
+dir.create('data', showWarnings = FALSE)
+files <- c('alberta.csv')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+### Lesson
+
+Figure 10.2
+```{r, krig1}
+a <- read.csv('data/alberta.csv')
+
+m <- lm(z ~ x + y, data=a)
+summary(m)
+plot(a[,2:3], xlim=c(0,60), ylim=c(0,60), las=1, pch=20, yaxs="i", xaxs="i")
+text(a[,2:3], labels=a$z, pos=4)
+
+# make the contour lines
+x <- seq(0, 60, 1)
+y <- seq(0, 60, 1)
+# all combinations of x and y
+xy <- data.frame(expand.grid(x=x,y=y))
+z <- predict(m, xy)
+z <- matrix(z, 61, 61)
+contour(x, y, z, add=TRUE, labcex=1.25)
+```
+
+On to distances. First get a distance matrix for locations
+```{r}
+library(raster)
+dp <- pointDistance(a[,2:3], lonlat=FALSE)
+dim(a)
+dim(dp)
+dp[1:5, 1:5]
+diag(dp) <- NA
+```
+
+Now the distance matrix for the values observated at the locations. 'dist' makes a symmetrical distance matrix that includes each pair only once. The pointDistance function used above returns the distance between each pair twice. To illustrate this:
+
+```{r}
+dist(a$z[1:3])
+dz <- dist(a$z)
+```
+
+We can transform matrix dp to a distance matrix like this
+```{r}
+dp <- as.dist(dp)
+```
+
+Plot a point cloud of spatial distance against the semivariance (Figure 10.13).
+```{r, krig5}
+# semivariance
+semivar <- dz^2 / 2
+
+plot(dp, semivar, xlim=c(0, 80), ylim=c(0,220), xlab=c('Distance between locations'), 
+     ylab=c('Semivariance'), pch=20, axes=FALSE, xaxs="i")
+axis(1, at=seq(0,80,10))
+axis(2, las=1)
+```
+
+And plotting semivariance in bins 
+```{r, krig10}
+# choose a bin width (in spatial distance)
+binwidth <- 8
+# assign a lag (bin number) to each record 
+lag <- floor(dp/binwidth) + 1
+# average value for each lag
+lsv <- tapply(semivar, lag, mean)
+# compute the average distance for each lag
+dlag <- tapply(dp, lag, mean)
+
+plot(dlag, lsv, pch=20, axes=FALSE, xlab='Distance', ylab='Semivariance', xlim=c(0,80))
+axis(1, at=seq(0,80,10))
+axis(2, las=1)
+```
+
+-> continue to analysis / interpolation

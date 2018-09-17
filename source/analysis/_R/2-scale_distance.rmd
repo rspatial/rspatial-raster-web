@@ -1,0 +1,375 @@
+# 2. Scale and distance
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 8,
+  fig.height = 4,
+  fig.cap='',
+  collapse = TRUE
+)
+library(raster)
+library(deldir)
+library(spdep)
+```
+
+
+## Introduction
+
+Scale, aggregations, and distance are two key concepts in spatial data analysis that can be tricky to come to grips with. This chapter first discusses scale and related concepts resolution, aggregation and zonation. The second part of the chapter discusses distance and adjacency. 
+
+
+## Scale and resolution
+
+The term "scale" is tricky. In its narrow geographic sense, it is the the ratio of a distance on a (paper) map to the actual distance. So if a distance of 1 cm on map "A" represents 100 m in the real world, the map scale is 1/10,000 (1:10,000 or `r 1/10000`). If 1 cm on map "B" represents 10 km in the real world, the scale of that map is 1/1,000,000. The first map "A" would have relatively large scale (and high resolution) as compared to the second map "B", that would have a small scale (and low resolution). It follows that if the size maps "A" and "B" were the same, map "B" would represent a much larger area (would have a much larger "spatial extent"). For that reason, most people would refer to map "B" having a "larger scale". That is technically wrong, but there is not much point in fighting that, and it is simply best to avoid the term "scale", and certainly "small scale" and "large scale", because that technically means the opposite of what most people think. *If* you want to use these terms, you should probably use them how they are commonly understood; unless you are among cartographers, of course. 
+
+Now that mapping has become a computer based activity, scale is even more treacherous. You can use the same data to make maps of different sizes. These would all have a different scale. With digital data, we are more interested in the "inherent" or "measurement" scale of the data. This is sometimes referred to as "grain" but I use "(spatial) resolution". In the case of raster data the notion of resolution is straightforward: it is the size of the cells. For vector data resolution is not as well defined, and it can vary largely within a data set, but you can think of it as the average distance between the nodes (coordinate pairs) of the lines or polygons. Point data do not have a resolution, unless cases that are within a certain distance of each other are merged into a single point (the actual geographic objects represented by points, actually do cover some area; so the actual average size of those areas could also be a measure of interest, but it typically is not). 
+
+In the digital world it is easy to create a "false resolution", either by dividing raster cells into 4 or more smaller cells, or by adding nodes in-between nodes of polygons. Imagine having polygons with soils data for a country. Let's say that these polygons cover, on average, an area of 100 * 100 = 10,000 km^2^. You can transfer the soil properties associated with each polygon, e.g. pH, to a raster with 1 km^2^ spatial resolution; and now might (incorrectly) say that you have a 1 km^2^ spatial resolution soils map. So we need to distinguish the resolution of the representation (data) and the resolution of the measurements or estimates. The lowest of the two is the one that matters.
+
+Why does scale/resolution matter? 
+
+First of all, different processes have different spatial and temporal scales at which they operate [Levin, 1992](http://www.esa.org/history/Awards/papers/Levin_SA_MA.pdf) --- in this context, scale refers both to "extent" and "resolution". Processes that operate over a larger extent (e.g., a forest) can be studied at a larger resolution (trees) whereas processes that operate over a smaller extent (e.g. a tree) may need to be studied at the level of leaves. 
+
+From a practical perspective: it affects our estimates of length and size. For example if you wanted to know the length of the coastline of Britain, you could use the length of spatial dataset representing that coastline. You could get rather different numbers depending on the data set used. The higher the resolution of the spatial data, the longer the coastline would appear to be. This is not just a problem of the representation (the data), also at a theoretical level, one can argue that the length of the coastline is not defined, as it becomes infinite if your resolution approaches zero. This is illustrated [here](http://rspatial.org/cases/rst/2-coastline.html)
+
+Resolution also affects our understanding of relationships between variables of interest. In terms of data collection this means that we want data to be at the highest spatial (and temporal) resolution possible (affordable). We can *aggregate* our data to lower resolutions, but it is not nearly as easy, or even impossible to correctly *disaggregate* ("downscale") data to a higher resolution. 
+
+
+## Zonation 
+
+Geographic data are often aggregated by zones. While we would like to have data at the most granular level that is possible or meanigful (individuals, households, plots, sites), reality is that we often can only get data that is aggregated. Rather than having data for individuals, we may have mean values for all inhabitants of a census district. Data on population, disease, income, or crop yield, is typically available for entire countries, for a number of sub-national units (e.g. provinces), or a set of raster cells. 
+
+The areas used to aggregate data are arbitrary (at least relative to the data of interest). The way the borders of the areas are drawn (how large, what shape, where) can strongly affect the patterns we see and the outcome of data analysis. This is sometimes referred to as the "Modifiable Areal Unit Problem" (MAUP). The problem of analyzing aggregated data is referred to as "Ecological Inference". 
+
+To illustrate the effect of zonation and aggregation, I create a region with 1000 households. For each household we know where they live and what their annual income is. I then aggregate the data to a set of zones. 
+
+The income distribution data
+```{r}
+set.seed(0)
+xy <- cbind(x=runif(1000, 0, 100), y=runif(1000, 0, 100))
+income <- (runif(1000) * abs((xy[,1] - 50) * (xy[,2] - 50))) / 500
+```
+
+Inspect the data, both spatially and non-spatially. The first two plots show that there are many poor people and a few rich people. The thrird that there is a clear spatial pattern in where the rich and the poor live.
+
+```{r}
+par(mfrow=c(1,3), las=1)
+plot(sort(income), col=rev(terrain.colors(1000)), pch=20, cex=.75, ylab='income')
+hist(income, main='', col=rev(terrain.colors(10)),  xlim=c(0,5), breaks=seq(0,5,0.5))
+plot(xy, xlim=c(0,100), ylim=c(0,100), cex=income, col=rev(terrain.colors(50))[10*(income+1)])
+```
+
+Income inequality is often expressed with the Gini coefficient.
+
+```{r}
+    n <- length(income)
+    G <- (2 * sum(sort(income) * 1:n)/sum(income) - (n + 1)) / n
+	G
+```
+For our data set the Gini coefficient is `r round(G, 3)`. 
+
+Now assume that the household data was grouped by some kind of census districts. I create different districts, in our case rectangular raster cells, and compute mean income for each district. 
+
+```{r}
+library(raster)
+r1 <- raster(ncol=1, nrow=4, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r1 <- rasterize(xy, r1, income, mean)
+
+r2 <- raster(ncol=4, nrow=1, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r2 <- rasterize(xy, r2, income, mean)
+
+r3 <- raster(ncol=2, nrow=2, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r3 <- rasterize(xy, r3, income, mean)
+
+r4 <- raster(ncol=3, nrow=3, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r4 <- rasterize(xy, r4, income, mean)
+
+r5 <- raster(ncol=5, nrow=5, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r5 <- rasterize(xy, r5, income, mean)
+
+r6 <- raster(ncol=10, nrow=10, xmn=0, xmx=100, ymn=0, ymx=100, crs=NA)
+r6 <- rasterize(xy, r6, income, mean)
+
+```
+
+Have a look at the plots of the income distribution and the sub-regional averages. 
+
+```{r, fig.height = 7, fig.width=9}
+par(mfrow=c(2,3), las=1)
+plot(r1); plot(r2); plot(r3); plot(r4); plot(r5); plot(r6)
+```
+
+It is not surprising to see that the smaller the regions get, the better the real pattern is captured. 
+But in all cases, the histograms show that we do not capture the full income distribution (compare to the histogram with the data for individuals).  
+
+```{r}
+par(mfrow=c(1,3), las=1)
+hist(r4, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
+hist(r5, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))plo
+hist(r6, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
+```
+
+
+## Distance
+
+Distance is a numerical description of how far apart things are. It is the most fundamental concept in geography. After all, Waldo Tobler's First Law of Geography states that "everything is related to everything else, but near things are more related than distant things". But how far away are things? That is not always as easy a question as it seems. Of course we can compute distance "as the crow flies" but that is often not relevant. Perhaps you need to also consider national borders, mountains, or other barriers. The distance between A and B may even by asymetric, meaning that it the distance from A to B is not the same as from B to A (for example, the President of the United States can call me, but I cannot call him (or her)); or because you go faster when walking downhill than when waling uphill. 
+
+
+### Distance matrix
+
+Distances are often described in a "distance matrix". In a distance matrix we have a number for the distance between all objects of interest. If the distance is symmetric, we only need to fill half the matrix. 
+
+Let's create a distance matrix from a set of points. We start with a set of points
+ 
+Set up the data, using x-y coordinates for each point:
+```{r}
+A <- c(40, 43)
+B <- c(101, 1)
+C <- c(111, 54)
+D <- c(104, 65)
+E <- c(60, 22)
+F <- c(20, 2)
+pts <- rbind(A, B, C, D, E, F)
+pts
+```
+
+Plot the points and labels:
+```{r, points}
+plot(pts, xlim=c(0,120), ylim=c(0,120), pch=20, cex=2, col='red', xlab='X', ylab='Y', las=1)
+text(pts+5, LETTERS[1:6])
+```
+
+You can use the `dist` function to make a distance matrix with a data set of any dimension.
+
+```{r}
+dis <- dist(pts)
+dis
+```
+
+We can check that for the first point using Pythagoras' theorem.
+```{r}
+sqrt((40-101)^2 + (43-1)^2)
+```
+
+We can transform a distance matrix into a normal matrix.
+```{r}
+D <- as.matrix(dis)
+round(D)
+```
+
+Distance matrices are used in all kinds of non-geographical applications. For example, they are often used to create cluster diagrams (dendograms). 
+
+__Question 4__: *Show R code to make a cluster dendogram summarizing the distances between these six sites, and plot it. See* `?hclust`. 
+
+
+### Distance for longitude/latitude coordinates
+
+Now consider that the values in `pts` were coordinates in degrees (longitude/latitude). Then the cartesian distance as computed by the dist function would be incorrect. In that case we can use the pointDistance function from the `raster` package.
+
+```{r}
+library(raster)
+gdis <- pointDistance(pts, lonlat=TRUE)
+gdis
+```
+
+__Question 5__: *What is the unit of the values in `gdis`?*
+
+
+## Spatial influence
+
+An important step in spatial statistics and modelling is to get a measure of the spatial influence between geographic objects. This can be expressed as a function of adjacency or (inverse) distance, and is often expressed as a spatial weights matrix. Influence is of course very complex and cannot really be measured and it can be estimated in many ways. For example the influence between a set of polyongs (countries) can be expressed as having a shared border or not (being ajacent); as the "crow-fly" distance between their centroids;or as the lengths of a shared border, and in other ways. 
+
+
+### Adjacency
+
+Adjacency is an important concept in some spatial analysis. In some cases objects are considered ajacent when they "touch", e.g. neighboring countries. In can also be based on distance. This is the most common approach when analyzing point data.
+
+We create an adjacency matrix for the point data analysed above. We define points as "ajacent" if they are within a distance of 50 from each other. Given that we have the distance matrix `D` this is easy to do.
+```{r}
+a <-  D < 50
+a
+```
+
+In adjacency matrices the diagonal values are often set to `NA` (we do not consider a point to be adjacent to itself). And `TRUE/FALSE` values are commonly stored as `1/0` (this is equivalent, and we can make this change with a simple trick: multiplication with 1)
+
+```{r}
+diag(a) <- NA
+Adj50 <- a * 1
+Adj50
+```
+
+### Two nearest neighbours
+
+What if you wanted to compute the "two nearest neighbours" (or three, or four) adjacency-matrix? Here is how you can do that. For each row, we first get the column numbers in order of the values in that row (that is, the numbers indicate how the values are ordered).
+
+```{r}
+cols <- apply(D, 1, order)
+# we need to transpose the result
+cols <- t(cols)
+```
+
+And then get columns 2 to 3 (why not column 1?)
+```{r}
+cols <- cols[, 2:3]
+cols
+```
+
+As we now have the column numbers, we can make the row-column pairs that we want (`rowcols`). 
+
+```{r}
+rowcols <- cbind(rep(1:6, each=2), as.vector(t(cols)))
+head(rowcols)
+```
+
+We use these pairs as indices to change the values in matrix `Ak3`.
+```{r}
+Ak3 <- Adj50 * 0
+Ak3[rowcols] <- 1
+Ak3
+```
+
+### Weights matrix
+
+Rather than expressing spatial influence as a binary value (adjacent or not), it is often expressed as a continuous value. The simplest approach is to use inverse distance (the further away, the lower the value). 
+
+```{r}
+W <- 1 / D
+round(W, 4)
+```
+
+Such as "spatial weights" matrix is often "row-normalized", such that the sum of weights for each row in the matrix is the same. First we get rid if the `Inf` values by changing them to `NA`. (Where did the `Inf` values come from?)
+
+```{r}
+W[!is.finite(W)] <- NA
+```
+
+Then compute the row sums.
+```{r}
+rtot <- rowSums(W, na.rm=TRUE)
+# this is equivalent to
+# rtot <- apply(W, 1, sum, na.rm=TRUE)
+rtot
+```
+
+And divide the rows by their totals and check if they row sums add up to 1.
+```{r}
+W <- W / rtot
+rowSums(W, na.rm=TRUE)
+```
+
+The values in the columns do not add up to 1.
+```{r}
+colSums(W, na.rm=TRUE)
+```
+
+### Spatial influence for polygons
+
+Above we looked at adjacency for a set of points. Here we look at it for polygons. The difference is that 
+
+```{r}
+library(raster)
+p <- shapefile(system.file("external/lux.shp", package="raster"))
+```
+
+To find adjacent polygons, we can use the `spdep` package.
+
+```{r, message=FALSE}
+library(spdep)
+``` 
+
+We use `poly2nb` to create a "rook's case" neighbors-list. And from that a neighbors matrix.
+
+```{r}
+wr <- poly2nb(p, row.names=p$ID_2, queen=FALSE)
+wr
+wm <- nb2mat(wr, style='B', zero.policy = TRUE)
+dim(wm)
+```
+
+Inspect the content or `wr` and `wm`
+
+```{r}
+wr[1:6]
+wm[1:6,1:11]
+``` 
+
+Compute the number of neighbors for each area.
+
+```{r}
+i <- rowSums(wm)
+i
+```
+
+Expresses as percentage
+```{r}
+round(100 * table(i) / length(i), 1)
+```
+
+
+Plot the links between the polygons.
+```{r, links, fig.width=6}
+par(mai=c(0,0,0,0))
+plot(p, col='gray', border='blue')
+xy <- coordinates(p)
+plot(wr, xy, col='red', lwd=2, add=TRUE)
+``` 
+ 
+
+Now some alternative approaches to compute "spatial influence". 
+
+Distance based:
+```{r}
+wd10 <- dnearneigh(xy, 0, 10)
+wd25 <- dnearneigh(xy, 0, 25, longlat=TRUE)
+```
+
+Nearest neighbors:
+```{r}
+k3 <- knn2nb(knearneigh(xy, k=3, RANN=FALSE))
+k6 <- knn2nb(knearneigh(xy, k=6, RANN=FALSE))
+```
+
+Lag-two Rook:
+```{r}
+wr2 <- wr
+for (i in 1:length(wr)) {
+	lag1 <- wr[[i]]
+	lag2 <- wr[lag1]
+	lag2 <- sort(unique(unlist(lag2)))
+	lag2 <- lag2[!(lag2 %in% c(wr[[i]], i))] 
+	wr2[[i]] <- lag2
+}
+```
+
+
+
+And now we plot them all using the `plotit` function. 
+
+```{r, weights, fig.height=11, fig.width=9}
+  plotit <- function(nb, lab='') {
+  plot(p, col='gray', border='white')
+  plot(nb, xy, add=TRUE, pch=20)
+  text(6.3, 50.1, paste0('(', lab, ')'), cex=1.25)
+}
+
+par(mfrow=c(2, 3), mai=c(0,0,0,0))
+plotit(wr, 'adjacency')
+plotit(wr2, 'lag-2 adj.')
+plotit(wd10, '10 km')
+plotit(wd25, '25 km')
+plotit(k3, 'k=3')
+plotit(k6, 'k=6')
+```
+
+
+
+## Raster based distance metrics
+
+### distance
+
+### cost distance
+
+### resistance distance  
+
+

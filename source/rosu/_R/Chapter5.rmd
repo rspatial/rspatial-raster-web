@@ -1,0 +1,542 @@
+# 5. Point pattern analysis
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+    fig.width  = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse  = TRUE
+)
+```
+
+## 5.1 Introduction
+
+This page accompanies Chapter 5 of [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html).
+
+
+### Get the data
+
+We are using a dataset of crimes in a city. You can download the data here: [crime](https://biogeo.ucdavis.edu/data/rspatial/crime.rds), [city](https://biogeo.ucdavis.edu/data/rspatial/city.rds), [census](https://biogeo.ucdavis.edu/data/rspatial/census2000.rds), or with the script below.
+
+```{r getData, echo=TRUE}
+dir.create('data', showWarnings = FALSE)
+files <- c('city.rds', 'crime.rds', 'census2000.rds')
+for (filename in files) {
+	localfile <- file.path('data', filename)
+	if (!file.exists(localfile)) {
+		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
+	}
+}
+```
+
+Start by reading the data. 
+
+```{r, message=FALSE}
+library(raster)
+city <- readRDS('data/city.rds')
+crime <- readRDS('data/crime.rds')
+```
+
+Here is a map of both datasets. 
+```{r, pp1, fig.width=8, fig.height=4}
+plot(city, col='light blue')
+points(crime, col='red', cex=.5, pch='+')
+``` 
+
+A sorted table of the incidence of crime types.
+
+```{r}
+tb <- sort(table(crime$CATEGORY))[-1]
+tb
+``` 
+
+Let's get the coordinates of the crime data, and for this exercise, remove duplicate crime locations. These are the 'events' we will use below (later we'll go back to the full data set).
+
+```{r}
+xy <- coordinates(crime)
+dim(xy)
+xy <- unique(xy)
+dim(xy)
+head(xy)
+``` 
+
+## 5.2 Basic statistics
+
+Compute the mean center and standard distance for the crime data (see page 125 of OSU).
+```{r}
+# mean center
+mc <- apply(xy, 2, mean)
+# standard distance
+sd <- sqrt(sum((xy[,1] - mc[1])^2 + (xy[,2] - mc[2])^2) / nrow(xy))
+``` 
+
+Plot the data to see what we've got. I add a summary circle (as in Fig 5.2) by dividing the circle in 360 points and compute bearing in radians. I do not think this is particularly helpful, but it might be in other cases. And it is always fun to figure out how to do tis.
+
+```{r, pp2, fig.width=8, fig.height=4.5}
+plot(city, col='light blue')
+points(crime, cex=.5)
+points(cbind(mc[1], mc[2]), pch='*', col='red', cex=5)
+
+# make a circle
+bearing <- 1:360 * pi/180
+cx <- mc[1] + sd * cos(bearing)
+cy <- mc[2] + sd * sin(bearing)
+circle <- cbind(cx, cy)
+lines(circle, col='red', lwd=2)
+``` 
+
+
+## 5.3 Density
+
+Here is a basic approach to computing point density. 
+
+```{r, message=FALSE}
+CityArea <- area(city)
+dens <- nrow(xy) / CityArea
+``` 
+
+__Question 1a__:*What is the unit of 'dens'?* 
+
+__Question 1b__:*What is the number of crimes per square km?*
+
+
+To compute  quadrat counts (as on p.127-130) I first create quadrats (a RasterLayer). I get the extent for the raster from the city polygon, and then assign an an arbitrary resolution of 1000. (In real life one should always try a range of resolutions, I think).
+
+```{r}
+r <- raster(city) 
+res(r) <- 1000
+r
+``` 
+
+To find the cells that are in the city, and for easy display, I create polygons from the RasterLayer.
+
+```{r, pp3, fig.width=8, fig.height=4}
+r <- rasterize(city, r)
+plot(r)
+quads <- as(r, 'SpatialPolygons')
+plot(quads, add=TRUE)
+points(crime, col='red', cex=.5)
+``` 
+
+The number of events in each quadrat can be counted using the 'rasterize' function. That function can be used to summarize the number of points within each cell, but also to compute statistics based on the 'marks' (attributes). For example we could compute the number of different crime types) by changing the 'fun' argument to another function (see ?rasterize).
+
+```{r, pp4, fig.width=8, fig.height=4}
+nc <- rasterize(coordinates(crime), r, fun='count', background=0)
+plot(nc)
+plot(city, add=TRUE)
+``` 
+
+`nc` has crime counts. As we only have data for the city, the areas outside of the city need to be excluded. We can do that with the mask function (see ?mask).
+
+```{r, pp5, fig.width=8, fig.height=4}
+ncrimes <- mask(nc, r)
+plot(ncrimes)
+plot(city, add=TRUE)
+``` 
+
+Better. Now the frequencies.
+
+```{r, pp6}
+f <- freq(ncrimes, useNA='no')
+head(f)
+plot(f, pch=20)
+``` 
+
+Does this look like a pattern you would have expected? Now compute average number of cases per quadrat.
+```{r}
+# number of quadrats
+quadrats <- sum(f[,2])
+# number of cases
+cases <- sum(f[,1] * f[,2])
+mu <- cases / quadrats
+mu
+``` 
+
+And create a table like Table 5.1 on page 130
+```{r}
+ff <- data.frame(f)
+colnames(ff) <- c('K', 'X')
+ff$Kmu <- ff$K - mu
+ff$Kmu2 <- ff$Kmu^2
+ff$XKmu2 <- ff$Kmu2 * ff$X
+head(ff)
+``` 
+
+The observed variance s^2^ is
+```{r}
+s2 <- sum(ff$XKmu2) / (sum(ff$X)-1)
+s2
+``` 
+
+And the VMR is
+```{r}
+VMR <- s2 / mu 
+VMR
+``` 
+
+__Question 2:__*What does this VMR score tell us about the point pattern?*
+
+
+## 5.3 Distance based measures
+
+As we are using a *planar coordinate system* we can use the dist function to compute the distances between pairs of points. Contrary to what the books says, if we were using longitude/latitude we could compute distance via spherical trigonometry functions. These are available in the sp, raster, and notably the geosphere package (among others). For example, see `raster::pointDistance`.
+
+```{r}
+d <- dist(xy)
+class(d)
+``` 
+
+I want to coerce the dist object to a matrix, and ignore distances from each point to itself (the zeros on the diagonal).
+
+```{r}
+dm <- as.matrix(d)
+dm[1:5, 1:5]
+diag(dm) <- NA
+dm[1:5, 1:5]
+``` 
+
+To get, for each point, the minimum distance to another event, we can use the 'apply' function. Think of the rows as each point, and the columns of all other points (vice versa could also work).
+
+```{r}
+dmin <- apply(dm, 1, min, na.rm=TRUE)
+head(dmin)
+``` 
+
+Now it is trivial to get the mean nearest neighbour distance according to formula 5.5, page 131.
+```{r}
+mdmin <- mean(dmin)
+``` 
+
+Do you want to know, for each point, *Which* point is its nearest neighbour? Use the 'which.min' function (but note that this ignores the possibility of multiple points at the same minimum distance).	
+
+```{r}
+wdmin <- apply(dm, 1, which.min)
+```
+
+And what are the most isolated cases? That is the furtest away from their nearest neigbor. I plot the top 25. A bit complicated.
+
+```{r, pp10, fig.width=8, fig.height=4.5}
+plot(city)
+points(crime, cex=.1)
+ord <- rev(order(dmin))
+
+far25 <- ord[1:25]
+neighbors <- wdmin[far25]
+
+points(xy[far25, ], col='blue', pch=20)
+points(xy[neighbors, ], col='red')
+
+# drawing the lines, easiest via a loop
+for (i in far25) {
+	lines(rbind(xy[i, ], xy[wdmin[i], ]), col='red')
+}
+``` 
+
+Note that some points, but actually not that many, are used as isolated and as a neighbor to an isolated points. 
+
+
+Now on to the G function
+```{r, pp11}
+max(dmin)
+# get the unique distances (for the x-axis)
+distance <- sort(unique(round(dmin)))
+# compute how many cases there with distances smaller that each x
+Gd <- sapply(distance, function(x) sum(dmin < x)) 
+# normalize to get values between 0 and 1
+Gd <- Gd / length(dmin)
+plot(distance, Gd)
+# using xlim to exclude the extremes
+plot(distance, Gd, xlim=c(0,500))
+``` 
+
+Here is a function to show these values in a more standard way.
+
+```{r}
+stepplot <- function(x, y, type='l', add=FALSE, ...) {
+	x <- as.vector(t(cbind(x, c(x[-1], x[length(x)]))))
+	y <- as.vector(t(cbind(y, y)))
+  if (add) {
+     lines(x,y, ...)    
+  } else {
+	   plot(x,y, type=type, ...)
+  }
+}
+``` 
+
+And use it for our G function data.
+```{r, pp12}
+stepplot(distance, Gd, type='l', lwd=2, xlim=c(0,500))
+``` 
+
+The steps are so small in our data, that you hardly see the difference.
+
+I use the centers of previously defined raster cells to compute the *F* function.
+
+```{r, pp13}
+# get the centers of the 'quadrats' (raster cells)
+p <- rasterToPoints(r)
+# compute distance from all crime sites to these cell centers
+d2 <- pointDistance(p[,1:2], xy, longlat=FALSE)
+
+# the remainder is similar to the G function
+Fdistance <- sort(unique(round(d2)))
+mind <- apply(d2, 1, min)
+Fd <- sapply(Fdistance, function(x) sum(mind < x)) 
+Fd <- Fd / length(mind)
+plot(Fdistance, Fd, type='l', lwd=2, xlim=c(0,3000))
+``` 
+
+
+Compute the expected distributon (5.12 on page 145)
+```{r}
+ef <- function(d, lambda) {
+  E <- 1 - exp(-1 * lambda * pi * d^2)
+}
+expected <- ef(0:2000, dens)
+```
+
+Now, let's combine F and G on one plot.
+```{r, pp14}
+plot(distance, Gd, type='l', lwd=2, col='red', las=1, 
+    ylab='F(d) or G(d)', xlab='Distance', yaxs="i", xaxs="i")
+lines(Fdistance, Fd, lwd=2, col='blue')
+lines(0:2000, expected, lwd=2)
+
+legend(1200, .3, 
+   c(expression(italic("G")["d"]), expression(italic("F")["d"]), 'expected'),
+   lty=1, col=c('red', 'blue', 'black'), lwd=2, bty="n")
+``` 
+
+
+__Question 3__: *What does this plot suggest about the point pattern?*
+
+	   
+Finally, let's compute K. Note that I use the original distance matrix 'd' here.
+```{r, pp15}
+distance <- seq(1, 30000, 100)
+Kd <- sapply(distance, function(x) sum(d < x)) # takes a while
+Kd <- Kd / (length(Kd) * dens)
+plot(distance, Kd, type='l', lwd=2)
+``` 
+
+
+
+
+__Question 4__: *Create a single random pattern of events for the city, with the same number of events as the crime data (object xy). Use function 'spsample'*
+
+
+__Question 5__: *Compute the G function, and plot it on a single plot, together with the G function for the observed crime data, and the theoretical expectation (formula 5.12).*
+
+
+__Question 6__: *(Difficult!) Do a Monte Carlo simulation (page 149) to see if the 'mean nearest distance' of the observed crime data is significantly different from a random pattern. Use a 'for loop'. First write 'pseudo-code'. That is, say in natural language what should happen. Then try to write R code that implements this.*
+	   
+	
+## 5.5 Spatstat package
+
+Above we did some 'home-brew' point pattern analysis, we will now use the spatstat package. In research you would normally use spatstat rather than your own functions, at least for standard analysis. I showed how you make some of these functions in the previous sections, because understanding how to go about that may allow you to take things in directions that others have not gone. The good thing about spatstat is that it very well documented (see <http://spatstat.github.io/>). The bad thing is that it uses an entirly different sets of classes (ways to represent spatial data) that we we will use in all other labs (classes from sp and raster); but it is not hard to get used to that.
+
+
+```{r, message=FALSE}
+library(spatstat)
+``` 
+
+We start with making make a Kernel Density raster. I first create a 'ppp' (point pattern) object, as defined in the spatstat package. 
+
+A ppp object has the coordinates of the points **and** the analysis 'window' (study region). To assign the points locations we need to extract the coordinates from our SpatialPoints object. To set the window, we first need to to coerce our SpatialPolygons into an 'owin' object. We need a function from the maptools package for this coercion.
+
+Coerce from SpatialPolygons to an object of class "owin" (observation window)
+
+```{r, message=FALSE}
+library(maptools)
+cityOwin <- as.owin(city)
+class(cityOwin)
+cityOwin
+``` 
+
+Extract coordinates from SpatialPointsDataFrame:
+```{r}
+pts <- coordinates(crime)
+head(pts)
+``` 
+
+Now we can create a 'ppp' (point pattern) object
+```{r, pp20}
+p <- ppp(pts[,1], pts[,2], window=cityOwin)
+class(p)
+p
+plot(p)
+``` 
+
+Note the warning message about 'illegal' points. Do you see them and do you understand why they are illegal?
+
+Having all the data well organized, it is now easy to compute Kernel Density
+```{r, pp21}
+ds <- density(p)
+class(ds)
+plot(ds, main='crime density')
+``` 
+
+Density is the number of points per unit area. Let's ceck if the numbers makes sense, by adding them up and mulitplying with the area of the raster cells. I use raster package functions for that.
+```{r}
+nrow(pts)
+r <- raster(ds)
+s <- sum(values(r), na.rm=TRUE) 
+s * prod(res(r))
+``` 
+
+Looks about right. We can also get the information directly from the "im"  (image) object
+```{r}
+str(ds)
+sum(ds$v, na.rm=TRUE) * ds$xstep * ds$ystep
+p$n
+``` 
+
+Here's another, lenghty, example of generalization. We can interpolate population density from (2000) census data; assigning the values to the centroid of a polygon (as explained in the book, but not a great technique). We use a shapefile with census data. 
+
+```{r}
+census <- readRDS("data/census2000.rds")
+``` 
+
+To compute population density for each census block, we first need to get the area of each polygon. I transform density from persons per feet^2^ to persons per mile^2^, and then compute population density from POP2000 and the area
+```{r}
+census$area <- area(census)
+census$area <- census$area/27878400
+census$dens <- census$POP2000 / census$area
+``` 
+
+Now to get the centroids of the census blocks we can use the 'coordinates' function again. Note that it actually does something quite different (with a `SpatialPolygons*` object) then in the case above (with a SpatialPoints* object).
+```{r}
+p <- coordinates(census)
+head(p)
+``` 
+
+To create the 'window' we dissolve all polygons into a single polygon.
+
+```{r}
+win <- aggregate(census)
+``` 
+
+Let's look at what we have:
+
+```{r, pp22}
+plot(census)
+points(p, col='red', pch=20, cex=.25)
+plot(win, add=TRUE, border='blue', lwd=3)
+``` 
+
+Now we can use 'smooth.ppp' to interpolate. Population density at the points is referred to as the 'marks'
+```{r}
+owin <- as.owin(win)
+pp <- ppp(p[,1], p[,2], window=owin, marks=census$dens)
+pp
+``` 
+
+Note the warning message: "1 point was rejected as lying outside the specified window". 
+That is odd, there is a polygon that has a centroid that is outside of the polygon. This can happen with, e.g., kidney shaped polygons.
+
+Let's find and remove this point that is outside the study area.
+```{r}
+sp <- SpatialPoints(p, proj4string=CRS(proj4string(win)))
+i <- gIntersects(sp, win, byid=TRUE)
+which(!i)
+``` 
+
+Let's see where it is:
+```{r, pp23}
+plot(census)
+points(sp)
+points(sp[!i,], col='red', cex=3, pch=20)
+``` 
+
+You can zoom in using the code below. After running the next line, click on your map twice to zoom to the red dot, otherwise you cannot continue:
+
+```zoom(census)```
+
+And add the red points again
+
+```points(sp[!i,], col='red')```
+
+To only use points that intersect with the window polygon, that is, where 'i == TRUE':
+
+```{r, pp24}
+pp <- ppp(p[i,1], p[i,2], window=owin, marks=census$dens[i])
+plot(pp)
+plot(city, add=TRUE)
+``` 
+
+And to get a smooth interpolation of population density.
+```{r, pp25}
+s <- smooth.ppp(pp)
+plot(s)
+plot(city, add=TRUE)
+``` 
+
+Population density could establish the "population at risk" (to commit a crime) for certain crimes, but not for others. 
+
+Maps with the city limits and the incidence of 'auto-theft', 'drunk in public', 'DUI', and 'Arson'.
+
+```{r, pp26, fig.width=9}
+par(mfrow=c(2,2), mai=c(0.25, 0.25, 0.25, 0.25))
+for (offense in c("Auto Theft", "Drunk in Public", "DUI", "Arson")) {
+  plot(city, col='grey')
+	acrime <- crime[crime$CATEGORY == offense, ]
+	points(acrime, col = "red")
+	title(offense)
+}
+``` 
+
+Create a marked point pattern object (ppp) for all crimes. It is important to coerce the marks to a factor variable.
+
+```{r}
+crime$fcat <- as.factor(crime$CATEGORY)
+w <- as.owin(city)
+xy <- coordinates(crime)
+mpp <- ppp(xy[,1], xy[,2], window = w, marks=crime$fcat)
+``` 
+
+We can split the mpp object by category (crime)
+```{r, pp27, fig.width=9}
+spp <- split(mpp)
+plot(spp[1:4], main='')
+``` 
+
+The crime density by category:
+```{r, pp28, fig.width=9}
+plot(density(spp[1:4]), main='')
+``` 
+
+And produce K-plots (with an envelope) for  'drunk in public' and 'Arson'. Can you explain what they mean?
+```{r}
+spatstat.options(checksegments = FALSE)
+ktheft <- Kest(spp$"Auto Theft")
+ketheft <- envelope(spp$"Auto Theft", Kest)
+ktheft <- Kest(spp$"Arson")
+ketheft <- envelope(spp$"Arson", Kest)
+``` 
+
+```{r, pp29, fig.width=10}
+par(mfrow=c(1,2))
+plot(ktheft)
+plot(ketheft)
+``` 
+
+Let's try to answer the question you have been wanting to answer all along. Is population density a good predictor of being (booked for) "drunk in public" and for "Arson"? One approach is to do a Kolmogorov-Smirnov ('kstest') on 'Drunk in Public' and 'Arson', using population density as a covariate:
+
+```{r}
+KS.arson <- cdf.test(spp$Arson, covariate=ds, test='ks')
+KS.arson
+KS.drunk <- cdf.test(spp$'Drunk in Public', covariate=ds, test='ks')
+KS.drunk
+``` 
+
+__Question 7__: *Why is the result surprising, or not surprising?*
+
+We can also compare the patterns for "drunk in public" and for "Arson" with the KCross function.
+```{r, pp30}
+kc <- Kcross(mpp, i = "Drunk in Public", j = "Arson")
+ekc <- envelope(mpp, Kcross, nsim = 50, i = "Drunk in Public", j = "Arson")
+plot(ekc)
+``` 
+
+

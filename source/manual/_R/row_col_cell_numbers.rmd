@@ -1,0 +1,50 @@
+
+# Computing row, column, cell numbers and coordinates
+
+Cell numbers start at 1 in the upper-left corner. They increase within rows, from left to right, and then row by row from top to bottom. Likewise, row numbers start at 1 at the top of the raster, and column numbers start at 1 at the left side of the raster. 
+
+
+## xFromCol
+ x-coordinates from column numbers
+
+## yFromRow
+ y-coordinates from row numbers
+
+## xFromCell
+ x-coordinates from row numbers
+
+## yFromCell
+ y-coordinates from cell numbers
+
+## xyFromCell
+ x and y coordinates from cell numbers
+
+## colFromX
+ Column numbers from x-coordinates (or longitude)
+
+## rowFromY
+ Row numbers from y-coordinates (or latitude)
+
+## rowColFromCell
+ Row and column numbers from cell numbers
+
+## cellFromXY
+ Cell numbers from x and y coordinates
+
+## cellFromRowCol
+ Cell numbers from row and column numbers
+
+## cellsFromExtent
+ Cell numbers from extent object
+
+## coordinates
+ x and y coordinates for all cells
+
+## validCell
+ Is this a valid cell number?
+
+## validCol
+ Is this a valid column number?
+
+## validRow
+ Is this a valid row number?

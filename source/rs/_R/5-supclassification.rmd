@@ -1,0 +1,268 @@
+# 5. Supervised Image Classification
+
+```{r setup, echo=TRUE, include=FALSE}
+library(knitr)
+library(rasterVis)
+```
+
+
+## Introduction
+
+Here we explore supervised classification. Various supervised classification algorithms exist, and the choice of algorithm can affect the results. Here we explore two related algorithms (CART and RandomForest).
+
+
+In supervised classification, we have prior knowledge about some of the land-cover types through, for example, fieldwork, reference GIS layers or interpretation of high resolution imagery (such as available on Google maps). Specific sites in the study area that represent homogeneous examples of these known land-cover types are identified. These areas are commonly referred to as training sites because the spectral properties of these sites are used to train the classification algorithm. 
+
+The following examples uses a Classification and Regression Trees (CART) classifier (Breiman et al. 1984) ([further reading](https://doi.org/10.1016/S0034-4257(97)00049-7) to predict land use land cover classes in the study area.
+
+We will perform the following steps:  
+  
+* Generate sample sites based on a reference raster  
+* Extract cell values from Landsat data for the sample sites  
+* Train the classifier using training samples  
+* Classify the Landsat data using the trained model  
+* Evaluate the accuracy of the model 
+   
+  
+## Reference data
+
+The [National Land Cover Database 2011 (NLCD 2011)](https://www.mrlc.gov/nlcd2011.php) is a land cover product for the USA. NLCD is a 30-m Landsat-based land cover database spanning 4 epochs (1992, 2001, 2006 and 2011). NLCD 2011 is based primarily on a decision-tree classification of circa 2011 Landsat data.
+
+You can find the class names in NCLD 2011 (here)[https://www.mrlc.gov/nlcd11_leg.php]. It has two pairs of classvalues and classnames that correspond to the levels of land use and land cover classification system. These levels usually represent the level of complexity, level I being the simplest with broad land use land cover categories. Read [this report by Anderson et al](https://pubs.usgs.gov/pp/0964/report.pdf) to learn more about this land use and land cover classification system for use with Remote Sensor data. 
+
+```{r nlcd}
+library(raster)
+nlcd <- brick('data/rs/nlcd-L1.tif')
+names(nlcd) <- c("nlcd2001", "nlcd2011")
+
+# The class names and colors for plotting
+nlcdclass <- c("Water", "Developed", "Barren", "Forest", "Shrubland", "Herbaceous", "Planted/Cultivated", "Wetlands")
+classdf <- data.frame(classvalue1 = c(1,2,3,4,5,7,8,9), classnames1 = nlcdclass) 
+
+# Hex codes of colors
+classcolor <- c("#5475A8", "#B50000", "#D2CDC0", "#38814E", "#AF963C", "#D1D182", "#FBF65D", "#C8E6F8") 
+
+# Now we ratify (RAT = "Raster Attribute Table") the ncld2011 (define RasterLayer as a categorical variable). This is helpful for plotting. 
+nlcd2011 <- nlcd[[2]]
+nlcd2011 <- ratify(nlcd2011)
+rat <- levels(nlcd2011)[[1]]
+
+# 
+rat$landcover <- nlcdclass
+levels(nlcd2011) <- rat
+```
+
+We did a lot of things here. Take a step back and read more about `ratify`.
+
+**Note** There is no class with value 6.  
+
+## Generate sample sites
+
+As we discussed in the class, training and/or validation data can come from a variety of sources. In this example we will generate the training and validation sample sites using the NLCD reference RasterLayer. Alternatively, you can use predefined sites that you may have collected from other sources. We will generate the sample sites following a stratified random sampling to ensure samples from each LULC class.
+
+```{r training sites}
+# Load the training sites locations
+# Set the random number generator to reproduce the results
+set.seed(99)
+
+# Sampling
+samp2011 <- sampleStratified(nlcd2011, size = 200, na.rm = TRUE, sp = TRUE)
+samp2011
+# Number of samples in each class
+table(samp2011$nlcd2011)
+```
+
+You can see there are two variables in `samp2011`. The `cell` column contains cell numbers of `nlcd2011` sampled. `nlcd2011` column contains the class values (1-9). We will drop the `cell` column later. 
+
+Here `nlcd` has integer values between 1-9. You will often find classnames are provided as string labels (e.g. water, crop, vegetation). You will need to 'relabel' class names to integer or factors if only string labels are supplied before using them as response variable in the classification. There are several approaches that could be used to convert these classes to integer codes. We can make a function that will reclassify the character strings representing land cover classes into integers based on the existing factor levels.
+
+Let's plot the training sites over the `nlcd2011` RasterLayer to visualize the distribution of sampling locations.
+
+```{r plots, fig.height=8, fig.width=8}
+library(rasterVis)
+levelplot(nlcd2011, col.regions = classcolor, main = 'Distribution of Training Sites')+
+  layer(sp.points(samp2011, pch = 3, cex = 0.5, col = 1))
+```
+
+`rasterVis` offers more advanced (trellis/lattice) plotting of Raster* objects. Please install the package if it is not available for your machine.
+
+## Extract cell values for the sample sites
+
+
+```{r landsat5}
+landsat5 <- stack('data/rs/centralvalley-2011LT5.tif')
+names(landsat5) <- c('blue', 'green', 'red', 'NIR', 'SWIR1', 'SWIR2')
+```
+
+Once we have the sites, we can extract the cell values from `landsat5` RasterStack. These band values will be the predictor variables and "classvalues" from `nlcd2011` will be the response variable.
+
+```{r extractvalues}
+# Extract the layer values for the locations
+sampvals <- extract(landsat5, samp2011, df = TRUE)
+
+# sampvals no longer has the spatial information. To keep the spatial information you use `sp = TRUE` argument in `extract` function. 
+
+# drop the ID column
+sampvals <- sampvals[, -1]
+
+# combine the class information with extracted values
+sampdata <- data.frame(classvalue = samp2011@data$nlcd2011, sampvals)
+```
+
+
+## Train the classifier using training samples 
+
+Now we will train the classification algorithm using `training2011` dataset. 
+
+```{r, fig.height=6, fig.width=6}
+library(rpart) 
+
+# Train the model
+cart <- rpart(as.factor(classvalue)~., data=sampdata, method = 'class', minsplit = 5)
+
+# print(model.class)
+
+# Much cleaner way is to plot the trained classification tree
+plot(cart, uniform=TRUE, main="Classification Tree")
+text(cart, cex = 0.8)
+```
+
+In the classification tree plot classvalues are printed at the leaf node. You can find the corresponding land use land cover names from the `classdf` dataframe. 
+
+See `?rpart.control` to set different parameters for building the model.
+
+You can print/plot more about the `cart` model created in the previous example. E.g. you can use `plotcp(cart)` to learn about the cost-complexity (`cp` argument in `rpart`). 
+
+## Classify
+
+Now we have our trained classification model (`cart`), we can use it to make predictions, that is, to classify all cells in the `landsat5` RasterStack.
+
+**Important** The names in the Raster object to be classified should exactly match those expected by the model. This will be the case if the same Raster object was used (via extract) to obtain the values to fit the model (previous example). 
+
+```{r prediction}
+# Now predict the subset data based on the model; prediction for entire area takes longer time
+pr2011 <- predict(landsat5, cart, type='class', progress = 'text')
+pr2011
+```
+
+Now plot the classification result using `rasetrVis`. See will set the `classnames` for the `classvalues`.
+
+```{r fig.width=8, fig.height=8}
+pr2011 <- ratify(pr2011)
+
+rat <- levels(pr2011)[[1]]
+
+rat$legend <- classdf$classnames
+
+levels(pr2011) <- rat
+
+levelplot(pr2011, maxpixels = 1e6,
+          col.regions = classcolor,
+          scales=list(draw=FALSE),
+          main = "Decision Tree classification of Landsat 5")
+```
+
+**Exercise 1** Plot `nlcd2011` and `pr2011` side-by-side and comment about the accuracy of the prediction (e.g. mixing between cultivated crops, pasture, grassland and shrubs). 
+
+You may need to select more samples and use additional predictor variables. The choice of classifier also plays an important role.
+
+
+## Model evaluation
+
+Now let's assess the accuracy of the model to get an idea of how accurate the classified map might be. Two widely used measures in remote sensing community are "overall accuracy" and "kappa". You can perform the accuracy assessment using the independent samples (`validation2011`).
+
+To evaluate any model, you can use k-fold cross-validation. In this technique the data used to fit the model is split into `k` groups (typically 5 groups). In turn, one of the groups will be used for model testing, while the rest of the data is used for model training (fitting).
+
+```{r}
+library(dismo)
+set.seed(99)
+j <- kfold(sampdata, k = 5, by=sampdata$classvalue)
+table(j)
+```
+
+Now we train and test the model five times, each time computing a confusion matrix that we store in a list.
+```{r}
+x <- list()
+
+for (k in 1:5) {
+	train <- sampdata[j!= k, ]
+	test <- sampdata[j == k, ]
+	cart <- rpart(as.factor(classvalue)~., data=train, method = 'class', minsplit = 5)
+	pclass <- predict(cart, test, type='class')
+	# create a data.frame using the reference and prediction
+	x[[k]] <- cbind(test$classvalue, as.integer(pclass))
+}
+```
+
+Now combine the five list elements into a single data.frame, using `do.call` and compute a confusion matrix.
+```{r}
+y <- do.call(rbind, x)
+y <- data.frame(y)
+colnames(y) <- c('observed', 'predicted')
+
+
+conmat <- table(y)
+# change the name of the classes
+colnames(conmat) <- classdf$classnames
+rownames(conmat) <- classdf$classnames
+conmat
+```
+
+**Exercise 2** Comment on the miss-classification between different classes.
+
+**Exercise 3** Can you think of ways to to improve the accuracy.
+
+
+Compute overall accuracy and Kappa statistics. 
+
+Overall accuray
+```{r Accuracy Statistics}
+# number of cases
+n <- sum(conmat) 
+n
+
+# number of correctly classified cases per class
+diag <- diag(conmat) 
+
+# Overall Accuracy
+OA <- sum(diag) / n
+OA
+```
+
+Kappa
+```{r kappa}
+# observed (true) cases per class
+rowsums <- apply(conmat, 1, sum) 
+p <- rowsums / n 
+
+# predicted cases per class
+colsums <- apply(conmat, 2, sum) 
+q <- colsums / n 
+
+expAccuracy <- sum(p*q)
+kappa <- (OA - expAccuracy) / (1 - expAccuracy)
+kappa
+```
+
+Producer and user accuracy
+```{r User/Producer accuracy}
+
+# Producer accuracy
+PA <- diag / colsums
+
+# User accuracy
+UA <- diag / rowsums
+
+outAcc <- data.frame(producerAccuracy = PA, userAccuracy = UA)
+
+outAcc
+```
+
+**Exercise 4** Perform the classification using Random Forest classifiers from the package [`randomForest`](https://cran.r-project.org/web/packages/randomForest/index.html). For help see this [discussion](https://gis.stackexchange.com/questions/39021/how-to-perform-random-forest-land-cover-classification).
+
+**Exercise 5** Plot the results of `rpart` and 'rf` classifier side-by-side.  
+
+**Exercise 6 (optional)** Please repeat the steps for the year 2001 using `rpart`. You will use cloud-free composite image from [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) with 6-bands. The reference data will be the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the Central Valley regions.
+
+**Exercise 7 (optional)** You have been training your classifiers using 160 samples for each class. Now we want to see the effect of sample size on classification. Please repeat the steps with different subset of the sample size (e.g. 120, 100). Use the same holdout samples for accuracy assessment.  
+

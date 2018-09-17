@@ -1,0 +1,117 @@
+# 5. Reading and writing spatial data
+
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(
+	fig.width = 5,
+	fig.height = 5,
+	fig.cap = '',
+	collapse = TRUE
+)
+library(raster)
+library(rgdal)
+```
+
+## 5.1 Introduction
+
+Reading and writing spatial is complicated by the fact that there are many different file formats. However, there are a few formats that are most common that we discuss here.
+
+## Vector files
+
+The `shapefile` is the most commonly used file format for vector data. It is trivial to read and write such files. Here we use a shapefile that comes with the `raster` package. 
+
+### Reading
+
+We use the `system.file` function to get the full path name of the file's location. We need to do this as the location of this file depends on where the raster package is installed. You should not use the `system.file` function for your own files. It only serves for creating examples with data that ships with *R*. 
+
+```{r, shp1}
+library(raster)
+filename <- system.file("external/lux.shp", package="raster")
+filename
+```
+
+Now we have the filename we need we use the `shapefile` function. This function comes with the `raster` package. For it to work you must also have the `rgdal` package.
+
+```{r, shp2}
+s <- shapefile(filename)
+s
+```
+
+The `shapefile` function returns `Spatial*DataFrame` objects. In this case a `SpatialPolygonsDataFrame`. It is important to recognise the difference between this type of *R* object (SpatialPolygonsDataFrame), and the file (shapefile) that was used to create it.
+
+For other formats, you can use `readOGR` function in package `rgdal`.
+
+### Writing
+
+You can also write shapefiles using the `shapefile` method. In stead of a filename, you need to provide a vector type `Spatial*` object as first argument and a new filename as a second argument. You can add argument `overwrite=TRUE` if you want to overwrite an existing file.
+
+```{r, shp3}
+outfile <- 'test.shp'
+shapefile(s, outfile, overwrite=TRUE)
+```
+
+For other formats, you can use `writeOGR` function in package `rgdal`.
+
+
+```{r, echo=FALSE, include=FALSE}
+ff <- list.files(patt="^test")
+file.remove(ff)
+```
+
+
+
+
+## 5.2 Raster files
+
+The raster package can read and write several raster file formats. 
+
+### Reading
+
+Again we need to get a filename for an example file.
+```{r, ras0}
+f <- system.file("external/rlogo.grd", package="raster")
+f
+```
+
+Now we can do 
+```{r, ras1}
+r1 <- raster(f)
+r1
+```
+
+Note that `r1` is a RasterLayer of the first "band" (layer) in the file (out of three bands (layers)). We can request another layer.
+
+```{r, ras2}
+r2 <- raster(f, band=2)
+r2
+```
+
+More commonly, you would want all layers in a single object. For that you can use the `brick` function.
+```{r, ras3}
+b <- brick(f)
+b
+```
+
+Or you can use `stack`, but that is less efficient in most cases.
+```{r, ras4}
+s <- stack(f)
+s
+```
+
+The same approach holds for other raster file formats, including GeoTiff, NetCDF, Imagine, and ESRI Grid formats.
+
+
+### Writing
+
+Use `writeRaster` to write raster data. You must provide a Raster* object and a filename. The file format will be guessed from the filename extension (if that does not work you can provide an argument like `format=GTIFF`). Note the argument `overwrite=TRUE` and see `?writeRaster` for more arguments, such as `datatype=` to set the datatype (e.g., integer, float).
+
+```{r, ras5}
+x <- writeRaster(s, 'output.tif', overwrite=TRUE)
+x
+```
+
+```{r, echo=FALSE, include=FALSE}
+file.remove('output.tif')
+```
+

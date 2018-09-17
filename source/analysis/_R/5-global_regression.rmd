@@ -1,0 +1,301 @@
+# 5. Spatial distribution models
+
+
+```{r, include=FALSE}
+library(knitr)
+opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 5,
+  fig.cap = '',
+  collapse   = TRUE
+)
+```
+
+This page shows how you can use the Random Forest algorithm to make spatial predictions. This approach is widely used, for example to classify remote sensing data into different land cover classes. But here our objective is to predict the entire range of a species based on a set of locations where it has been observed. As an example, we use the hominid species *Imaginus magnapedum* (also known under the vernacular names of "bigfoot" and "sasquatch"). This species is so hard to find (at least by scientists) that its very existence is commonly denied by the mainstream media! For more information about this controversy, see the article by Lozier, Aniello and Hickerson: [Predicting the distribution of Sasquatch in western North America: anything goes with ecological niche modelling](http://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2009.02152.x/abstract).
+
+We want to find out 
+   
+   a) What the complete range of the species might be.
+
+   b) How good (general) our model is by predicting the range of the Eastern sub-species, with data from the Western sub-species. 
+   
+   c) Predict where in Mexico the creature is likely to occur. 
+   
+   d) How climate change might affect its distribution.
+   
+In this context, this type of analysis is often referred to as 'species distribution modeling' or 'ecological niche modeling'. [Here is a more in-depth discussion](/sdm) of this technique.
+  
+  
+## Data 
+
+### Observations
+
+[Here is the data](https://biogeo.ucdavis.edu/data/rspatial/bigfoot.csv) for the reported observations, extracted from http://www.bfro.net/ in May 2012.  
+
+```{r}
+bf <- read.csv("data/bigfoot.csv")
+dim(bf)
+head(bf)
+```
+
+Plot the locations
+
+```{r, sup1}
+plot(bf[,1:2], cex=0.5, col='red')
+library(maptools)
+data(wrld_simpl)
+plot(wrld_simpl, add=TRUE)
+```
+
+
+### Predictors
+
+Supervised classification often uses predictor data obtained from satellite remote sensing. But here, as is common in species distribution modeling, we use climate data. Specifically, we use 'bioclimatic variables', see: http://www.worldclim.org/bioclim
+
+```{r, sup3}
+library(raster)
+wc <- getData('worldclim', res=10, var='bio')
+plot(wc[[c(1, 12)]], nr=2)
+```
+
+Now extract climate data for the locations of our observations. That is, get data about the climate that the species likes, apparently.
+
+```{r, sup5}
+bfc <- extract(wc, bf[,1:2])
+head(bfc)
+
+# Any missing values?
+i <- which(is.na(bfc[,1]))
+i
+plot(bf[,1:2], cex=0.5, col='blue')
+plot(wrld_simpl, add=TRUE)
+points(bf[i, ], pch=20, cex=3, col='red')
+```
+
+
+Here is a plot that illustrates a component of the ecological niche of our species of interest.
+
+```{r, sup7}
+plot(bfc[ ,'bio1'] / 10, bfc[, 'bio12'], xlab='Annual mean temperature (C)', 
+  	     ylab='Annual precipitation (mm)')
+
+```
+
+
+### Background data
+
+Normally, one would build a model that would compare the values of the predictor variables as the locations where something was observed, with those values at the locations where it was not observed. But we do not have data from a systematic survey that determined presence and absence. We have presence-only data. (And, determining absence is not that simple. It is here now, it is gone tomorrow). 
+
+The common trick to deal with this is to not model presence versus absence, but presence versus a 'random expectation'. This random expectation (also referred to as 'background', or 'random-absence' data) is what you would get if the species had no preference for any of the predictor variables (or to other variables that are not in the model, but correlated with the predictor variables).
+
+There is not much point in taking absence data from very far away (tropical Africa or Antarctica). Typically they are taken from more or less the entire study area for which we have presences data.
+
+```{r}
+library(dismo)
+# extent of all points
+e <- extent(SpatialPoints(bf[, 1:2]))
+e
+
+# 5000 random samples (excluding NA cells) from extent e
+set.seed(0)
+bg <- sampleRandom(wc, 5000, ext=e)
+dim(bg)
+head(bg)
+```
+
+
+### Combine presence and background
+
+```{r}
+d <- rbind(cbind(pa=1, bfc), cbind(pa=0, bg))
+d <- data.frame(d)
+dim(d)
+```
+
+
+## Fit a model
+
+Now we have the data to fit a model. But I am going to split the data into East and West. Let's say I believe these are actually are different, albeit related, sub-species (The Eastern Sasquatch is darker and less hairy). I am principally interested in the western sub-species. 
+
+```{r}
+de <- d[bf[,1] > -102, ]
+dw <- d[bf[,1] <= -102, ]
+```
+
+
+### CART
+
+Let's first look at a Classification and Regression Trees (CART) model.
+
+```{r, sup10}
+library(rpart)
+cart <- rpart(pa~., data=dw)
+printcp(cart)
+plotcp(cart)
+plot(cart, uniform=TRUE, main="Regression Tree")
+text(cart, cex=.8)
+# text(cart, use.n=TRUE, all=TRUE, cex=.8)
+```
+
+
+__Question 1__: *Describe the conditions under which you have the highest probability of finding our beloved species?*
+
+
+### Random Forest
+
+CART gives us a nice result to look at that can be easily interpreted (as you just illustrated with your answer to Question 1). But the approach suffers from high variance (meaning that the model will be over-fit, it is different each time a somewhat different datasets are used). Random Forest does not have that problem as much. Above, with CART, we use regression, let's do both regression and classification here. First classification.
+
+```{r, sup11}
+library(randomForest)
+# create a factor to indicated that we want classification
+fpa <- as.factor(dw[, 'pa'])
+```
+
+Now fit the RandomForest model
+
+```{r, sup12a}
+crf <- randomForest(dw[, 2:ncol(dw)], fpa)
+crf
+plot(crf)
+```
+
+The variable importance plot shows which variables are most important in fitting the model. 
+This is computing by randomizing each variable one by one and then computing the decline in model prediction.
+
+```{r, sup12b}
+varImpPlot(crf)
+```
+
+Now we use regression, rather than classification.
+First we tune a parameter.
+
+```{r, sup14a}
+trf <- tuneRF(dw[, 2:ncol(dw)], dw[, 'pa'])
+trf
+mt <- trf[which.min(trf[,2]), 1]
+mt
+```
+
+__Question 2__: *What did tuneRF help us find? What does the values of mt represent?*
+
+
+```{r, sup14b}
+rrf <- randomForest(dw[, 2:ncol(d)], dw[, 'pa'], mtry=mt)
+rrf
+plot(rrf)
+varImpPlot(rrf)
+```
+
+
+## Predict
+
+We can use the model to make predictions to any other place for which we have values for the predictor variables. Our climate data is global so we could find suitable places for bigfoot in Australia. At first I only want to predict to our study region, which I define as follows.
+
+```{r}
+# Extent of the western points
+ew <- extent(SpatialPoints(bf[bf[,1] <= -102, 1:2]))
+ew
+```
+
+
+### Regression
+
+```{r, sup17a}
+rp <- predict(wc, rrf, ext=ew)
+plot(rp)
+```
+
+Note that the regression predictions are well-behaved, in the sense that they are between 0 and 1. However, they are continuous within that range, and if you wanted presence/absence, you would need a threshold. To get the optimal threshold, you would normally have a hold out data set, but here I used the training data for simplicity. 
+
+```{r, sup17b}
+eva <- evaluate(dw[dw$pa==1, ], dw[dw$pa==0, ], rrf)
+eva
+```
+
+
+We can make a [ROC plot](http://gim.unmc.edu/dxtests/roc2.htm)
+```{r, sup18}
+plot(eva, 'ROC')
+```
+
+Find a good threshold to determine presence/absence and plot the prediction.
+```{r, sup19}
+tr <- threshold(eva)
+tr
+plot(rp > tr[1, 'spec_sens'])
+```
+
+
+### Classification
+
+We can also use the classification Random Forest model to make a prediction.
+
+```{r, sup20a}
+rc <- predict(wc, crf, ext=ew)
+plot(rc)
+```
+
+You can also get probabilities for the classes 
+```{r, sup20b}
+rc2 <- predict(wc, crf, ext=ew, type='prob', index=2)
+plot(rc2)
+```
+
+
+## Extrapolation
+
+Now, let's see if our model is general enough to predict the distribution of the Eastern species. 
+
+```{r, sup22}
+de <- na.omit(de)
+eva2 <- evaluate(de[de$pa==1, ], de[de$pa==0, ], rrf)
+eva2
+plot(eva2, 'ROC')
+```
+
+We can also look at it on a map.
+
+```{r, sup24}
+eus <- extent(SpatialPoints(bf[, 1:2]))
+eus
+rcusa <- predict(wc, rrf, ext=eus)
+plot(rcusa)
+points(bf[,1:2], cex=.25)
+```
+
+
+__Question 4__: *Why would it be that the model does not extrapolate well?*
+
+An important question in the biogeography of the western species is why it does not occur in Mexico. Or if it does, where would that be?
+
+Let's see.
+
+```{r, sup26}
+mex <- getData('GADM', country='MEX', level=1)
+pm <- predict(wc, rrf, ext=mex)
+pm <- mask(pm, mex)
+plot(pm)
+```
+
+__Question 5__: *Where in Mexico are you most likely to encounter western bigfoot?*
+
+We can also estimate range shifts due to climate change
+
+
+```{r, sup28}
+fut <- getData('CMIP5', res=10, var='bio', rcp=85, model='AC', year=70)
+names(fut)
+names(wc)
+names(fut) <- names(wc)
+futusa <- predict(fut, rrf, ext=eus, progress='window')
+plot(futusa)
+```
+
+__Question 6__: *Make a map to show where conditions are improving for western bigfoot, and where they are not. Is the species headed toward extinction?*
+
+
+
+## Further reading
+
+More on [Species distribution modeling with R](/sdm); and on the use of [boosted regression trees](http://cran.r-project.org/web/packages/dismo/vignettes/brt.pdf) in the same context.
+
