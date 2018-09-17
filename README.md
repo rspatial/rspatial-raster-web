@@ -7,25 +7,17 @@
 
 ### Contributing ###
 
-We are still working on the exact contributor agreement and final license. See [ticket #6](https://bitbucket.org/hijmans-lab/rspatial-web/issues/6/create-contributor-agreement)
+We are still working on the exact contributor agreement and final license.
 It will be an open and free license and we'll accept large contributions via Copyright Assignment for larger contributions.
 
 ### How do I get set up? ###
-
-You only need to clone the code if you plan to modify it.
-
-#### Clone everything ####
-
-```
-git clone https://bitbucket.org/hijmans-lab/rspatial-web.git
-```
 
 #### Dependencies ####
 
 * R
 * Various R packages (see [requirements.R](requirements.R))
-* Sphinx
-* Maxent (installed into dismo package java folder)
+* Python
+* The python package "sphinx"
 * pandoc
 
 #### Building ####
