@@ -30,10 +30,11 @@ In this context, this type of analysis is often referred to as 'species distribu
 
 ### Observations
 
-[Here is the data](https://biogeo.ucdavis.edu/data/rspatial/bigfoot.csv) for the reported observations, extracted from http://www.bfro.net/ in May 2012.  
-
-```{r}
-bf <- read.csv("data/bigfoot.csv")
+```{r getData, echo=TRUE}
+if (!require("devtools")) install.packages("devtools")
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
+bf <- sp_data('bigfoot')
 dim(bf)
 head(bf)
 ```

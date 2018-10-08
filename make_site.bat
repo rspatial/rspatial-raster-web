@@ -46,4 +46,4 @@ xcopy source\manual\rst\Rcode\*.R  _build\html\_sources\manual\rst\*.txt /Y /Q
 xcopy source\manual\_build\latex\*.pdf  _build\html\_sources\manual\rst\*.pdf /Y /Q
 rem xcopy source\manual\rst\data\*.*  _build\html\manual\data\*.* /Y /Q
 
-R CMD BATCH --no-save --no-restore cropRcode.R
+R CMD BATCH --no-save --no-restore copyRcode.R

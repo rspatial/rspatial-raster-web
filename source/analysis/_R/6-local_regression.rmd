@@ -14,28 +14,16 @@ Regression models are typically "global". That is, all date are used simultaneou
 
 There are two examples here. One short example with California precipitation data, and than a more elaborate example with house price data.
 
-### Get the data
-
-```{r getData}
-# Make sure the data directory exists if not make it
-dir.create('data', showWarnings = FALSE)
-files <- c('precipitation.csv', 'counties.rds', 'houses1990.csv')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
-```
 
 ## California precipitation
 
-Here is an example of GWR with California precipitation data.  Get the data with the script above, or download it here: (precipitation data](https://biogeo.ucdavis.edu/data/rspatial/precipitation.csv) and [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds).
+```{r getDataLocal}
+if (!require("devtools")) install.packages("devtools")
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 
-
-```{r, loca10}
-cts <- readRDS('data/counties.rds')
-p <- read.csv('data/precipitation.csv')
+library(rspatial)
+cts <- sp_data('counties')
+p <- sp_data('precipitation')
 head(p)
 
 plot(cts)
@@ -103,7 +91,7 @@ We will use house prices data from the 1990 census, taken from "Pace, R.K. and R
 You can download the data [here](https://biogeo.ucdavis.edu/data/rspatial/houses1990.csv)
 
 ```{r}
-houses <- read.csv("data/houses1990.csv")
+houses <- sp_data("houses1990.csv")
 dim(houses)
 head(houses)
 ```

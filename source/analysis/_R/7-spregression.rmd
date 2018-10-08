@@ -23,23 +23,18 @@ We use California house price data from the 2000 Census.
 
 ### Get the data
 
-You can [download the data here](https://biogeo.ucdavis.edu/data/rspatial/houses2000.rds) or with the script below. 
-
 ```{r getData}
-dir.create('data', showWarnings = FALSE)
-filename <- 'houses2000.rds'
-localfile <- file.path('data', filename)
-if (!file.exists(localfile)) {
-	download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-}
+if (!require("devtools")) install.packages("devtools")
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+
+library(rspatial)
+h <- sp_data('houses2000')
 ```
 
 I have selected some variables on on housing and population. You can get more data from the American Fact Finder http://factfinder2.census.gov (among other web sites). 
 
 ```{r}
 library(raster)
-h <- readRDS('data/houses2000.rds')
-
 dim(h)
 names(h)
 ```

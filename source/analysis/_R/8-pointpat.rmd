@@ -14,31 +14,17 @@ library(spatstat)
 
 ## Introduction
 
-We are using a dataset of crimes in a city. Start by reading the data. 
+We are using a dataset of crimes in a city. Start by reading in the data. 
 
-
-### Get the data
-
-You can download the data here: [crime](https://biogeo.ucdavis.edu/data/rspatial/crime.rds), [city](https://biogeo.ucdavis.edu/data/rspatial/city.rds), [census](https://biogeo.ucdavis.edu/data/rspatial/census2000.rds).
-Or with the script below.
-
-```{r getData, echo=TRUE}
-# Make sure the data directory exists if not make it
-dir.create('data', showWarnings = FALSE)
-files <- c('city.rds', 'crime.rds', 'census2000.rds')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+```{r getDatapp}
+# If have not yet done so, first install the rspatial package (see the line below). You may need to install the devtools package first
+if (!require("devtools")) install.packages("devtools")
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
+city <- sp_data('city')
+crime <- sp_data('crime')
 ```
 
-```{r, message=FALSE}
-library(raster)
-city <- readRDS('data/city.rds')
-crime <- readRDS('data/crime.rds')
-```
 
 Here is a map of both datasets. 
 ```{r, pp1, fig.width=8, fig.height=4}
@@ -397,7 +383,7 @@ p$n
 Here's another, lenghty, example of generalization. We can interpolate population density from (2000) census data; assigning the values to the centroid of a polygon (as explained in the book, but not a great technique). We use a shapefile with census data. 
 
 ```{r}
-census <- readRDS("data/census2000.rds")
+census <- sp_data("census2000.rds")
 ``` 
 
 To compute population density for each census block, we first need to get the area of each polygon. I transform density from persons per feet^2^ to persons per mile^2^, and then compute population density from POP2000 and the area
