@@ -18,7 +18,7 @@ We are using a dataset of crimes in a city. Start by reading in the data.
 
 ```{r getDatapp}
 # If have not yet done so, first install the rspatial package (see the line below). You may need to install the devtools package first
-if (!require("devtools")) install.packages("devtools")
+
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 library(rspatial)
 city <- sp_data('city')

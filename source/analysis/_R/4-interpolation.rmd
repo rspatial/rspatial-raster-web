@@ -29,7 +29,6 @@ You can download the data used in the examples here: [precipitation](https://bio
 We will be working with temperature data for California. 
 
 ```{r fields0}
-if (!require("devtools")) install.packages("devtools")
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 
 library(rspatial)

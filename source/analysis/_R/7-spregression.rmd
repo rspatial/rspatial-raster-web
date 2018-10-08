@@ -24,7 +24,7 @@ We use California house price data from the 2000 Census.
 ### Get the data
 
 ```{r getData}
-if (!require("devtools")) install.packages("devtools")
+
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 
 library(rspatial)

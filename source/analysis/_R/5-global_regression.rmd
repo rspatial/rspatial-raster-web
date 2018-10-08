@@ -31,7 +31,7 @@ In this context, this type of analysis is often referred to as 'species distribu
 ### Observations
 
 ```{r getData, echo=TRUE}
-if (!require("devtools")) install.packages("devtools")
+
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 library(rspatial)
 bf <- sp_data('bigfoot')

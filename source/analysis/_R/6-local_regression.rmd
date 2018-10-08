@@ -18,7 +18,7 @@ There are two examples here. One short example with California precipitation dat
 ## California precipitation
 
 ```{r getDataLocal}
-if (!require("devtools")) install.packages("devtools")
+
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 
 library(rspatial)
