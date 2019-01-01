@@ -1,35 +1,24 @@
-/build
-_build
-_static
-# TODO: convert this to git-lfs
-/data
-
 *.md
 *.html
-*.Rout
-
-source/*/figures/
-source/*/txt/
-
-source/analysis/_R/wc10/
-test.*
-cropped-landsat.*
-
-# Do no keep local data directories
-source/*/_R/data/
-
 *~
-GADM_2.8_GBR_adm0.rds
-WILDPOT.txt
-pt_countries.*
-pvals.Rds
-sdm.Rds
+*.rds
 *.tif
 *.zip
 *.rds
+*.grd
+*.gri
+*.csv
+*.dat
 
+build
+_build
+_static
+data
+figures
+txt
+wc10
 
-# R specific
+# R
 .Rproj.user
 .Rhistory
 
@@ -76,4 +65,3 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-.Rproj.user
