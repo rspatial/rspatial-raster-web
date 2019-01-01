@@ -9,6 +9,7 @@
 *.gri
 *.csv
 *.dat
+aws.bat
 
 build
 _build
