@@ -1,12 +1,9 @@
-# 4. Fundamentals
+# Fundamentals
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-	fig.width  = 5,
-	fig.height = 5,
-	fig.cap='',
-	collapse   = TRUE
+	fig.width = 5, fig.height = 5,fig.cap='', collapse = TRUE
 )
 ```
 
@@ -290,21 +287,17 @@ This is how you can create a random field (page 114/115)
 
 ```{r, p4-21}
 r <- raster(xmn=0, xmx=1, ymn=0, ymx=1, ncol=20, nrow=20)
-r[] <- rnorm(ncell(r), 0, 2)
+values(r) <- rnorm(ncell(r), 0, 2)
 plot(r)
 contour(r, add=T)
 ```
 
-But a more realistic random field will have some spatial autocorrelation. The RandomFields has functions to create these. Here is just an example for illustration purposes on you can create a stationary random field with that package.
+But a more realistic random field will have some spatial autocorrelation. We can create that with the focal function. 
 
 ```{r, p4-22, message=FALSE}
-library(RandomFields)
-x <- seq(0, 20, .1) 
-y <- seq(0, 20, .1)
-model <- RMexp(var=4, scale=10) + RMnugget(var=1)
-rf <- RFsimulate(RPgauss(model), x=x, y=y, seed=0)
-r <- raster(rf)
-plot(r)
+ra <- focal(r, w=matrix(1/9, nc=3, nr=3), na.rm=TRUE, pad=TRUE)
+ra <- focal(ra, w=matrix(1/9, nc=3, nr=3), na.rm=TRUE, pad=TRUE)
+plot(ra)
 ```
 
 

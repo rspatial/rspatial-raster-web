@@ -40,8 +40,11 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+source_parsers = {
+   '.md': 'recommonmark.parser.CommonMarkParser',
+}
+
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -51,8 +54,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Spherical computation'
-copyright = u'2015, Robert Hijmans'
-author = u'Robert Hijmans'
+copyright = u'2015-2019, Robert J. Hijmans'
+author = u'Robert J. Hijmans'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

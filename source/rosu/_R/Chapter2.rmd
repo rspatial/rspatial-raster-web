@@ -1,4 +1,4 @@
-# 2. Pitfalls and potential
+# Pitfalls and potential
 
 
 ```{r, echo=FALSE, include=FALSE}

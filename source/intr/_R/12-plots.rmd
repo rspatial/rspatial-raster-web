@@ -1,4 +1,4 @@
-# 12. Graphics
+# Graphics
 
 With R you can make beautiful plots. You have a lot of control over what you want your plots to look like. But all the control is via code, and this does make things pretty complicated at times. 
 
@@ -14,38 +14,38 @@ head(cars)
 ```
 
 As we only have two variables, we can simply do
-```{r, plot1, fig.cap=''}
+```{r, plotcars1, fig.cap=''}
 plot(cars)
 ```
  
 But to be more explicit:
 
-```{r, plot2, fig.cap=''}
+```{r, plotcars2, fig.cap=''}
 plot(cars[,1], cars[,2])
 ```
 
 And now to embellish, add axes labels.
 
-```{r, plot3, fig.cap=''}
+```{r, plotcars3, fig.cap=''}
 plot(cars[,1], cars[,2], xlab='Speed of car (miles/hr)', ylab='Stopping distance (feet)')
 ```
 
 Different symbols (`pch` is the symbol type, `cex` is the size).
 
-```{r, plot4, fig.cap=''}
+```{r, plotcars4, fig.cap=''}
 plot(cars, xlab='Speed of car (miles/hr)', ylab='Stopping distances (feet)', pch=20, cex=2, col='red')
 ```
 
 Let's change some things about the axes. Use `xlim` and `ylim` to set the start and end of an axis. `las=1` changes the orientation of the y-axis labels to horizontal.
 
-```{r, plot5, fig.cap=''}
+```{r, plotcars5, fig.cap=''}
 plot(cars, xlab='Speed', ylab='Time', pch=20, cex=2, col='red', xlim = c(0,25), las=1)
 ```
 
 Here we do not draw axes at first, and then add the lower (1) and left (2) axis, to avoid drawing the clutter from the unnecessary "upper" and "right" axis.
 Arguments `xaxs="i"` and `yaxs="i"` force the axis to touch at `(0,0)`.
 
-```{r, plot6, fig.cap=''}
+```{r, plotcars6, fig.cap=''}
 plot(cars, xlab='Speed', ylab='', pch=20, cex=2, col='red', xlim = c(0,27), ylim=c(0,125), axes=FALSE, xaxs="i", yaxs="i")
 axis(1)
 axis(2, las=1)
@@ -57,7 +57,7 @@ text(-1, 133, 'Distance\n(feet)')
 
 We can change the symbols using another variable. Let's say we have three car brands and that we want to vary the symbol type, color, and size by brand (typically one of these changes should suffice to distinguish them!). 
 
-```{r, plot6b, fig.cap=''}
+```{r, plotcars6b, fig.cap=''}
 set.seed(0)
 brands <- c('Buick', 'Chevrolet', 'Ford')
 b <- sample(brands, nrow(cars), replace=TRUE)
@@ -71,7 +71,7 @@ The important step is the use of `match`, that creates for each character string
 
 As you have seen above, `plot` takes many variables. Several other parameters influencing your plot, can be set with `par`. See `?par` for details. Here I use it to create 4 subplots (`mfrow=c(2,2)` with non-default margins (`mar=c(2,3,1.5,1.5)`).
 
-```{r, plot7, fig.cap=''}
+```{r, plotcars7, fig.cap=''}
 par(mfrow=c(2,2), mar=c(2,3,1.5,1.5))
 for (i in 1:4) {
 	plot(sample(cars[,1]), sample(cars[,2]), xlab='', ylab='', las=1)

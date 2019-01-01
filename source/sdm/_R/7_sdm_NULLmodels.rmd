@@ -1,4 +1,4 @@
-# 7 Geographic Null models
+# Geographic Null models
 
 
 ```{r, echo=FALSE, include=FALSE}

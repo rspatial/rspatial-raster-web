@@ -1,4 +1,4 @@
-# 6. Read and write files
+# Read and write files
 
 In most cases, the first step in data analysis is to read in a file with data. This can be pretty complicated due to the variations in file format. Here we discuss reading matrix-like (data.frame/spreadsheet) data structures, which is the most common case and relatively painless. 
 
@@ -116,7 +116,7 @@ And then some. (`sapply` is explained later on).
 For some files, readLines is the way to go. For example, you may want to read 'html' files if you are scraping a website. We can read this very page:
 
 ```{r, warning=FALSE}
-webpage <- readLines("http://rspatial.org/intr/rst/6-files.html")
+webpage <- readLines("http://rspatial.org/intr/rst/6-files.html", warn=FALSE)
 #show some of the first lines:
 webpage[150:155]
 ```

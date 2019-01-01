@@ -1,4 +1,4 @@
-# 5. Reading and writing spatial data
+# Reading and writing spatial data
 
 
 ```{r, echo=FALSE, include=FALSE}

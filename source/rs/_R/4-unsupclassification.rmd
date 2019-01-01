@@ -1,4 +1,4 @@
-# 4. Unsupervised Image Classification
+# Unsupervised Image Classification
 
 ```{r setup, echo=TRUE, include=FALSE}
 library(knitr)

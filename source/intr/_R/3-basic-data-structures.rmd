@@ -1,6 +1,6 @@
-# 3. Basic data structures
+# Basic data structures
 
-In the previous chapter we saw the most basic data types in *R*: vectors of numeric, integer, character, factor and boolean values. These were all stored in a vector. In this chapter we look at additional data structures that can store basic data: the `matrix`, `data.frame` and `list`.
+In the previous chapter we saw the most basic data types in *R*: vectors of numeric, integer, character, factor and boolean values. These were all stored as a `vector`. A vector is a one dimensional structure. In this chapter we look at additional, multi-dimensional, data structures that can store basic data: the `matrix`, `data.frame` and `list`.
 
 ## Matrix
 
@@ -87,7 +87,8 @@ cbind(vchar=c('a','b'), vnumb=1:2)
 ```
 You can see that 1 and 2 are character values because they are quoted. You could not use them in algebra without first converting them back to numbers. Note that the column names were set by providing them to `cbind`
 
-A matrix is a two dimensional array. Higher dimensional arrays can also be created. See `help(array)`, but these are not that commonly used, so we do not discuss them here.
+A matrix is a two dimensional array. Higher dimensional arrays can also be created. See `help(array)`, but these data structures are not that commonly used, so we do not discuss them here.
+
 
 ## List
 

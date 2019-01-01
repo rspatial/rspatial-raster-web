@@ -1,4 +1,4 @@
-# 7. Data exploration
+# Data exploration
 
 After reading data from a file (see the previous chapter), the next thing to do is to look at some summary statistics. This is in the first place just to check your data. Very often you discover some strange values that are not quite right. Careful inspection of your data after you read it is very important. It can help avoid a lot of trouble later on when you are trying to explain odd results!
 

@@ -1,4 +1,4 @@
-# 2. Data preparation
+# Data preparation
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

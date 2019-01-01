@@ -1,4 +1,4 @@
-# 9. Apply
+# Apply
 
 The "apply family" of functions (`apply`, `tapply`, `lapply` and others) and related functions such as `aggregate` are central to using *R*. They provide an concise, elegant and efficient approach to apply (sometimes referred to as "to map") a function to a set of cases, be they rows or columns in a matrix or data.frame, or elements in a list. 
 

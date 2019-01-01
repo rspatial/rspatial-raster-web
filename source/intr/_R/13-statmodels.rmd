@@ -1,4 +1,4 @@
-# 13. Statistical models
+# Statistical models
 
 There are many type of statistical models. Here we show how to make simple regression models with *R*. Other modeling approaches tend to use similar syntax. 
 

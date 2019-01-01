@@ -1,4 +1,4 @@
-# 1. Introduction
+# Introduction
 
 This is an introduction to spatial data manipulation with *R*. In this context "spatial data" refers to data about geographical locations, that is, places on earth. So to be more precise, we should speak about "geospatial" data, but we use the shorthand "spatial". 
 

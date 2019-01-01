@@ -1,4 +1,4 @@
-# 4. Interpolation
+# Interpolation
 
 ```{r, include=FALSE}
 library(knitr)
@@ -18,19 +18,17 @@ library(fields)
 
 Almost any variable of interest has [spatial autocorrelation](/analysis/rst/3-spauto.html). That can be a problem in statistical tests, but it is a very useful feature when we want to predict values at locations where no measurements have been made; as we can generally safely assume that values at nearby locations will be similar. There are several spatial interpolation techniques. We show some of them in this chapter.
 
-### Get the data
-
-
-You can download the data used in the examples here: [precipitation](https://biogeo.ucdavis.edu/data/rspatial/precipitation.csv), [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds), [airqual](https://biogeo.ucdavis.edu/data/rspatial/airqual.csv), or with the script below.
-
-
 ## Temperature in California 
 
-We will be working with temperature data for California. 
+We will be working with temperature data for California. If have not yet done so, first install the rspatial package to get the data. You may need to install the devtools package first.
+
+```{r fields00}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+```
+
+Now get the data
 
 ```{r fields0}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
-
 library(rspatial)
 d <- sp_data('precipitation')
 head(d)

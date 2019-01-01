@@ -1,4 +1,4 @@
-# 1. Introduction
+# Introduction
 
 In this section we introduce a number of approaches and techniques that are commonly used in spatial data analysis and modelling.
 

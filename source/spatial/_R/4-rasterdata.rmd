@@ -1,4 +1,4 @@
-# 4. Raster data 
+# Raster data 
 
 
 ```{r, echo=FALSE, include=FALSE}

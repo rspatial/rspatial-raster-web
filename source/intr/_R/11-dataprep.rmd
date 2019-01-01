@@ -1,4 +1,4 @@
-# 11. Data preparation
+# Data preparation
 
 A very large part of research work can consist of data gathering, cleaning, combining and formatting. You may spend much more time on data preparation than on analysis, modeling or visualization. R provides some tools to make this process easier; but doing this well also requires that you carefully consider your options. See [Wickham (2014)](http://www.jstatsoft.org/article/view/v059i10/) for a discussion. Two very important functions in this context are `reshape` and `merge`. Sorting of data can also be helpful. 
 

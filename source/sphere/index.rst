@@ -6,10 +6,10 @@ Spherical computation
 .. toctree::
 	:maxdepth: 3
 
-	rst/1-introduction
-	rst/2-distance
-	rst/3-direction
-	rst/4-tracks
-	rst/5-polygons
+	1-introduction
+	2-distance
+	3-direction
+	4-tracks
+	5-polygons
 
 

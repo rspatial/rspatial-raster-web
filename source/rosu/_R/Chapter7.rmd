@@ -1,19 +1,12 @@
-# 7. Spatial autocorrelation
+# Spatial autocorrelation
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-  fig.width  = 5,
-  fig.height = 5,
-  fig.cap='',
-  collapse = TRUE
-)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='', collapse = TRUE )
 library(rgeos)
 library(raster)
 library(spdep)
 library(deldir)
-#Set path to data folder once
-datapath <- "../../data/"
 ```
 
 ## 7.1 Introduction
@@ -22,15 +15,9 @@ This handout accompanies Chapter 7 in [O'Sullivan and Unwin (2010)](http://www.w
 
 ### Get the data
 
-You can download the data here: [auctb](https://biogeo.ucdavis.edu/data/rspatial/auctb.rds), or with the script below.
-
 ```{r getData, echo=TRUE}
-dir.create('data', showWarnings = FALSE)
-filename <- 'auctb.rds'
-localfile <- file.path('data', filename)
-if (!file.exists(localfile)) {
-	download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
 ```
 
 
@@ -89,7 +76,7 @@ area(sppol)
 "Contact numbers" for the lower 48 states. Get the polygons:
 ```{r}
 library(raster)
-usa <- getData('GADM', country='USA', level=1)
+usa <- raster::getData('GADM', country='USA', level=1)
 usa <- usa[! usa$NAME_1 %in% c('Alaska', 'Hawaii'), ]
 ```
 
@@ -120,11 +107,12 @@ Apparantly, I am using a different data set than OSU (compare the above with tab
 ## 7.4 Spatial structure
 
 
-Read the Auckland data (download [here](data/auctb.rds)).
+Read the Auckland data.
 
 ```{r, auck1}
-library(raster)
-pols <- readRDS('data/auctb.rds')
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
+pols <- sp_data("auctb.rds")
 ``` 
 
 

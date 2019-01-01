@@ -1,4 +1,4 @@
-# 5. Model fitting, prediction, and evaluation
+# Model fitting, prediction, and evaluation
 
 
 ```{r, echo=FALSE, include=FALSE}

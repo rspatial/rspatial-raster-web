@@ -1,4 +1,4 @@
-# 4. Environmental data
+# Environmental data
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

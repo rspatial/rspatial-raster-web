@@ -1,4 +1,4 @@
-# 10. Kriging
+# Kriging
 
 ```{r, include=FALSE}
 library(knitr)

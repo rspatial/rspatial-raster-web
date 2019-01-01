@@ -1,12 +1,10 @@
-# 3. Direction
+# Direction
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
+library(geosphere)
 opts_chunk$set(
-	fig.width = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse = TRUE
+	fig.width = 5,	fig.height = 5,	fig.cap = '',collapse = TRUE
 )
 ```
 
@@ -19,6 +17,10 @@ opts_chunk$set(
 Function destPoint returns the location of point given a point of origin, and a distance and bearing. Its perhaps obvious use in georeferencing locations of distant sitings. It can also be used to make circular polygons (with a fixed radius, but in longitude/latitude coordinates)
 
 ```{r, geo5a}
+library(geosphere)
+LA <- c(-118.40, 33.95)
+NY <- c(-73.78,  40.63)
+
 destPoint(LA, b=65, d=100000)
 circle=destPoint(c(0,80), b=1:365, d=1000000)
 circle2=destPoint(c(0,80), b=1:365, d=500000)
@@ -39,6 +41,7 @@ MS <- c(-93.26, 44.98)
 gc1 <- greatCircleBearing(NY, 281)
 gc2 <- greatCircleBearing(MS, 195)
 gc3 <- greatCircleBearing(LA, 55)
+data(wrld)
 plot(wrld, type='l', xlim=c(-125, -70), ylim=c(20, 60))
 lines(gc1, col='green')
 lines(gc2, col='blue')
@@ -80,6 +83,7 @@ What if we went off-course and were flying over Minneapolis (MS)? The closest po
 atd <- alongTrackDistance(LA, NY, MS)
 p <- destPoint(LA, b, atd)
 plot(wrld, type='l', xlim=c(-130,-60), ylim=c(22,52))
+gci <- gcIntermediate(LA, NY)
 lines(gci, col='blue', lwd=2)
 points(rbind(LA, NY), col='red', pch=20, cex=2)
 points(MS[1], MS[2], pch=20, col='blue', cex=2)
@@ -96,6 +100,7 @@ Rhumb (from the Spanish word for course, 'rumbo') lines are straight lines on a 
 
 ```{r, , geo16, fig.width=9}
 NP <- c(0, 85)
+SF <- c(-122.44, 37.74)
 bearing(SF, NP)
 b <- bearingRhumb(SF, NP)
 b
@@ -106,7 +111,6 @@ dc / dr
 pr <- destPointRhumb(SF, b, d=round(dr/100) * 1:100)
 pc <- rbind(SF, gcIntermediate(SF, NP), NP)
 par(mfrow=c(1,2))
-data(wrld)
 plot(wrld, type='l', xlim=c(-140,10), ylim=c(15,90), main='Equirectangular')
 lines(pr, col='blue')
 lines(pc, col='red')
@@ -116,7 +120,4 @@ plot(merc, type='l', xlim=c(-15584729, 1113195),
 lines(mercator(pr), col='blue')
 lines(mercator(pc), col='red')
 ```
-
-
-
 

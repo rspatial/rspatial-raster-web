@@ -1,12 +1,9 @@
-# 6. Local regression
+# Local regression
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-	fig.width = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse = TRUE
+	fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
 ```
 
@@ -22,11 +19,11 @@ There are two examples here. One short example with California precipitation dat
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 
 library(rspatial)
-cts <- sp_data('counties')
+counties <- sp_data('counties')
 p <- sp_data('precipitation')
 head(p)
 
-plot(cts)
+plot(counties)
 points(p[,c('LONG', 'LAT')], col='red', pch=20)
 ```
 
@@ -49,7 +46,7 @@ sp <- p
 coordinates(sp) = ~ LONG + LAT
 crs(sp) <- "+proj=longlat +datum=NAD83"
 spt <- spTransform(sp, alb)
-ctst <- spTransform(cts, alb)
+ctst <- spTransform(counties, alb)
 ```
 
 
@@ -111,7 +108,6 @@ Now get the county boundaries and assign CRS of the houses data matches that of 
 
 ```{r}
 library(raster)
-counties <- readRDS("data/counties.rds")
 crs(houses) <- crs(counties)
 ```
 

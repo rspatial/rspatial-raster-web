@@ -1,4 +1,4 @@
-# 4. Indexing
+# Indexing
 
 There are multiple ways to access or replace values in vectors or other data structures. The most common approach is to use "indexing". This is also referred to as "slicing".
 
@@ -11,12 +11,22 @@ Here are some examples that show how elements of vectors can be obtained by inde
 ```{r}
 b <- 10:15
 b
-# get the first element
+```
+Get the first element of a vector
+```{r}
 b[1]
-# the second element
+```
+
+Get the first second element of a vector
+```{r}
 b[2]
-# elements 2 to 3
+```
+
+Get elements 2 and 3
+```{r}
 b[2:3]
+# this is the same as
+b[c(2,3)]
 ```
 
 Now a more advanced example, return all elements except the second

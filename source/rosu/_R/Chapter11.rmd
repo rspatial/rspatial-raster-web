@@ -1,12 +1,9 @@
-# 11. Map overlay
+# Map overlay
 
 ```{r, include=FALSE}
 library(knitr)
 opts_chunk$set(
-  fig.width  = 5,
-  fig.height = 5,
-  fig.cap = '',
-  collapse   = TRUE
+  fig.width = 5, fig.height = 5, fig.cap = '', collapse   = TRUE
 )
 library(rgeos)
 library(rgdal)
@@ -29,17 +26,10 @@ This document shows some example *R* code to do "overlays" and associated spatia
 
 ### Get the data
 
-You can download the data for this tutorial [here](https://biogeo.ucdavis.edu/data/rspatial/overlay.zip), or with the script below.
+You can get the data for this tutorial with the "rspatial" package that you can install with the line below. 
 
 ```{r getData, echo=TRUE}
-dir.create('data', showWarnings = FALSE)
-files <- c('city.rds', 'counties.rds', 'parks.rds', 'yolo-rail.rds', 'elevation.tif')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
 ## 11.2 Selection by attribute
@@ -47,8 +37,9 @@ for (filename in files) {
 By now, you are well aware that in *R*, polygons and their attributes can be represented by a 'SpatialPolygonsDataFrame' (a class defined in the sp package). Let's read the shapefile of California counties.
 
 ```{r}
+library(rspatial)
 library(raster)
-counties <- readRDS('data/counties.rds')
+counties <- sp_data('counties.rds')
 ```
 
 Selection by attribute of elements of a `SpatialPolygonsDataFrame` is similar to selecting rows from a `data.frame`. For example, to select Yolo county by its name:
@@ -71,13 +62,13 @@ You can interactively select counties this way:
 I want to select the railroads in the city of Davis from the railroads in Yolo county. First read the data, and do an important sanity check: are the coordinate reference systems ("projections") the same?
 
 ```{r}
-rail <- readRDS('data/yolo-rail.rds')
+rail <- sp_data('yolo-rail.rds')
 rail
 # removing attributes that I do not care about
 rail <- geometry(rail)
 class(rail)
 
-city <- readRDS(file.path(datapath,'city.rds'))
+city <- sp_data('city.rds')
 class(city)
 city <- geometry(city)
 class(city)
@@ -150,7 +141,7 @@ round(100 * area(rail_buf) / area(cityTA))
 
 Which park in Davis is furthest, and which is closest to the railroad? First get the parks data. 
 ```{r}
-parks <- readRDS('data/parks.rds')
+parks <- sp_data('parks.rds')
 proj4string(parks)
 parksTA <- spTransform(parks, TA)
 ```
@@ -235,12 +226,12 @@ raster data can be read with readGDAL to get a SpatialGridDataFrame. But I prefe
 
 ```{r}
 library(raster)
-# create a RasterLayer object from a file
-alt <- raster("data/elevation.tif")
+# get a RasterLayer with elevation data
+alt <- sp_data("elevation")
 alt
 ```
 
-RasterLayer 'alt' is in lon/lat, and so is 'yolo'. However, 'yolo' has a different datum (NAD83) than 'alt' (WGS84). While there is no real difference between these, this will lead to errors, so we first transform yolo. It is generally better to match vector data to raster data than vice versa. 
+The CRS of RasterLayer 'alt' is "lon/lat"", and so is the CRS of 'yolo'. However, 'yolo' has a different datum (NAD83) than 'alt' (WGS84). While there is no real difference between these, this will lead to errors, so we first transform yolo. It is generally better to match vector data to raster data than vice versa. 
 
 ```{r, over20, fig.width=7}
 yolo <- spTransform(yolo, crs(alt))

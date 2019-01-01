@@ -1,4 +1,4 @@
-# 8. Raster data manipulation
+# Raster data manipulation
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

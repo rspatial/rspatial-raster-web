@@ -1,4 +1,4 @@
-# 5. Area of polygons and sampling
+# Area of polygons and sampling
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

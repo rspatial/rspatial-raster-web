@@ -1,4 +1,4 @@
-# 3. Spatial autocorrelation
+# Spatial autocorrelation
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

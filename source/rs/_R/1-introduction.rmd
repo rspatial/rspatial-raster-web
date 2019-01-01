@@ -1,4 +1,4 @@
-# 1. Introduction
+# Introduction
 
 ```{r setup, echo=TRUE, include=FALSE}
 library(knitr)

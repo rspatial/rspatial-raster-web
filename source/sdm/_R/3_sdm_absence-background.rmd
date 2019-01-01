@@ -1,4 +1,4 @@
-# 3. Absence and background points
+# Absence and background points
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

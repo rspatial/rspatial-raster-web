@@ -1,14 +1,12 @@
-# 8. Point pattern analysis
+# Point pattern analysis
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-    fig.width  = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse  = TRUE
+    fig.width = 5, fig.height = 5, fig.cap = '', collapse  = TRUE
 )
 library(rgeos)
+library(raster)
 library(spatstat)
 ```
 
@@ -17,8 +15,6 @@ library(spatstat)
 We are using a dataset of crimes in a city. Start by reading in the data. 
 
 ```{r getDatapp}
-# If have not yet done so, first install the rspatial package (see the line below). You may need to install the devtools package first
-
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 library(rspatial)
 city <- sp_data('city')
@@ -80,7 +76,7 @@ lines(circle, col='red', lwd=2)
 Here is a basic approach to computing point density. 
 
 ```{r, message=FALSE}
-CityArea <- area(city)
+CityArea <- raster::area(city)
 dens <- nrow(xy) / CityArea
 ``` 
 
@@ -413,15 +409,14 @@ points(p, col='red', pch=20, cex=.25)
 plot(win, add=TRUE, border='blue', lwd=3)
 ``` 
 
-Now we can use 'smooth.ppp' to interpolate. Population density at the points is referred to as the 'marks'
+Now we can use 'Smooth.ppp' to interpolate. Population density at the points is referred to as the 'marks'
 ```{r}
 owin <- as.owin(win)
 pp <- ppp(p[,1], p[,2], window=owin, marks=census$dens)
 pp
 ``` 
 
-Note the warning message: "1 point was rejected as lying outside the specified window". 
-That is odd, there is a polygon that has a centroid that is outside of the polygon. This can happen with, e.g., kidney shaped polygons.
+Note the warning message: "1 point was rejected as lying outside the specified window". That is odd, there is a polygon that has a centroid that is outside of the polygon. This can happen with, e.g., kidney shaped polygons.
 
 Let's find and remove this point that is outside the study area.
 ```{r}
@@ -456,7 +451,7 @@ plot(city, add=TRUE)
 
 And to get a smooth interpolation of population density.
 ```{r, pp25}
-s <- smooth.ppp(pp)
+s <- Smooth.ppp(pp)
 plot(s)
 plot(city, add=TRUE)
 ``` 
@@ -513,9 +508,9 @@ plot(ketheft)
 Let's try to answer the question you have been wanting to answer all along. Is population density a good predictor of being (booked for) "drunk in public" and for "Arson"? One approach is to do a Kolmogorov-Smirnov ('kstest') on 'Drunk in Public' and 'Arson', using population density as a covariate:
 
 ```{r}
-KS.arson <- kstest(spp$Arson, ds)
+KS.arson <- cdf.test(spp$Arson, ds)
 KS.arson
-KS.drunk <- kstest(spp$'Drunk in Public', ds)
+KS.drunk <- cdf.test(spp$'Drunk in Public', ds)
 KS.drunk
 ``` 
 

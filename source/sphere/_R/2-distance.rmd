@@ -1,12 +1,9 @@
-# 2. Distance
+# Distance
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-	fig.width = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse = TRUE
+	fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
 ```
 

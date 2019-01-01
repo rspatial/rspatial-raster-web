@@ -1,4 +1,4 @@
-# 7. Spatial regression models
+# Spatial regression models
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)

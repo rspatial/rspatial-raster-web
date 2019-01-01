@@ -1,4 +1,4 @@
-# 7. Vector data manipulation
+# Vector data manipulation
 
 
 ```{r, echo=FALSE, include=FALSE}

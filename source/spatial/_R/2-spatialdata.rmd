@@ -1,4 +1,4 @@
-# 2. Spatial data
+# Spatial data
 
 
 ```{r, echo=FALSE, include=FALSE}

@@ -3,44 +3,38 @@
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-	fig.width = 6,
-	fig.height = 6,
-	fig.cap = '',
-	collapse = TRUE
+	fig.width = 6, fig.height = 6,	fig.cap = '', collapse = TRUE
 )
 library(rgdal)
 library(rgeos)
 ```
 
 
-## 2.1 Introduction
+## Introduction
 
 In this case-study I show some techniques that can be used to analyze species distribution data with *R*. Before going through this document you should at least be somewhat familiar with *R* and [spatial data manipulation in *R*](/spatial). This document is based on an analysis of the distribution of wild potato species by Hijmans and Spooner (2001). Wild potatoes (Solanaceae; *Solanum* sect. *Petota* are relatives of the cultivated potato. There are nearly 200 different species that occur in the Americas. 
 
 
-## 2.2 Import and prepare data
+## Import and prepare data
 
-First download the data (in a zip file), and extract the files from the zip file.
+The data we will use is available in the rspatial package. First install that from github, using `devtools`.
 ```{r, a1}
-# Make sure the data directory exists if not make it
-dir.create('data', showWarnings = FALSE)
-if (!file.exists('data/WILDPOT.txt')) {
-	download.file('https://biogeo.ucdavis.edu/data/rspatial/wildpot.zip', dest = 'data/wildpot.zip')
-	unzip('data/wildpot.zip', exdir='data')
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
 The extracted file is a tab delimited text file. Normally, you would read such a file with something like:
 
 ```{r, a1b}
-d <- read.table('data/WILDPOT.txt', header=TRUE)
+f <- system.file("WILDPOT.txt", package="rspatial")
+f
+d <- read.table(f, header=TRUE)
 ```
 
 But that does not work in this case because some lines are incomplete. So we have to resort to some more complicated tricks.
 
 ```{r, a2}
 # read all lines using UTF-8 encoding
-d <- readLines('data/WILDPOT.txt', encoding='UTF-8')
+d <- readLines(f, encoding='UTF-8')
 # split each line into elements using the tabs
 dd <- strsplit(d, '\t')
 # show that the number of elements varies
@@ -83,17 +77,11 @@ v$lat[v$LatH == 'S'] <- -1 * v$lat[v$LatH == 'S']
 head(v)
 ```
 
-Download and read a shapefile with most of the countries of the Americas.
+Get a SpatialPolygonsDataFrame with most of the countries of the Americas.
 ```{r, a4}
-
-if (!file.exists("data/pt_countries.shp")) {
-	download.file('https://biogeo.ucdavis.edu/data/rspatial/pt_countries.zip', 'data/pt_countries.zip')
-	unzip('data/pt_countries.zip',exdir="data")
-}
-
-
 library(raster)
-cn <- shapefile('data/pt_countries.shp')
+library(rspatial)
+cn <- sp_data('pt_countries')
 proj4string(cn) <- CRS("+proj=longlat +datum=WGS84")
 class(cn)
 ```
@@ -326,21 +314,21 @@ Plot the hulls. First remove the empty hulls (you cannot make a hull if you do n
 i <- which(!sapply(hull, is.null))
 h <- hull[i]
 # combine them
-hh <- do.call(h, bind)
+hh <- do.call(bind, h)
 plot(hh)
 ```
 
 Get the area for each hull, taking care of the fact that some are NULL.
 
 ```{r, f4c}
-a <- sapply(hull, function(i) ifelse(is.null(i), 0, area(i)))
-plot(rev(sort(a))/1000, ylab='Area of convex hull')
+ahull <- sapply(hull, function(i) ifelse(is.null(i), 0, area(i)))
+plot(rev(sort(ahull))/1000, ylab='Area of convex hull')
 ```
 
 
 Compare all three measures
 ```{r, f5}
-  d <- cbind(maxD,CA,hull)
+  d <- cbind(maxD, CA, ahull)
   pairs(d)
 ```
 

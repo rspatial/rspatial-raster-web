@@ -1,4 +1,4 @@
-# 8. Functions
+# Functions
 
 We now have used many functions that come with *R*. For example `c`, `matrix`, `read.csv`, and `sum`. Functions are always used ('called') by typing their name, followed by parenthesis. In most, but not all, cases you supply 'arguments' within the parenthesis. If you do not type the parenthesis the function is not called. Instead, either the function definition or some of type of reference to it is shown.
 

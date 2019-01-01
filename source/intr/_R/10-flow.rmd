@@ -1,4 +1,4 @@
-# 10. Flow control
+# Flow control
 
 Most programs have two general control-flow features: iteration and alternation. Iteration is done via "loops", alteration via "if-then-else" branches. 
 
@@ -22,7 +22,7 @@ for (i in 1:3) {
 }
 ```
 
-Now let's do something with `i`. You normally do not use `print` inside a loop. I am only doing that to illustrate what is going on. 
+Now let's do something with `i`. You normally do not use `print` inside a loop. I am only doing that here to illustrate what is going on. 
 
 ```{r}
 j <- 0

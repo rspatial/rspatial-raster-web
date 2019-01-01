@@ -1,4 +1,4 @@
-# 3 Basic mathematical operations
+# Basic mathematical operations
 
 
 ```{r setup, echo=TRUE, include=FALSE}

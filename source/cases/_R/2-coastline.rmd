@@ -3,10 +3,7 @@
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-	fig.width = 4,
-	fig.height = 5,
-	fig.cap = '',
-	collapse = TRUE
+	fig.width = 4, fig.height = 5, fig.cap = '', collapse = TRUE
 )
 library(raster)
 library(rgdal)
@@ -18,14 +15,14 @@ First we get a high spatial resolution (30 m) coastline for the United Kingdom f
 
 ```{r, frac1}
 library(raster)
-uk <- getData('GADM', country='GBR', level=0)
+uk <- raster::getData('GADM', country='GBR', level=0)
 par(mai=c(0,0,0,0))
 plot(uk)
 ```
 
 This is a single 'multi-polygon' (it has a single feature) and a longitude/latitude coordinate reference system. 
 ```{r}
-uk[,1:4]
+data.frame(uk)
 ```
 
 Let's transform this to a planar coordinate system. That is not required, but it will speed up computations. We used the "British National Grid" coordinate reference system, which is based on the Transverse Mercator (tmerc) projection.  
@@ -46,7 +43,7 @@ We only want the main island, so want need to separate (disaggregate) the differ
 
 ```{r}
 duk <- disaggregate(guk)
-duk[,1:4]
+head(duk)
 ```
 
 Now we have 920 features. We want the largest one. 

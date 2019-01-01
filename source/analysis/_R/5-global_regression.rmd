@@ -1,13 +1,10 @@
-# 5. Spatial distribution models
+# Spatial distribution models
 
 
 ```{r, include=FALSE}
 library(knitr)
 opts_chunk$set(
-  fig.width  = 5,
-  fig.height = 5,
-  fig.cap = '',
-  collapse   = TRUE
+  fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
 ```
 
@@ -55,7 +52,7 @@ Supervised classification often uses predictor data obtained from satellite remo
 
 ```{r, sup3}
 library(raster)
-wc <- getData('worldclim', res=10, var='bio')
+wc <- raster::getData('worldclim', res=10, var='bio')
 plot(wc[[c(1, 12)]], nr=2)
 ```
 

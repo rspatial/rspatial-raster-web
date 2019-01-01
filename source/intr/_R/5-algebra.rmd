@@ -1,4 +1,4 @@
-# 5. Algebra
+# Algebra
 
 Vectors and matrices can be used to compute new vectors (matrices) with simple and intuitive algebraic expressions. 
 

@@ -4,11 +4,16 @@ _static
 # TODO: convert this to git-lfs
 /data
 
-_R/md
-_R/figures
-_R/run.Rout
-rst
+*.md
+*.html
 *.Rout
+
+source/*/figures/
+source/*/txt/
+
+source/analysis/_R/wc10/
+test.*
+cropped-landsat.*
 
 # Do no keep local data directories
 source/*/_R/data/

@@ -1,12 +1,9 @@
-# 8. Local statistics
+# Local statistics
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-  fig.width  = 8,
-  fig.height = 5,
-  fig.cap='',
-  collapse = TRUE
+  fig.width = 8, fig.height = 5,  fig.cap='',  collapse = TRUE
 )
 opts_knit$set(
   progress = FALSE,
@@ -27,25 +24,20 @@ This handout accompanies Chapter 8 in [O'Sullivan and Unwin (2010)](http://www.w
 
 ### Get the data
 
-Download the data for this lesson here: download here: [auctb](https://biogeo.ucdavis.edu/data/rspatial/auctb.rds), [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds), [precipitation](https://biogeo.ucdavis.edu/data/rspatial/precipitation.rds). Or with the script below.
+To get the data for this lesson, you need to have the rspatial package installed (from gitub, using devtools).
 
 
 ```{r getData, echo=TRUE}
-dir.create('data', showWarnings = FALSE)
-files <- c('auctb.rds', 'counties.rds', 'precipitation.csv')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
 Read the Auckland data.
 
 ```{r, loca1}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
 library(raster)
-auck <- readRDS('data/auctb.rds')
+auck <- sp_data('auctb.rds')
 ``` 
 
 Local Getis *Gi*
@@ -109,8 +101,8 @@ Here is an example of GWR with California precipitation data (you can download t
 
 
 ```{r, loca10}
-cts <- readRDS('data/counties.rds')
-p <- read.csv('data/precipitation.csv')
+cts <- sp_data('counties.rds')
+p <- sp_data('precipitation.csv')
 head(p)
 
 plot(cts)

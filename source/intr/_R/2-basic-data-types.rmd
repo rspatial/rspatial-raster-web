@@ -1,6 +1,6 @@
-# 2. Basic data types
+# Basic data types
 
-This chapter briefly discusses the basic data types that are used in *R*. Here we mainly show how to create data of these types. How to manipulate them is described in the following chapters. The most important basic (or "primitive") data types are the "numeric" and "character" types. Additional types are the "integer", which can be used to represent whole numbers; the "logical" and the "factor". These are all discussed below. 
+This chapter briefly discusses the basic data types that are used in *R*. Here we mainly show how to create data of these types. There is much more on how to manipulate data in the following chapters. The most important basic (or "primitive") data types are the "numeric" and "character" types. Additional types are the "integer", which can be used to represent whole numbers; the "logical" and the "factor". These are all discussed below. 
 
 
 ## Numeric and integer values
@@ -22,7 +22,7 @@ a = 7
 
 Although you can use `=`, `<-` is preferred, because the arrow clearly indicates the assignment action, and because `=` is also used in another context (to pass arguments to functions). 
 
-The name `a` is entirely arbitrary. We could have used `x`, `var`, `fruit` or any other name that would help us recognize it. There are a few restrictions: variable names cannot start with a number, and they cannot contain spaces or "special" characters, such as "*". 
+The name `a` is entirely arbitrary. We could have used `x`, `varib`, `fruit` or any other name that would help us recognize it. There are a few restrictions: variable names cannot start with a number, and they cannot contain spaces or "special" characters, such as `*` (which is used for multiplication). 
 
 To check the value of a, we can ask *R* to `show` or `print` it.
 ```{r}
@@ -71,7 +71,7 @@ You can also use the `:` to create a sequence in descending order.
 6:2
 ```
 
-For more flexibiliuty, the `seq` function can be used. For example it allows for different step sizes. In this case we go from 3 to 12, taking steps of 3. Try some variations!
+The `seq` function provides more flexibility. For example it allows for step sizes different than one. In this case we go from 3 to 12, taking steps of 3. Try some variations!
 
 ```{r}
 e <- seq(from=6, to=12, by=3)
@@ -122,9 +122,10 @@ Yi
 ```
 The error occurs because *R* tries to print the value of variable `Yi`, but there is no such variable. So remember that any time you get the error message `object 'something' not found`, the most likely reason is that you forgot to quote a character value. If not, it probably means that you have misspelled, or not yet created, the variable that you are referring to.
 
-Keep in mind R is a case-sensitive language; `a` is not the same as `A`. In computing, these are two **entirely** different and, for most intents and purposes, unrelated characters. 
+Keep in mind that *R* is case-sensitive: `a` is not the same as `A`. In most  computing contexts, `a` and `A` are **entirely** different and, for most intents and purposes, **unrelated** symbols. 
 
 Now let's create variable `countries` holding a character vector of five elements.
+
 ```{r}
 countries <- c('China', 'China', 'Japan', 'South Korea', 'Japan')
 class(countries)
@@ -148,10 +149,11 @@ It is handy to know that `letters` (a constant value, like `pi`) returns the alp
 ```{r}
 z <- letters
 z
-toupper(z)
+up <- toupper(z)
 ```
 
 Perhaps the most commonly used function for string manipulation is `paste`. This function is used to concatenate strings. For example:
+
 ```{r}
 girl <- "Mary"
 boy <- "John"
@@ -161,10 +163,10 @@ paste(girl, "likes", boy)
 By default, paste uses a space to separate the elements. You can change that with the `sep` argument.
 
 ```{r}
-paste(girl, "likes", boy, sep = ' ~ ')
+paste(girl, "likes", boy, sep = " ~ ")
 ```
 
-Sometimes you do not want any separator. You can then use `sep=''` or the `paste0` function.
+Sometimes you do not want any separator. You can then use `sep=""` or the `paste0` function.
 
 By using the "collapse" argument, we can concatenate all values of a vector into a single element.
 ```{r}
@@ -301,8 +303,11 @@ m
 ```
 Note that `NA` is *not* quoted.
 
+Properly treating missing values is very important. The first question to ask when they appear is whether they should be missing (or did you make a mistake in the data manipulation?). If they should be missing, the second question becomes how to treat them. Can they be ignored? Should the records with `NA`s be removed?
+
 
 ## Time
+
 
 Representing time is a somewhat complex problem. There are different calendars, hours, days, months, and leap years to consider. As a basic introduction, here is simple way to create date values.
 

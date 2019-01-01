@@ -1,4 +1,4 @@
-# 2. Scale and distance
+# Scale and distance
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
@@ -106,7 +106,7 @@ But in all cases, the histograms show that we do not capture the full income dis
 ```{r}
 par(mfrow=c(1,3), las=1)
 hist(r4, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
-hist(r5, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))plo
+hist(r5, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
 hist(r6, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
 ```
 

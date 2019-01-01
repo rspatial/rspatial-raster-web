@@ -1,16 +1,14 @@
-# 14. Miscellaneous 
+# Miscellaneous 
 
 ## Packages
 
 Packages are collections of *R* functions. Typically around a related set of tasks. *R* comes with a standard "base" set of packages.  Others are available for download and installation. These packages are developed by (groups of) individuals independently of the "core R" development team. Most of these packages are developed by volunteers, who write them to support their research or other work. For that reason the are highly variable in design and quality. There is also a lot of overlap between packages and it can take a while to find the ones you need to best accomplish a task. 
 
-To install a package do `install.packages("packagename")`
+To install a package, you can do `install.packages("package")`; replace "package" with the name of an actual package. For example `install.packages("raster")`.
 
-where "packagename" is replaced with the name of an actual package. For example `install.packages("raster")`
+You can install multiple packages at the same time like this: `install.packages(c("randomForest", "raster", "gstat"))`
 
-Or install multiple packages at the same time `install.packages(c("randomForest", "raster", "gstat"))`
-
-The directory where packages are stored is called the library. Once installed, they have to be loaded into the session to be used. For example:
+The directory where packages are stored is called the library. Once installed, a package needs to be loaded into the session (taken out of the library) to be used. You do that with the `library` function. For example:
 
 `library(raster)`
 

@@ -1,12 +1,9 @@
-# 9. Fields
+# Fields
 
 ```{r, include=FALSE}
 library(knitr)
 opts_chunk$set(
-  fig.width  = 5,
-  fig.height = 5,
-  fig.cap = '',
-  collapse = TRUE
+  fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
 
 library(rasterVis)
@@ -18,18 +15,10 @@ library(deldir)
 
 This handout accompanies Chapter 9 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
-Download the data for this lesson here: download here: [counties](https://biogeo.ucdavis.edu/data/rspatial/counties.rds), [precipitation](https://biogeo.ucdavis.edu/data/rspatial/precipitation.rds). Or with the script below.
-
+You can get the data for this tutorial with the "rspatial" package that you can install with the line below. 
 
 ```{r getData, echo=TRUE}
-dir.create('data', showWarnings = FALSE)
-files <- c('precipitation.csv', 'counties.rds')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
 
@@ -65,7 +54,7 @@ Note that persp returned something _invisibly_ (it won't be printed when not cap
 ```{r fields6}
 pts <- rasterToPoints(z)
 pt <- trans3d(pts[,1], pts[,2], pts[,3], vt)
-points(pt, col=rainbow(9, .75, start=.2)[round(pts[,3]/10)-2], pch=20, cex=2)
+plot(pt, col=rainbow(9, .75, start=.2)[round(pts[,3]/10)-2], pch=20, cex=2)
 ```
 
 
@@ -81,18 +70,19 @@ plot3D(z, zfac=5)
 We will be working with temperature data for California. You can [download](/data/precipitation.csv) the climate data used in the examples. 
 
 ```{r fields10}
-d <- read.csv(file.path(datapath,"precipitation.csv"))
+d <- sp_data("precipitation.csv")
 head(d)
 d$prec <- rowSums(d[, c(6:17)])
 plot(sort(d$prec), ylab='Annual precipitation (mm)', las=1, xlab='Stations')
 ```
 
-A quick map (get the counties [here](/data/counties.rds)).
 
 ```{r fields15}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+library(rspatial)
 dsp <- SpatialPoints(d[,4:3], proj4string=CRS("+proj=longlat +datum=NAD83"))
 dsp <- SpatialPointsDataFrame(dsp, d)
-CA <- readRDS("data/counties.rds")
+CA <- sp_data("counties.rds")
 
 cuts <- c(0,200,300,500,1000,3000)
 pols <- list("sp.polygons", CA, fill = "lightgray")

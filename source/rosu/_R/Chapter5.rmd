@@ -1,12 +1,9 @@
-# 5. Point pattern analysis
+# Point pattern analysis
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(
-    fig.width  = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse  = TRUE
+    fig.width = 5, fig.height = 5, fig.cap = '', collapse  = TRUE
 )
 ```
 
@@ -17,25 +14,19 @@ This page accompanies Chapter 5 of [O'Sullivan and Unwin (2010)](http://www.wile
 
 ### Get the data
 
-We are using a dataset of crimes in a city. You can download the data here: [crime](https://biogeo.ucdavis.edu/data/rspatial/crime.rds), [city](https://biogeo.ucdavis.edu/data/rspatial/city.rds), [census](https://biogeo.ucdavis.edu/data/rspatial/census2000.rds), or with the script below.
+We are using a dataset of crimes in a city. You can get these data from the `rspatial` package that you can install from github using the devtools package 
 
 ```{r getData, echo=TRUE}
-dir.create('data', showWarnings = FALSE)
-files <- c('city.rds', 'crime.rds', 'census2000.rds')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
 Start by reading the data. 
 
 ```{r, message=FALSE}
+library(rspatial)
 library(raster)
-city <- readRDS('data/city.rds')
-crime <- readRDS('data/crime.rds')
+city <- sp_data("city")
+crime <- sp_data("crime.rds")
 ```
 
 Here is a map of both datasets. 
@@ -395,7 +386,7 @@ p$n
 Here's another, lenghty, example of generalization. We can interpolate population density from (2000) census data; assigning the values to the centroid of a polygon (as explained in the book, but not a great technique). We use a shapefile with census data. 
 
 ```{r}
-census <- readRDS("data/census2000.rds")
+census <- sp_data("census2000.rds")
 ``` 
 
 To compute population density for each census block, we first need to get the area of each polygon. I transform density from persons per feet^2^ to persons per mile^2^, and then compute population density from POP2000 and the area
@@ -425,7 +416,7 @@ points(p, col='red', pch=20, cex=.25)
 plot(win, add=TRUE, border='blue', lwd=3)
 ``` 
 
-Now we can use 'smooth.ppp' to interpolate. Population density at the points is referred to as the 'marks'
+Now we can use 'Smooth.ppp' to interpolate. Population density at the points is referred to as the 'marks'
 ```{r}
 owin <- as.owin(win)
 pp <- ppp(p[,1], p[,2], window=owin, marks=census$dens)
@@ -467,7 +458,7 @@ plot(city, add=TRUE)
 
 And to get a smooth interpolation of population density.
 ```{r, pp25}
-s <- smooth.ppp(pp)
+s <- Smooth.ppp(pp)
 plot(s)
 plot(city, add=TRUE)
 ``` 
