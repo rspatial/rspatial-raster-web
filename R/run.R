@@ -27,7 +27,7 @@ oldpath <- getwd()
 
 do_build <- function(option) {
 	if (option=="pdf"){
-		shell("make latexpdf")
+		x <- shell("make latexpdf", intern = TRUE)
 		return()
 	} else if (option=="clean"){
 		unlink("_build", recursive=TRUE)
@@ -68,8 +68,6 @@ do_knit <- function(option) {
 
 	if (length(ff) > 0) {
 		library(knitr)
-		# Check that folders for output exist
-#		dir.create('_R/figures/', recursive=TRUE, showWarnings=FALSE)
 		dir.create('figures/', showWarnings=FALSE)
 		dir.create('txt/', showWarnings=FALSE)
 		md <- raster::extension(basename(ff), '.md')
@@ -83,8 +81,8 @@ do_knit <- function(option) {
 		)
 		
 		for (i in 1:length(ff)) {
-			print(paste("   ", basename(ff[i])))
-			knit(ff[i], md[i], envir = new.env(), encoding = 'UTF-8', quiet = TRUE)
+			cat(paste("   ", raster::extension(basename(ff[i]), ""), "\n"))
+			knit(ff[i], md[i], envir = new.env(), encoding='UTF-8', quiet=TRUE)
 			purl(ff[i], paste0("txt/", gsub("md$", "md.txt", md[i])), quiet=TRUE)
 		}
 	} 
@@ -95,12 +93,12 @@ do_knit <- function(option) {
 for (ch in chapter) {
 	path <- file.path(oldpath, 'source', ch)
 	setwd(path)
+	cat(paste0("\n- ", basename(path), "\n"))
 	if (cmd == "build") {
 		do_build(option)
 	} else {
 		do_knit(option)
 	}
-	print(getwd())
 }
 setwd(oldpath)
 

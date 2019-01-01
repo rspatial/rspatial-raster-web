@@ -2,12 +2,7 @@
 
 ```{r, include=FALSE}
 library(knitr)
-opts_chunk$set(
-  fig.width  = 5,
-  fig.height = 5,
-  fig.cap = '',
-  collapse = TRUE
-)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE)
 library(rgdal)
 library(raster)
 library(gstat)
@@ -15,31 +10,19 @@ library(fields)
 ```
 
 
-## 10.1 Alberta Rainfall
+## Alberta Rainfall
 
 Recreating Figures 10.2, 10.13 & 10.14 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
-### Get the data
-
-You can download the data for this lesson [here](https://biogeo.ucdavis.edu/data/rspatial/alberta.csv) or with the code below.
-
-```{r getData, echo=TRUE}
-# Make sure the data directory exists. If not, make it
-dir.create('data', showWarnings = FALSE)
-files <- c('alberta.csv')
-for (filename in files) {
-	localfile <- file.path('data', filename)
-	if (!file.exists(localfile)) {
-		download.file(paste0('https://biogeo.ucdavis.edu/data/rspatial/', filename), dest=localfile)
-	}
-}
+We need the rspatial packge to get the data we will use.
+```{r, krig0}
+if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
-
-### Lesson
 
 Figure 10.2
 ```{r, krig1}
-a <- read.csv('data/alberta.csv')
+library(rspatial)
+a <- sp_data('alberta.csv')
 
 m <- lm(z ~ x + y, data=a)
 summary(m)

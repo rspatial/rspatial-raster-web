@@ -13,11 +13,11 @@ library(deldir)
 ```
 
 
-## 2.1 Introduction
+## Introduction
 
 This page shows how you can implement the examples provided in Chapter 2 of [O'Sullivan and Unwin (2010)](https://www.wiley.com/en-us/Geographic+Information+Analysis%2C+2nd+Edition-p-9780470288573). To get most out of this, go through the examples slowly, line by line. You should inspect the objects created and read the help files associated with the functions used. 
 
-## 2.2 The Modifiable Areal Unit Problem
+## The Modifiable Areal Unit Problem
 
 Below we recreate the data shown on page 37. There is one region that is divided into 6 x 6 = 36 grid cells. For each cell we have values for two variables. These gridded data can be represented as a matrix, but the easiest way to enter the values is to use a vector (which we can transform to a matrix later). I used line breaks for ease of comparison with the book such that it looks like a matrix anyway.
 
@@ -275,7 +275,7 @@ plotMAUP(ai2, ad2, title='Aggregation scheme 2')
 ```
 
 
-## 2.3 Distance, adjacency, interaction, neighborhood
+## Distance, adjacency, interaction, neighborhood
 
 Here we explore the data in Figure 2.2 (page 46). The values used are not exactly the same (as they were not provided in the text), but it is all very similar. 
  
@@ -297,7 +297,7 @@ plot(pts, xlim=c(0,120), ylim=c(0,120), pch=20, cex=2, col='red', xlab='X', ylab
 text(pts+5, LETTERS[1:6])
 ```
 
-### 2.3.1 Distance
+### Distance
 
 It is easy to make a distance matrix (see page 47)
 ```{r}
@@ -312,7 +312,7 @@ Distance matrices are used in all kinds of non-geographical applications. For ex
 __Question 4__: *Show R code to make a cluster dendogram summarizing the distances between these six sites, and plot it. See* `?hclust`. 
 
 
-### 2.3.2 Adjacency
+### Adjacency
 
 #### Distance based adjacency
 
@@ -399,7 +399,7 @@ colSums(W, na.rm=TRUE)
 __Question 5__: *Show how you can do 'column-normalization' (Just an exercise, in spatial data analysis this is not a typical thing to do).*
 
 
-### 2.3.3 Proximity polygons
+### Proximity polygons
 
 Proximity polygons are discussed on pages 50-52. Here I show how you can compute these with the `voronoi` function in the `dismo` package. We use the data from the previous example.
 	

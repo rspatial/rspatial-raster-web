@@ -4,9 +4,6 @@
 library(knitr)
 ```
 
-
-## Introduction  
-
 In this chapter we describe how to access and explore attributes of remote sensing images with R. We also show how to plot (make maps).
 
 We will primarily use a spatial subset of Landsat 8 scene collected on June 14, 2017. The subset covers the area between Concord and Stockton, in California, USA.

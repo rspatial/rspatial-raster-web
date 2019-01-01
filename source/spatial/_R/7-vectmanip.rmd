@@ -31,11 +31,11 @@ par(mai=c(0,0,0,0))
 plot(p)
 ```
 
-## 7.1 Basics
+## Basics
 
 Basic operations are pretty much like working with a data.frame. 
 
-### 7.1.1 Geometry and attributes
+### Geometry and attributes
 
 To extracting the attributes (data.frame) from a Spatial object, use:
 ```{r}
@@ -49,7 +49,7 @@ g <- geom(p)
 head(g)
 ```
 
-### 7.1.2 Variables
+### Variables
 
 Extracting a variable.
 ```{r}
@@ -80,7 +80,7 @@ To get rid of a variable.
 p$new <- NULL
 ```
 
-### 7.1.3 Merge
+### Merge
 
 You can join a table (data.frame) with a Spatial* object with `merge`.
 
@@ -92,22 +92,23 @@ pm
 ```
 
 
-### 7.1.4 Records
+### Records
 
 Selecting rows (records).
+
 ```{r}
 i <- which(p$NAME_1 == 'Grevenmacher')
 g <- p[i,]
 g
 ```
 
-It is also possible to interactively selecion and query records by clikcing on a plotted dataset. That is difficult to show here. See `?select` for interactively selecting spatial features and `?click` to identify attributes by clicking on a plot (map).
+It is also possible to interactively select and query records by clikcing on a plotted dataset. That is difficult to show here. See `?select` for interactively selecting spatial features and `?click` to identify attributes by clicking on a plot (map).
 
 
-## 7.2 Append and aggregate
+## Append and aggregate
 
 
-## 7.2.1 Append
+## Append
 
 More example data. Object `z`, consisting of four, and `z2` which is one of these four polygons.
 
@@ -135,7 +136,7 @@ tail(b)
 Note how `bind` allows you to append `Spatial*` objects with different attribute names. 
 
 
-## 7.2.2 Aggregate
+## Aggregate
 ```{r, agg}
 pa <- aggregate(p, by='NAME_1')
 za <- aggregate(z)
@@ -161,9 +162,9 @@ zd
 ```
 
 
-## 7.3 Overlay
+## Overlay
 
-### 7.3.1 Erase
+### Erase
 
 Erase a part of a SpatialPolygons object
 ```{r}
@@ -176,7 +177,7 @@ e <- p - z2
 plot(e)
 ```
 
-### 7.3.2 Intersect
+### Intersect
 
 Intersect SpatialPolygons
 
@@ -202,7 +203,7 @@ plot(e, add=TRUE, lwd=3, col='red')
 ```
 
 
-### 7.3.3 Union
+### Union
 
 Get the union of two SpatialPolygon* objects.
 
@@ -223,7 +224,7 @@ set.seed(5)
 plot(u, col=sample(rainbow(length(u))))
 ```
 
-### 7.3.4 Cover
+### Cover
 
 Cover is a combination of intersect and union
 
@@ -234,7 +235,7 @@ plot(cov)
 ```
 
 
-### 7.3.4 Difference
+### Difference
 
 
 The symmetrical difference of two SpatialPolygons* objects
@@ -245,7 +246,7 @@ plot(dif, col=rainbow(length(dif)))
 dif
 ```
 
-## 7.4 Spatial queries
+## Spatial queries
 
 Query polygons with points. 
 

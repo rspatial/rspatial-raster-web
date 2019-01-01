@@ -12,7 +12,7 @@ opts_chunk$set(
 library(dismo)
 ```
 
-## 5.1 Model fitting
+## Model fitting
 
 Model fitting is technically quite similar across the modeling methods that exist in *R*. Most methods take a `formula` identifying the dependent and independent variables, accompanied with a `data.frame` that holds these variables. Details on specific methods are provided further down on this document, in part III. 
 
@@ -46,7 +46,7 @@ pairs(bc)
 ```
 
 
-## 5.2 Model prediction
+## Model prediction
 
 Different modeling methods return different type of 'model' objects (typically they have the same name as the modeling method used). All of these 'model' objects, irrespective of their exact class, can be used to with the `predict` function to make predictions for any combination of values of the independent variables. This is illustrated in the example below where we make predictions with the glm model object 'm1' and for bioclim model 'bc', for three records with values for variables bio1, bio5 and bio12 (the variables used in the example above to create the model objects). 
 
@@ -78,7 +78,7 @@ plot(p)
 
 
 
-## 5.3  Model evaluation
+## Model evaluation
 
 It is much easier to create a model and make a prediction than to assess how good the model is, and whether it is can be used for a specific purpose. Most model types have different measures that can help to assess how good the model fits the data. It is worth becoming familiar with these and understanding their role, because they help you to assess whether there is anything substantially wrong with your model. Most statistics or machine learning texts will provide some details. For instance, for a GLM one can look at how much deviance is explained, whether there are patterns in the residuals, whether there are points with high leverage and so on. However, since many models are to be used for prediction, much evaluation is focused on how well the model predicts to points not used in model training (see following section on data partitioning).  Before we start to give some examples of statistics used for this evaluation, it is worth considering what else can be done to evaluate a model. Useful questions include:
 

@@ -2,17 +2,12 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-    fig.width = 5, fig.height = 5, fig.cap = '', collapse  = TRUE
-)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse  = TRUE)
 ```
 
-## 5.1 Introduction
+## Introduction
 
 This page accompanies Chapter 5 of [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html).
-
-
-### Get the data
 
 We are using a dataset of crimes in a city. You can get these data from the `rspatial` package that you can install from github using the devtools package 
 
@@ -24,7 +19,6 @@ Start by reading the data.
 
 ```{r, message=FALSE}
 library(rspatial)
-library(raster)
 city <- sp_data("city")
 crime <- sp_data("crime.rds")
 ```
@@ -52,7 +46,7 @@ dim(xy)
 head(xy)
 ``` 
 
-## 5.2 Basic statistics
+## Basic statistics
 
 Compute the mean center and standard distance for the crime data (see page 125 of OSU).
 ```{r}
@@ -78,7 +72,7 @@ lines(circle, col='red', lwd=2)
 ``` 
 
 
-## 5.3 Density
+## Density
 
 Here is a basic approach to computing point density. 
 
@@ -169,7 +163,7 @@ VMR
 __Question 2:__*What does this VMR score tell us about the point pattern?*
 
 
-## 5.3 Distance based measures
+## Distance based measures
 
 As we are using a *planar coordinate system* we can use the dist function to compute the distances between pairs of points. Contrary to what the books says, if we were using longitude/latitude we could compute distance via spherical trigonometry functions. These are available in the sp, raster, and notably the geosphere package (among others). For example, see `raster::pointDistance`.
 
@@ -323,7 +317,7 @@ __Question 5__: *Compute the G function, and plot it on a single plot, together 
 __Question 6__: *(Difficult!) Do a Monte Carlo simulation (page 149) to see if the 'mean nearest distance' of the observed crime data is significantly different from a random pattern. Use a 'for loop'. First write 'pseudo-code'. That is, say in natural language what should happen. Then try to write R code that implements this.*
 	   
 	
-## 5.5 Spatstat package
+## Spatstat package
 
 Above we did some 'home-brew' point pattern analysis, we will now use the spatstat package. In research you would normally use spatstat rather than your own functions, at least for standard analysis. I showed how you make some of these functions in the previous sections, because understanding how to go about that may allow you to take things in directions that others have not gone. The good thing about spatstat is that it very well documented (see <http://spatstat.github.io/>). The bad thing is that it uses an entirly different sets of classes (ways to represent spatial data) that we we will use in all other labs (classes from sp and raster); but it is not hard to get used to that.
 
@@ -428,6 +422,7 @@ That is odd, there is a polygon that has a centroid that is outside of the polyg
 
 Let's find and remove this point that is outside the study area.
 ```{r}
+library(rgeos)
 sp <- SpatialPoints(p, proj4string=CRS(proj4string(win)))
 i <- gIntersects(sp, win, byid=TRUE)
 which(!i)

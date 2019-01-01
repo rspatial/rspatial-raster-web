@@ -4,8 +4,6 @@
 library(knitr)
 ```
 
-## Introduction
-
 This book provides a short introduction to satellite data analysis with R. Before reading this you should first learn the [basics of the raster package](http://rspatial.org/spatial/). 
 
 Getting satellite images for a specific project remains a challenging task. You have to find data that is suitable for your objectives, and that you can get access to. Important properties to consider while searching the remotely sensed (satellite) data include:
@@ -40,7 +38,7 @@ Most remote sensing products consist of observations of reflectance data. That i
 
 ## Data  
 
-You can download all the data required for the examples used in this book here [here](https://biogeo.ucdavis.edu/data/rspatial/rsdata.zip). Unzip the file contents and save the data to the R working directory of your computer.   
+You can download all the data required for the examples used in this book [here](https://biogeo.ucdavis.edu/data/rspatial/rsdata.zip). Unzip the file contents and save the data to the R working directory of your computer.   
 
 You can also use the below script to download the data.
 

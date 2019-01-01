@@ -10,7 +10,7 @@ library(maptools)
 ```
 
 
-## 6.1 Types of algorithms and data used in examples
+## Types of algorithms and data used in examples
 
 A large number of algorithms has been used in species distribution modeling. They can be classified as 'profile', 'regression', and 'machine learning' methods. Profile methods only consider 'presence' data, not absence or background data. Regression and machine learning methods use both presence and absence or background data. The distinction between regression and machine learning methods is not sharp, but it is perhaps still useful as way to classify models. Another distinction that one can make is between presence-only and presence-absence models. Profile methods are always presence-only, other methods can be either, depending if they are used with survey-absence or with pseudo-absence/backround data. An entirely different class of models consists of models that only, or primarily, use the geographic location of known occurences, and do not rely on the values of predictor variables at these locations. We refer to these models as 'geographic models'. Below we discuss examples of these different types of models.
 
@@ -77,11 +77,11 @@ points(pres_test, pch='+', col='blue')
 
 
 
-## 6.2 Profile methods
+## Profile methods
 
 The three methods described here, Bioclim, Domain, and Mahal. These methods are implemented in the dismo package, and the procedures to use these models are the same for all three.  
 
-### 6.2.1 Bioclim
+### Bioclim
 
 The BIOCLIM algorithm has been extensively used for species distribution modeling. BIOCLIM is a classic 'climate-envelope-model' (Booth *et al.*, 2014). Although it generally does not perform as good as some other modeling methods (Elith *et al.* 2006), particularly in the context of climate change (Hijmans and Graham, 2006), it is still used, among other reasons because the algorithm is easy to understand and thus useful in teaching species distribution modeling. The BIOCLIM algorithm computes the similarity of a location by comparing the values of environmental variables at any location to a percentile distribution of the values at known locations of occurrence ('training sites'). The closer to the 50th percentile (the median), the more suitable the location is. The tails of the distribution are not distinguished, that is, 10 percentile is treated as equivalent to 90 percentile. In the 'dismo' implementation, the values of the upper tail values are transformed to the lower tail, and the minimum percentile score across all the environmental variables is used (i.e., BIOCLIM uses an approach like Liebig's law of the minimum). This value is subtracted from 1 and then multiplied with two so that the results are between 0 and 1. The reason for scaling this way is that the results become more like that of other distribution modeling methods and are thus easier to interpret. The value 1 will rarely be observed as it would require a location that has the median value of the training data for all the variables considered. The value 0 is very common as it is assigned to all cells with a value of an environmental variable that is outside the percentile distribution (the range of the training data) for at least one of the variables.
 
@@ -123,7 +123,7 @@ points(pres_train, pch='+')
 Please note the order of the arguments in the predict function. In the example above, we used `predict(pred\_nf, bc)` (first the RasterStack, then the model object), which is  little bit less efficient than predict(bc, pred\_nf) (first the model, than the RasterStack). The reason for using the order we have used, is that this will work for all models, whereas the other option only works for the models defined in the dismo package, such as Bioclim, Domain, and Maxent, but not for models defined in other packages (random forest, boosted regression trees, glm, etc.).
 
 
-### 6.2.2 Domain
+### Domain
 
 The Domain algorithm (Carpenter *et al.* 1993) has been extensively used for species distribution modeling. It did not perform very well in a model comparison (Elith *et al.* 2006) and very poorly when assessing climate change effects (Hijmans and Graham, 2006). The Domain algorithm computes the Gower distance between environmental variables at any location and those at any of the known locations of occurrence ('training sites'). 
 
@@ -148,7 +148,7 @@ points(pres_train, pch='+')
 ```
 
 
-### 6.2.3 Mahalanobis distance
+### Mahalanobis distance
 
 The `mahal` function implements a species distribution model based on the Mahalanobis distance (Mahalanobis, 1936). Mahalanobis distance takes into account the correlations of the variables in the data set, and it is not dependent on the scale of measurements.
 
@@ -167,7 +167,7 @@ plot(wrld_simpl, add=TRUE, border='dark grey')
 points(pres_train, pch='+')
 ```
 
-## 6.3 Regression models
+## Regression models
 
 The remaining models need to be fit with presence `and` absence (background) data. With the exception of 'maxent', we cannot fit the model with a RasterStack and points. Instead, we need to extract the environmental data values ourselves, and fit the models with these values. 
 
@@ -185,7 +185,7 @@ testpres[ ,'biome'] = factor(testpres[ ,'biome'], levels=1:14)
 testbackg[ ,'biome'] = factor(testbackg[ ,'biome'], levels=1:14)
 ```
 
-### 6.3.1 Generalized Linear Models
+### Generalized Linear Models
 
 A generalized linear model (GLM) is a generalization of ordinary least squares regression. Models are fit using maximum likelihood and by allowing the linear model to be related to the response variable via a link function and by allowing the magnitude of the variance of each measurement to be a function of its predicted value. Depending on how a GLM is specified it can be equivalent to (multiple) linear regression, logistic regression or Poisson regression. See Guisan `et al` (2002) for an overview of the use of GLM in species distribution modeling.
 
@@ -228,19 +228,19 @@ points(backg_train, pch='-', cex=0.25)
 ```
 
 
-### 6.3.2 Generalized Additive Models
+### Generalized Additive Models
 
 Generalized additive models (GAMs; Hastie and Tibshirani, 1990; Wood, 2006) are an extension to GLMs. In GAMs, the linear predictor is the sum of smoothing functions. This makes GAMs very flexible, and they can fit very complex functions. It also makes them very similar to machine learning methods. In *R*, GAMs are implemented in the 'mgcv' package. 
 
 
 
-## 6.4 Non-paramateric statistical learning methods
+## Non-paramateric statistical learning methods
 
 There is a variety of non-parametric statistial learning methods (sometimes referred to as "machine learning") available in *R*. For a long time there have been packages to do Artifical Neural Networks (ANN) and Classification and Regression Trees (CART). More recent methods include Random Forests, Boosted Regression Trees, and Support Vector Machines. Through the dismo package you can also use the Maxent program, that implements the most widely used method (maxent) in species distribution modeling. Breiman (2001a) provides a accessible introduction to machine learning, and how it contrasts with 'classical statistics' (model based probabilistic inference). Hastie *et al.*, 2009 provide what is probably the most extensive overview of these methods.
 
 All the model fitting methods discussed here can be tuned in several ways. We do not explore that here, and only show the general approach. If you want to use one of the methods, then you should consult the *R* help pages (and other sources) to find out how to best implement the model fitting procedure.
 
-### 6.4.1 Maxent
+### Maxent
 
 MaxEnt (short for "Maximum Entropy"; Phillips *et al.*, 2006) is the most widely used SDM algorithm. Elith *et al.* (2010) provide an explanation of the algorithm (and software) geared towards ecologists. MaxEnt is available as a stand-alone Java program. Dismo has a function 'maxent' that communicates with this program. To use it you must first download the program from [here](http://www.cs.princeton.edu/~schapire/maxent/). Put the file `maxent.jar` in the `java` folder of the `dismo` package. That is the folder returned by `system.file("java", package="dismo")`.  
 
@@ -271,14 +271,14 @@ points(pres_train, pch='+')
 ```
 
 
-### 6.4.2 Boosted Regression Trees
+### Boosted Regression Trees
 
 Boosted Regression Trees (BRT) is, unfortunately, known by a large number of different names. It was developed by Friedman (2001), who referred to it as a "Gradient Boosting Machine" (GBM). It is also known as "Gradient Boost", "Stochastic Gradient Boosting", "Gradient Tree Boosting". The method is implemented in the `gbm` package in *R*. 
 
 The article by Elith, Leathwick and Hastie (2009) describes the use of BRT in the context of species distribution modeling. Their article is accompanied by a number of R functions and a tutorial that have been slightly adjusted and incorporated into the 'dismo' package. These functions extend the functions in the `gbm` package, with the goal to make these easier to apply to ecological data, and to enhance interpretation.  The adapted tutorial is available as a [vignette to the dismo package](https://cran.r-project.org/web/packages/dismo/vignettes/brt.pdf). 
 
 
-### 6.4.3 Random Forest
+### Random Forest
 
 The Random Forest (Breiman, 2001b) method is an extension of Classification and regression trees (CART; Breiman *et al.*, 1984). In *R* it is implemented in the function 'randomForest' in a package with the same name. The function randomForest can take a formula or, in two separate arguments, a data.frame with the predictor variables, and a vector with the response. If the response variable is a factor (categorical), randomForest will do classification, otherwise it will do regression. Whereas with species distribution modeling we are often interested in classification (species is present or not), it is my experience that using regression provides better results. rf1 does regression, rf2 and rf3 do classification (they are exactly the same models). See the function tuneRF for optimizing the model fitting procedure.
 
@@ -307,7 +307,7 @@ points(backg_train, pch='-', cex=0.25)
 
 
 
-### 6.4.4 Support Vector Machines
+### Support Vector Machines
 
 Support Vector Machines (SVMs; Vapnik, 1998) apply a simple linear method to the data but in a high-dimensional feature space non-linearly
 related to the input space, but in practice, it does not involve any computations in that high-dimensional space. This simplicity combined with state of the art performance on many learning problems (classification, regression, and novelty detection) has contributed to the popularity of the SVM (Karatzoglou *et al.*, 2006). They were first used in species distribution modeling by Guo *et al.* (2005). 
@@ -333,7 +333,7 @@ points(backg_train, pch='-', cex=0.25)
 ```
 
 
-## 6.5 Combining model predictions
+## Combining model predictions
 
 Rather than relying on a single "best" model, some auhtors (e.g. Thuillier, 2003) have argued for using many models and applying some sort of model averaging. See the biomod2 package for an implementation. You can of course implement these approaches yourself. Below is a very brief example. We first make a RasterStack of our individual model predictions:
 

@@ -10,11 +10,11 @@ library(raster)
 library(rgdal)
 ```
 
-## 6.1 Introduction
+## Introduction
 
 A very important aspect of spatial data is the coordinate reference system (CRS) that is used. For example, a location of (140, 12) is not meaningful if you do know where the origin is and if the x-coordinate is 140 meters, kilometers, or perhaps degrees away from it (in the x direction).
 
-## 6.2 Coordinate Reference Systems 
+## Coordinate Reference Systems 
 
 ### Angular coordinates 
 
@@ -72,7 +72,7 @@ crs(p)
 
 
 
-## 6.3 Assigning a CRS
+## Assigning a CRS
 
 Sometimes we have data without a CRS. This can be because the file used was incomplete, or perhaps because we created the data ourselves with R code. In that case we can assign the CRS __if we know what it should be__. Here it first remove the CRS of `pp` and then I set it again. 
 
@@ -87,7 +87,7 @@ crs(pp)
 Note that you should __not__ use this approach to change the CRS of a data set from what it __is__ to what you __want it to be___. Assigning a CRS is like labeling something. You need to provide the label that corresponds to the item. Not to what you would like it to be. For example if you label a bicycle, you can write "bicycle". Perhaps you would prefer a car, and you can label your bicycle as "car" but that would not do you any good. It is still a bicycle. You can try to transform your bicycle into a car. That would not be easy. Transforming spatial data is easier.
 
 
-## 6.4 Transforming vector data
+## Transforming vector data
 
 
 We can transform these data to a new data set with another CRS using the `spTransform` function from the `rgdal` package. 
@@ -114,7 +114,7 @@ p2 <- spTransform(rob, CRS("+proj=longlat +datum=WGS84"))
 
 
 
-## 6.5 Transforming raster data
+## Transforming raster data
 
 Vector data can be transformed from lon/lat coordinates to planar and back with loss of precision. This is not the case with raster data. A raster consists of rectangular cells of the same size (in terms of the units of the CRS; their actual size may vary). It is not possible to transform cell by cell. Rather estimates for the values of new cells must be made based on the values in the old cells. If the values are class data, the 'nearest neighbor' is commonly used. Otherwise some sort of interpolation (e.g. 'bilinear').
 

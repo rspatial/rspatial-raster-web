@@ -11,12 +11,12 @@ opts_chunk$set(
 ```
 
 
-## 2.1  Species occurrence data
+## Species occurrence data
 
 Importing occurrence data into *R* is easy. But collecting, georeferencing, and cross-checking coordinate data is tedious. Discussions about species distribution modeling often focus on comparing modeling methods, but if you are dealing with species with few and uncertain records, your focus probably ought to be on improving the quality of the occurrence data (Lobo, 2008). All methods do better if your occurrence data is unbiased and free of error (Graham *et al.*, 2007) and you have a relatively large number of records (Wisz *et al.*, 2008). While we'll show you some useful data preparation steps you can do in *R*, it is necessary to use additional tools as well. For example, [QGIS](http://www.qgis.org/),  is a very useful program for interactive editing of point data sets.
 
 
-## 2.2  Importing occurrence data
+## Importing occurrence data
 
 In most cases you will have a file with point locality data representing the known distribution of a species. Below is an example of using `read.table` to read records that are stored in a text file. Comments are preceded by a hash (\#). 
 
@@ -89,7 +89,7 @@ points(acgeo$lon, acgeo$lat, col='red', cex=0.75)
 The `wrld_simpl` dataset contains rough country outlines. You can use other datasets of polygons (or lines or points) as well. For example, you can download higher resolution data country and subnational administrative boundaries data with the `getData` function of the `raster` package. You can also read your own shapefile data into *R* using the `shapefile` function in the `raster` package.
 
 
-## 2.3  Data cleaning
+## Data cleaning
 
 Data 'cleaning' is particularly important for data sourced from species distribution data warehouses such as GBIF. Such efforts do not specifically gather data for the purpose of species distribution modeling, so you need to understand the data and clean them appropriately, for your application. Here we provide an example.  
 
@@ -113,7 +113,7 @@ lonzero[, 1:13]
 The records are from Bolivia, Peru and Argentina, confirming that coordinates are in error. Alternatively, it could have been that the coordinates were correct, perhaps referring to a location in the Atlantic Ocean where a fish was caught rather than a place where *S. acaule* was collected). Records with the wrong species name can be among the hardest to correct (e.g., distinguishing between brown bears and sasquatch, Lozier *et al.*, 2009). The one record in Ecuador is like that, there is some debate whether that is actually a specimen of `S. albicans` or an anomalous hexaploid variety of *S. acaule*. 
 
 
-## 2.4  Duplicate records
+## Duplicate records
 
 Interestingly, another data quality issue is revealed above: each record in 'lonzero' occurs twice. This could happen because plant samples are often split and send to multiple herbariums. But in this case it seems that the IPK (The Leibniz Institute of Plant Genetics and Crop Plant Research) provided these data twice to the GBIF database (perhaps from seperate databases at IPK?). The function 'duplicated' can sometimes be used to remove duplicates.
 
@@ -149,7 +149,7 @@ acg <- acg[acg$lon < -50 & acg$lat > -50, ]
 
 
 
-## 2.5  Cross-checking
+## Cross-checking
 
 It is important to cross-check coordinates by visual and other means. One approach is to compare the country (and lower level administrative subdivisions) of the site as specified by the records, with the country implied by the coordinates (Hijmans *et al.*, 1999). In the example below we use the `coordinates` function from the `sp` package to create a `SpatialPointsDataFrame`, and then the `over` function, also from `sp`, to do a point-in-polygon query with the countries polygons.
 
@@ -196,7 +196,7 @@ points(acg[j, ], col='red', pch=20, cex=2)
 See the sp package for more information on the `over` function. The wrld_simpl polygons that we used in the example above are not very precise, and they probably should not be used in a real analysis. See [GADM](http://www.gadm.org/) for more detailed administrative division files, or use the `getData` function from the raster package (e.g. `getData('gadm', country='BOL', level=0)` to get the national borders of Bolivia; and `getData('countries')` to get all country boundaries).
 
 
-## 2.6  Georeferencing
+## Georeferencing
 
 If you have records with locality descriptions but no coordinates, you should consider georeferencing these. Not all the records can be georeferenced. Sometimes even the country is unknown (country=="UNK"). Here we select only records that do not have coordinates, but that do have a locality description.
 
@@ -220,7 +220,7 @@ b
 Before using the geocode function it is best to write the records to a table and "clean" them in a spreadsheet. Cleaning involves traslation, expanding abbreviations, correcting misspellings, and making duplicates exactly the same so that they can be georeferenced only once. Then read the the table back into *R*, and create unique localities, georeference these and merge them with the original data.
 
 
-## 2.7  Sampling bias
+## Sampling bias
 
 Sampling bias is frequently present in occurrence records (Hijmans *et al.*, 2001). One can attempt to remove some of the bias by subsampling records, and this is illustrated below. However, subsampling reduces the number of records, and it cannot correct the data for areas that have not been sampled at all. It also suffers from the problem that locally dense records might in fact be a true reflection of the relative suitable of habitat. As in many steps in SDM, you need to understand something about your data and species to implement them well. See Phillips *et al.* (2009) for an approach with MaxEnt to deal with bias in occurrence records for a group of species.
 

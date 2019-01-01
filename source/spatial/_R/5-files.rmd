@@ -13,7 +13,7 @@ library(raster)
 library(rgdal)
 ```
 
-## 5.1 Introduction
+## Introduction
 
 Reading and writing spatial is complicated by the fact that there are many different file formats. However, there are a few formats that are most common that we discuss here.
 
@@ -62,7 +62,7 @@ file.remove(ff)
 
 
 
-## 5.2 Raster files
+## Raster files
 
 The raster package can read and write several raster file formats. 
 

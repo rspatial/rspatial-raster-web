@@ -11,13 +11,13 @@ opts_chunk$set(
 )
 ```
 
-## 2.1 Introduction
+## Introduction
 
 Spatial phenomena can generally be thought of as either discrete objects with clear boundaries or as a continuous phenomenon that can be observed everywhere, but does not have natural boundaries. Discrete spatial objects may refer to a river, road, country, town, or a research site. Examples of continuous phenomena, or "spatial fields", include elevation, temperature, and air quality.
 
 Spatial objects are usually represented by *vector* data. Such data consists of a description of the "geometry" or "shape" of the objects, and normally also includes additional variables. For example, a vector data set may describe the borders of the countries of the world (geometry), and also store their names and the size of their population in 2015; or the geometry of the roads in an area, as well as their type and names. These additional variables are often referred to as "attributes". Continuous spatial data (fields) are usually represented with a *raster* data structure. We discuss these two data types in turn. 
 
-## 2.2 Vector data 
+## Vector data 
 
 The main vector data types are __points__, __lines__ and __polygons__. In all cases, the geometry of these data structures consists of sets of coordinate pairs (x, y). Points are the simplest case. Each point has one coordinate pair, and *n* associated variables. For example, a point might represent a place where a rat was trapped, and the attributes could include the date it was captured, the person who captured it, the species size and sex, and information about the habitat. It is also possible to combine several points into a multi-point structure, with a single attribute record. For example, all the coffee shops in a town could be considered as a single geometry.
 
@@ -25,7 +25,7 @@ The geometry of __lines__ is a just a little bit more complex. First note that i
 
 A __polygon__ refers to a set of closed polylines. The geometry is very similar to that of lines, but to close a polygon the last coordinate pair coincides with the first pair. A complication with polygons is that they can have holes (that is a polygon entirely enclosed by another polygon, that serves to remove parts of the enclosing polygon (for example to show an island inside a lake. Also, valid polygons do not self-intersect (but it is OK for a line to self-cross). Again, multiple polygons can be considered as a single geometry. For example, Indonesia consists of many islands. Each island can be represented by a single polygon, but together then can be represent a single (multi-) polygon representing the entire country. 
 
-## 2.3 Raster data 
+## Raster data 
 
 Raster data is commonly used to represent spatially continuous phenomena such as elevation. A raster divides the world into a grid of equally sized rectangles (referred to as cells or, in the context of satellite remote sensing, pixels) that all have one or more values (or missing values) for the variables of interest. A raster cell value should normally represent the average (or majority) value for the area it covers. However, in some cases the values are actually estimates for the center of the cell (in essence becoming a regular set of points with an attribute).  
 
@@ -34,7 +34,7 @@ In contrast to vector data, in raster data the geometry is not explicitly stored
 Continuous surface data are sometimes stored as triangulated irregular networks (TINs); these are not discussed here.
 
 
-## 2.4 Simple representation of spatial data
+## Simple representation of spatial data
 
 The [basic data types](http://rspatial.org/intr/rst/2-basic-data-types.html) in *R* are numbers, characters, logical (TRUE or FALSE) and factor values. Values of a single type can be combined in vectors and matrices, and variables of multiple types can be combined into a data.frame. We can represent (only very) basic spatial data with these data types. Let's say we have the location (represented by longitude and latitude) of ten weather stations (named A to J) and their annual precipitation.
 

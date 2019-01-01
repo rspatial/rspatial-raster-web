@@ -2,16 +2,11 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-	fig.width = 6,
-	fig.height = 6,
-	fig.cap = '',
-	collapse = TRUE
-)
+opts_chunk$set(fig.width = 6,	fig.height = 6,	fig.cap = '', collapse = TRUE)
 library(dismo)
 ```
 
-## 4.1 Raster data
+## Raster data
 
 In species distribution modeling, predictor variables are typically organized as raster (grid) type files. Each predictor should be a 'raster' representing a variable of interest. Variables can include climatic, soil, terrain, vegetation, land use, and other variables. These data are typically stored in files in some kind of GIS format. Almost all relevant formats can be used (including ESRI grid, geoTiff, netCDF, IDRISI). Avoid ASCII files if you can, as they tend to considerably slow down processing speed. For any particular study the layers should all have the same spatial extent, resolution, origin, and projection. If necessary, use functions like `crop`, `extend`, `aggregate`, `resample`, and `projectRaster` from the `raster` package. See the [Introduction to spatial data manipulation](../../spatial/rst/8-rastermanip.html) for more information about function you can use to prepare your predictor variable data. See the help files and the vignette of the raster package for more info on how to do this. 
 
@@ -70,7 +65,7 @@ Predictor variable selection can be important, particularly if the objective of 
 
 
 
-## 4.2 Extracting values from rasters
+## Extracting values from rasters
 
 We now have a set of predictor variables (rasters) and occurrence points. The next step is to extract the values of the predictors at the locations of the points. (This step can be skipped for the modeling methods that are implemented in the dismo package). This is a very straightforward thing to do using the 'extract' function from the raster package. In the example below we use that function first for the `Bradypus` occurrence points, then for 500 random background points. We combine these into a single `data.frame` in which the first column (variable 'pb') indicates whether this is a presence or a background point. 'biome' is categorical variable (called a 'factor' in *R*) and it is important to explicitly define it that way, so that it won't be treated like any other numerical variable.
 

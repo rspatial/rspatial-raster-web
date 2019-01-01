@@ -5,10 +5,6 @@
 library(knitr)
 ```
 
-
-## Introduction  
-
-
 The `raster` package supports many mathematical operations. Math operations are generally performed per pixel. First we will learn about basic arithmetic operations on bands. First example is a custom math function that calculates the Normalized Difference Vegetation Index (NDVI). Learn more about [vegetation indices here](http://www.un-spider.org/links-and-resources/data-sources/daotm/daotm-vegetation) and [NDVI](http://phenology.cr.usgs.gov/ndvi_foundation.php).
 
 

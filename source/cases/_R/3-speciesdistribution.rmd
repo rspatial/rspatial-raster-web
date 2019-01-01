@@ -108,7 +108,7 @@ sp <- SpatialPoints( v[, c('lon', 'lat')],
 sp <- SpatialPointsDataFrame(sp, v)
 ```
 
-## 2.3 Summary statistics
+## Summary statistics
 
 We are first going to summarize the data by country. We can use the country variable in the data, or extract that from the countries SpatialPolygonsDataFrame.
 
@@ -175,7 +175,7 @@ tb[,2:3]
 Because the countries have such different sizes and shapes, the comparison is not fair (larger countries will have more species, on average, than smaller countries). Some countries are also very large, hiding spatial variation. The map the number of species, it is in most cases better to use a raster (grid) with cells of equal area, and that is what we will do next.
 
 
-## 2.4 Projecting spatial data
+## Projecting spatial data
 
 To use a raster with equal-area cells, the data need to be projected to an equal-area coordinate reference system (CRS). If the longitude/latitude date were used, cells of say 1 square degree would get smaller as you move away from the equator: think of the meridians (vertical lines) on the globe getting closer to each other as you go towards the poles.
 
@@ -197,7 +197,7 @@ points(pts, col='red', cex=.5)
 Note that the shape of the countries is now much more similar to their shape on a globe than before we projected You can also see that the coordinate system has changed by looking at the numbers of the axes. These express the distance from the origin (-80, 0) in meters. 
 
 
-## 2.5 Species richness
+## Species richness
 
 Let's determine the distribution of species richness using a raster. First we need an empty 'template' raster that has the correct extent and resolution. Here I use 200 by 200 km cells.
 
@@ -248,7 +248,7 @@ lines(names(g), movingFun(g, 3))
 ** Question **
 The distribution of species richness has two peaks. What would explain the low species richness between -5 and 15 degrees? 
 
-## 2.6 Range size
+## Range size
 
 Let's estimate range sizes of the species. Hijmans and Spooner use two ways: (1) maxD, the maximum distance between any pair of points for a species, and CA50 the total area covered by circles of 50 km around each species. Here, I also add the convex hull. I am using the projected coordinates, but it is also possible to compute these things from the original longitude/latitude data.
 
@@ -332,7 +332,7 @@ Compare all three measures
   pairs(d)
 ```
 
-## 2.7 Exercises
+## Exercises
 
 
 ### Exercise 1. Mapping species richness at different resolutions
@@ -365,6 +365,6 @@ There is information about two traits in the data set in field PRLV (tolerance t
 
 
 
-## 2.8 References
+## References
 
 Hijmans, R.J., and D.M. Spooner, 2001. Geographic distribution of wild potato species. American Journal of Botany 88:2101-2112

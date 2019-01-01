@@ -15,12 +15,12 @@ library(spdep)
 
 ```
 
-## 8.1 Introduction
+## Introduction
 
 This handout accompanies Chapter 8 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
 
-## 8.2 LISA
+## LISA
 
 ### Get the data
 
@@ -95,7 +95,7 @@ plot(auck, col=cols[Icutsi])
 legend('bottomleft', levels(Icuts), fill=cols)
 ```
 
-## 8.3 Geographically weighted regression
+## Geographically weighted regression
 
 Here is an example of GWR with California precipitation data (you can download the data with the scripts or links on the top of this page). 
 

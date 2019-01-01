@@ -2,15 +2,10 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-	fig.width = 5,
-	fig.height = 5,
-	fig.cap = '',
-	collapse = TRUE
-)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE)
 ```
 
-## 3.1 Introduction
+## Introduction
 
 Package `sp` is the central package supporting spatial data analysis in *R*. `sp` defines a set of *classes* to represent spatial data. A class defines a particular data type. The `data.frame` is an example of a class. Any particular `data.frame` you create is an *object* (instantiation) of that class. 
 
@@ -25,7 +20,7 @@ It is possible to create `Spatial*` objects from scratch with *R* code. That can
 To get started, let's make some Spatial objects from scratch anyway, using the same data as were used in the previous chapter. 
 
 
-## 3.2 SpatialPoints
+## SpatialPoints
 
 
 ```{r}
@@ -92,7 +87,7 @@ Or
 showDefault(ptsdf)
 ```
 
-## 3.3 SpatialLines and SpatialPolygons
+## SpatialLines and SpatialPolygons
 
 Making a `SpatialPoints` object was easy. Making a `SpatialLines` and `SpatialPolygons` object is a bit harder, but stil relatively straightforward with the `spLines` and `spPolygons` functions (from the `raster` package). 
 

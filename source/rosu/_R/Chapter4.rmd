@@ -7,7 +7,7 @@ opts_chunk$set(
 )
 ```
 
-## 4.1 Processes and patterns
+## Processes and patterns
 
 This handout accompanies Chapter 4 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html) by working out the examples in *R*. Figure 4.2 (on page 96) shows values for a deterministic spatial process z = 2x + 3y. Below are two ways to create such a plot in *R*. The first one uses "base" *R*. That is, it does not use explicitly spatial objects (classes). I use the expand.grid function to create a matrix with two columns with all combinations of `0:7` with `0:7`:
 
@@ -146,7 +146,7 @@ for (i in 1:4) {
 
 
 
-## 4.2 Predicting patterns
+## Predicting patterns
 
 I first show how you can recreate Table 4.1 with *R*. Note the use of function 'choose' to get the 'binomial coefficients' from this formula.
 
@@ -255,7 +255,7 @@ abline(0,1)
 Pretty much the same, indeed. 
 
 
-## 4.3 Random areas
+## Random areas
 
 
 Here is how you can create a function to create a "random chessboard" as described on page 114.

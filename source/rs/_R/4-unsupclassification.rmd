@@ -4,9 +4,6 @@
 library(knitr)
 ```
 
-
-## Introduction
-
 In this chapter we explore unsupervised classification. Various unsupervised classification algorithms exist, and the choice of algorithm can affect the results. We will explore only one algorithm (k-means) to illustrate the general principle.
 
 For this example, we will follow the [National Land Cover Database 2011 (NLCD 2011)](https://www.mrlc.gov/nlcd2011.php) classification scheme for a subset of the Central Valley regions. You will use cloud-free composite image from [Landsat 5](https://landsat.gsfc.nasa.gov/landsat-5/) with 6 bands.

@@ -12,14 +12,14 @@ opts_chunk$set(
 ```
 
 
-## 4.1 Introduction
+## Introduction
 
 The `sp` package supports raster (gridded) data with with the `SpatialGridDataFrame` and `SpatialPixelsDataFrame` classes. However, we will focus on classes from the `raster` package for raster data. The raster package is built around a number of classes of which the `RasterLayer`, `RasterBrick`, and `RasterStack` classes are the most important. When discussing methods that can operate on all three of these objects, they are referred to as 'Raster*' objects. 
 
 The `raster` package has functions for creating, reading, manipulating, and writing raster data. The package provides, among other things, general raster data manipulation functions that can easily be used to develop more specific functions. For example, there are functions to read a chunk of raster values from a file or to convert cell numbers to coordinates and back. The package also implements raster algebra and many other functions for raster data manipulation.
 
 
-## 4.2 RasterLayer
+## RasterLayer
 
 A `RasterLayer` object represents single-layer (variable) raster data. A `RasterLayer` object always stores a number of fundamental parameters that describe it. These include the number of columns and rows, the spatial extent, and the Coordinate Reference System. In addition, a `RasterLayer` can store information about the file in which the raster cell values are stored (if there is such a file). A `RasterLayer` can also hold the raster cell values in memory.
 
@@ -60,7 +60,7 @@ plot(pols, border='blue', lwd=2, add=TRUE)
 
 ```
 
-## 4.3 RasterStack and RasterBrick
+## RasterStack and RasterBrick
 
 It is quite common to analyze raster data using single-layer objects. However, in many cases multi-variable raster data sets are used. The `raster` package has two classes for multi-layer data the `RasterStack` and the `RasterBrick`. The principal difference between these two classes is that a `RasterBrick` can only be linked to a single (multi-layer) file. In contrast, a `RasterStack` can be formed from separate files and/or from a few layers ('bands') from a single file. 
 

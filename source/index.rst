@@ -10,30 +10,30 @@ Tutorial
 
 .. topic:: 1. `Introduction to R <intr>`__
 
-  Start here if you have never used *R*, or if you need a refresher. `pdf </_sources/intr/IntroductiontoR.pdf>`__ 
+  Start here if you have never used *R*, or if you need a refresher. `pdf </intr/IntroductiontoR.pdf>`__ 
   
 
 .. topic:: 2. `Spatial data manipulation with R <spatial>`__
 
-  Read this to learn about the basics of reading, writing, and manipulating spatial data. `pdf <../../_sources/spatial/Spatialdata.pdf>`__
+  Read this to learn about the basics of reading, writing, and manipulating spatial data. `pdf </spatial/Spatialdata.pdf>`__
 
   
 .. topic:: 3. `Spatial data analysis <analysis>`__
 
   A introduction to methods for description, prediction and inference with spatial data.
-  `pdf <../../_sources/analysis/analysis.pdf>`__
+  `pdf </analysis/analysis.pdf>`__
   
 
 .. topic:: 4. `Remote sensing image analysis <rs>`__
 
   A introduction to remote sensing (satellite) image analysis spatial data. 
-  `pdf <../../_sources/rs/rs.pdf>`__
+  `pdf </rs/rs.pdf>`__
 
   
 .. topic:: 5. `Case studies <cases>`__
 
    A (small) collection of case studies that can help you learn more about particular topics and design your own workflows. 
-   `pdf <../../_sources/cases/cases.pdf>`__
+   `pdf </cases/cases.pdf>`__
    
 
    
@@ -44,19 +44,19 @@ Special topics
 .. topic:: I. `Spherical computation <sphere>`__ 
 
    Computing distances and other measures on a sphere or spheroid.
-   `pdf <../../_sources/sphere/sphere.pdf>`__
+   `pdf </sphere/sphere.pdf>`__
  
 
 .. topic:: II. `Species Distribution Modeling <sdm>`__ with R
 
    A in-depth tutorial for predicting the geographic ranges of species.
-   `pdf <../../_sources/sdm/sdm.pdf>`__
+   `pdf </sdm/sdm.pdf>`__
 
 
 .. topic:: III. `Geographic Information Analysis <rosu>`__ 
 
    R companion to Geographic Information Analysis by O'Sullivan and Unwin.  
-   `pdf <../../_sources/rosu/ROSU.pdf>`__
+   `pdf </rosu/ROSU.pdf>`__
 
    
  

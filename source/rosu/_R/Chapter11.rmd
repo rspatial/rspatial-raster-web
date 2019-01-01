@@ -9,7 +9,7 @@ library(rgeos)
 library(rgdal)
 ```
 
-## 11.1 Introduction
+## Introduction
 
 This document shows some example *R* code to do "overlays" and associated spatial data manipulation to accompany Chapter 11 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). You have already seen many of this type of data manipulation in previsous labs. And we have done perhaps more advanced things using regression type models (including LDA and RandomForest). This lab is very much a review of what you have already seen: basic spatial data operations in *R*. Below are some of the key packages for spatial data analysis that we have been using.
 
@@ -32,9 +32,9 @@ You can get the data for this tutorial with the "rspatial" package that you can 
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 ```
 
-## 11.2 Selection by attribute
+## Selection by attribute
 
-By now, you are well aware that in *R*, polygons and their attributes can be represented by a 'SpatialPolygonsDataFrame' (a class defined in the sp package). Let's read the shapefile of California counties.
+By now, you are well aware that in *R*, polygons and their attributes can be represented by a 'SpatialPolygonsDataFrame' (a class defined in the sp package). Here we use a SpatialPolygonsDataFrame of California counties.
 
 ```{r}
 library(rspatial)
@@ -57,7 +57,7 @@ You can interactively select counties this way:
    `s <- select(counties)`
 
 
-## 11.3 Intersection and buffer
+## Intersection and buffer
 
 I want to select the railroads in the city of Davis from the railroads in Yolo county. First read the data, and do an important sanity check: are the coordinate reference systems ("projections") the same?
 
@@ -137,7 +137,7 @@ round(100 * area(rail_buf) / area(cityTA))
 
 
 
-## 11.4 Proximity
+## Proximity
 
 Which park in Davis is furthest, and which is closest to the railroad? First get the parks data. 
 ```{r}
@@ -216,7 +216,7 @@ plot(parksTA, add=T, col='green')
 ``` 
   
 
-## 11.5 Fields
+## Fields
 
 
 ### Raster data
@@ -280,7 +280,7 @@ plot(yolo, add=T)
 You can also get values (query) by clicking on the map (use `click(alt)`) 
 
 
-## 11.6 Exercise
+## Exercise
 
 We want to travel by train in Yolo county and we want to get as close as possible to a hilly area; whenever we get there we'll jump from the train. It turns out that the railroad tracks are not all connected, we will ignore that inconvenience. 
 

@@ -9,7 +9,7 @@ library(spdep)
 library(deldir)
 ```
 
-## 7.1 Introduction
+## Introduction
 
 This handout accompanies Chapter 7 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
@@ -21,7 +21,7 @@ library(rspatial)
 ```
 
 
-## 7.2 Area of a polygon
+## The area of a polygon
 
 Create a polygon like in Figure 7.2 (page 192).
 
@@ -71,7 +71,7 @@ crs(sppol) <- '+proj=utm +zone=1'
 area(sppol)
 ``` 
 
-## 7.3 Contact numbers
+## Contact numbers
 
 "Contact numbers" for the lower 48 states. Get the polygons:
 ```{r}
@@ -102,9 +102,10 @@ i <- rowSums(wmus)
 round(100 * table(i) / length(i), 1)
 ```
 
-Apparantly, I am using a different data set than OSU (compare the above with table 7.1). By changing the `level` argument to `2` in the `getData` function you can run the same for counties. Which county has 13 neighbors?
+Apparently, I am using a different data set than OSU (compare the above with table 7.1). By changing the `level` argument to `2` in the `getData` function you can run the same for counties. Which county has 13 neighbors?
 
-## 7.4 Spatial structure
+
+## Spatial structure
 
 
 Read the Auckland data.
@@ -116,7 +117,7 @@ pols <- sp_data("auctb.rds")
 ``` 
 
 
-I did not have the tuberculosis data so I guestimated them from figure 7.7. Compare:
+I did not have the tuberculosis data so I guesstimated them from figure 7.7. Compare:
 
 ```{r, auck2, fig.width=8}
 par(mai=c(0,0,0,0))
@@ -219,7 +220,7 @@ text(2659066, 6482808, '(vii)', cex=1.25)
 plotit(wr2, 'viii')
 ```
 
-## 7.5 Moran's *I*
+## Moran's *I*
 
 Below I compute Moran's index according to formula 7.7 on page 205 of OSU.
 

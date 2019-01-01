@@ -5,13 +5,10 @@ library(knitr)
 library(rasterVis)
 ```
 
-
-## Introduction
-
 Here we explore supervised classification. Various supervised classification algorithms exist, and the choice of algorithm can affect the results. Here we explore two related algorithms (CART and RandomForest).
 
 
-In supervised classification, we have prior knowledge about some of the land-cover types through, for example, fieldwork, reference GIS layers or interpretation of high resolution imagery (such as available on Google maps). Specific sites in the study area that represent homogeneous examples of these known land-cover types are identified. These areas are commonly referred to as training sites because the spectral properties of these sites are used to train the classification algorithm. 
+In supervised classification, we have prior knowledge about some of the land-cover types through, for example, fieldwork, reference spatial data or interpretation of high resolution imagery (such as available on Google maps). Specific sites in the study area that represent homogeneous examples of these known land-cover types are identified. These areas are commonly referred to as training sites because the spectral properties of these sites are used to train the classification algorithm. 
 
 The following examples uses a Classification and Regression Trees (CART) classifier (Breiman et al. 1984) ([further reading](https://doi.org/10.1016/S0034-4257(97)00049-7) to predict land use land cover classes in the study area.
 
