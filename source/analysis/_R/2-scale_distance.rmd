@@ -2,11 +2,7 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-  fig.width  = 8,
-  fig.height = 4,
-  fig.cap='',
-  collapse = TRUE
+opts_chunk$set(fig.width = 8, fig.height = 4, fig.cap='', collapse = TRUE
 )
 library(raster)
 library(deldir)

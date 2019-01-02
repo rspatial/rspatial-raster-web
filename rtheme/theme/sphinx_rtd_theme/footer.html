@@ -1,69 +1,29 @@
 <footer>
-  {% if next or prev %}
+  {% if (theme_prev_next_buttons_location == 'bottom' or theme_prev_next_buttons_location == 'both') and (next or prev) %}
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       {% if next %}
-        <a href="{{ next.link|e }}" class="btn btn-neutral float-right" title="{{ next.title|striptags|e }}" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="{{ next.link|e }}" class="btn btn-neutral float-right" title="{{ next.title|striptags|e }}" accesskey="n" rel="next">{{ _('Next') }} <span class="fa fa-arrow-circle-right"></span></a>
       {% endif %}
       {% if prev %}
-        <a href="{{ prev.link|e }}" class="btn btn-neutral" title="{{ prev.title|striptags|e }}" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="{{ prev.link|e }}" class="btn btn-neutral float-left" title="{{ prev.title|striptags|e }}" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> {{ _('Previous') }}</a>
       {% endif %}
     </div>
   {% endif %}
 
   <hr/>
+
+  <small>
   <a href="http://www.feedthefuture.gov/"><img class="logos" alt="Feed the Future" src="{{ pathto('_static', 1) }}/img/t-feed-the-future.png" /></a>
 <br>
   Created by the <a href="http://gfc.ucdavis.edu/">GFC</a> for the
   <a href="https://www.k-state.edu/siil/">Innovation Lab for Collaborative Research on Sustainable Intensification </a><br>
 
-  <br>
-  License: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>  
-  <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>  		
+  License: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> --- Source code on <a href="https://github.com/rspatial/rspatial-web">github</a>
+<br>
+  © Copyright 2016-2019, Robert J. Hijmans 
+  </small>
 
-  Source code on <a href="https://github.com/rspatial/rspatial-web">github</a>
-
-    <br>
-  
-  <div role="contentinfo">
-    <p>
-    {%- if show_copyright %}
-      {%- if hasdoc('copyright') %}
-        {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
-      {%- else %}
-        {% trans copyright=copyright|e %}&copy; {{ copyright }} <br />
-       {% endtrans %}
-      {%- endif %}
-    {%- endif %}
-
-  <br>
-
-	
-    {%- if build_id and build_url %}
-      {% trans build_url=build_url, build_id=build_id %}
-        <span class="build">
-          Build
-          <a href="{{ build_url }}">{{ build_id }}</a>.
-        </span>
-      {% endtrans %}
-    {%- elif commit %}
-      {% trans commit=commit %}
-        <span class="commit">
-          Revision <code>{{ commit }}</code>.
-        </span>
-      {% endtrans %}
-    {%- elif last_updated %}
-      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
-    {%- endif %}
-    </p>
-  </div>
-
-  {%- if show_sphinx %}
-  {% trans %}Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>{% endtrans %}.
-  {%- endif %}
-
-  
-  
-  
   {%- block extrafooter %} {% endblock %}
 
 </footer>
+

@@ -3,12 +3,8 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(
-	fig.width = 6,
-	fig.height = 6,
-	fig.cap = '',
-	collapse = TRUE
-)
+opts_chunk$set(fig.width = 6, fig.height = 6, fig.cap='',  collapse = TRUE)
+
 library(dismo)
 ```
 

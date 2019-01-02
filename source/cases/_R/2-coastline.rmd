@@ -173,7 +173,7 @@ coast <- nprd * small_rulers
 plot(small_rulers, coast, xlab='Length of ruler', ylab='Length of coast', pch=20, cex=2, col='red')
 ```
 
-So as the ruler get smaller, the coast line gets exponentially longer. As the ruler approaches zero, the length of the coastline approaches infinity. 
+So as the ruler get smaller, the coastline gets exponentially longer. As the ruler approaches zero, the length of the coastline approaches infinity. 
 
 The fractal dimension *D* of the coast of Britain is the (absolute value of the) slope of the regression line.
 

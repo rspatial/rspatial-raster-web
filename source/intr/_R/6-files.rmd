@@ -116,7 +116,7 @@ And then some. (`sapply` is explained later on).
 For some files, readLines is the way to go. For example, you may want to read 'html' files if you are scraping a website. We can read this very page:
 
 ```{r, warning=FALSE}
-webpage <- readLines("http://rspatial.org/intr/rst/6-files.html", warn=FALSE)
+webpage <- readLines("http://rspatial.org/intr/6-files.html", warn=FALSE)
 #show some of the first lines:
 webpage[150:155]
 ```

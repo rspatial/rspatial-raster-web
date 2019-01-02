@@ -9,6 +9,8 @@
 *.gri
 *.csv
 *.dat
+*.rst
+!index.rst
 aws.bat
 
 build
