@@ -54,8 +54,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Remote sensing image analysis'
-copyright = u'2015-2018, Robert Hijmans'
-author = u'Ani Ghosh, Robert Hijmans, Alex Mandel'
+copyright = u'2016-2019, Robert J. Hijmans'
+author = u'Aniruddah Ghosh and Robert J. Hijmans'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -237,7 +237,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'rs.tex', u'Remote Sensing Image Analysis with R',
-   u'Ani Ghosh, Robert J. Hijmans and Alex Mandel', 'manual'),
+   u'Aniruddah Ghosh and Robert J. Hijmans', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

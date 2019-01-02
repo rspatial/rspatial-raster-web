@@ -49,8 +49,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u"R companion to OSU"
-copyright = u'2016, Robert Hijmans'
-author = u'Robert Hijmans'
+copyright = u'2016-2019, Robert J. Hijmans'
+author = u'Robert J. Hijmans'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -230,7 +230,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'ROSU.tex', u"Companion to O'Sullivan and Unwin",
-     u'Robert Hijmans', 'manual'),
+     u'Robert J. Hijmans', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

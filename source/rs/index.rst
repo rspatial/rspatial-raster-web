@@ -2,6 +2,8 @@
 Remote Sensing Image Analysis
 =============================
 
+Aniruddha Ghosh and Robert J. Hijmans
+
 .. toctree::
 	:maxdepth: 3
 

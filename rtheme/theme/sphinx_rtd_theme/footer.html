@@ -11,10 +11,18 @@
   {% endif %}
 
   <hr/>
+  <a href="http://www.feedthefuture.gov/"><img class="logos" alt="Feed the Future" src="{{ pathto('_static', 1) }}/img/t-feed-the-future.png" /></a>
+<br>
+  Created by the <a href="http://gfc.ucdavis.edu/">GFC</a> for the
+  <a href="https://www.k-state.edu/siil/">Innovation Lab for Collaborative Research on Sustainable Intensification </a><br>
 
-  {% trans %} Created by the <a href="http://gfc.ucdavis.edu/">GFC</a> for <a href="https://www.k-state.edu/siil/">SIIL</a>{% endtrans %}
   <br>
-  <a href="http://www.feedthefuture.gov/"><img class="logos" alt="Feed the Future" src="{{ pathto('_static/', 1) }}/img/t-feed-the-future.png" /></a>
+  License: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>  
+  <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>  		
+
+  Source code on <a href="https://github.com/rspatial/rspatial-web">github</a>
+
+    <br>
   
   <div role="contentinfo">
     <p>
@@ -22,10 +30,14 @@
       {%- if hasdoc('copyright') %}
         {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
       {%- else %}
-        {% trans copyright=copyright|e %}&copy; {{ copyright }} <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>..{% endtrans %}
+        {% trans copyright=copyright|e %}&copy; {{ copyright }} <br />
+       {% endtrans %}
       {%- endif %}
     {%- endif %}
 
+  <br>
+
+	
     {%- if build_id and build_url %}
       {% trans build_url=build_url, build_id=build_id %}
         <span class="build">
@@ -49,6 +61,9 @@
   {% trans %}Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>{% endtrans %}.
   {%- endif %}
 
+  
+  
+  
   {%- block extrafooter %} {% endblock %}
 
 </footer>

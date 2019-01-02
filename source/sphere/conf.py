@@ -236,7 +236,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'sphere.tex', u'Spherical data analysis with R',
-   u'Robert Hijmans', 'manual'),
+   u'Robert J. Hijmans', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

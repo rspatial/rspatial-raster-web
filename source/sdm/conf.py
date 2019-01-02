@@ -16,6 +16,7 @@ import sys
 import os
 import shlex
 
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -52,8 +53,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Species Distribution Modeling with R'
-copyright = u'2016, Robert Hijmans and Jane Elith'
-author = u'Robert Hijmans and Jane Elith'
+copyright = u'2016-2019, Robert J. Hijmans'
+author = u'Robert J. Hijmans and Jane Elith'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -278,7 +279,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'Rsdm', u'Spatial Distributio9n Models with R',
-   u'Robert Hijmans and Jane Elith', 'Rsdm', 'An introduction to spatial distribution models with R.',
+   u'Robert J. Hijmans and Jane Elith', 'Rsdm', 'An introduction to spatial distribution models with R.',
    'Manual')
 ]
 
