@@ -40,7 +40,7 @@ do_build <- function(option) {
 		unlink("_build", recursive=TRUE)
 	} 
 	sysfun("make html")
-	ff1 <- list.files("txt", pattern="md\\.txt$", full=TRUE)
+	ff1 <- list.files("txt", pattern="rst\\.txt$", full=TRUE)
 	ff2 <- paste0("_build/html/_sources/", basename(ff1))
 	file.copy(ff1, ff2, overwrite=TRUE)
 }
@@ -74,7 +74,7 @@ do_knit <- function(option) {
 		dir.create('txt/', showWarnings=FALSE)
 		md <-  raster::extension(basename(ff), '.md')
 		rst <- raster::extension(basename(ff), '.rst')
-		rcd <- file.path("txt", basename(gsub("md$", "md.txt", md)))
+		rcd <- file.path("txt", paste0(basename(rst), ".txt"))
 		
 		opts_chunk$set(
 			dev        = 'png',

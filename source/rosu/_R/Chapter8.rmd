@@ -10,9 +10,8 @@ opts_knit$set(
   global.par = TRUE
 )
 
-library(raster)
 library(spdep)
-
+library(rspatial)
 ```
 
 ## Introduction
@@ -24,19 +23,11 @@ This handout accompanies Chapter 8 in [O'Sullivan and Unwin (2010)](http://www.w
 
 ### Get the data
 
-To get the data for this lesson, you need to have the rspatial package installed (from gitub, using devtools).
-
-
-```{r getData, echo=TRUE}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
-```
-
 Read the Auckland data.
 
 ```{r, loca1}
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
 library(rspatial)
-library(raster)
 auck <- sp_data('auctb.rds')
 ``` 
 

@@ -24,7 +24,7 @@ for (f in ff) {
 	
 
 	cat("copying source and pdf\n\n")
-	f <- list.files("source", patt='\\.md\\.txt$', recursive=TRUE, full=TRUE)
+	f <- list.files("source", patt='\\.rst\\.txt$', recursive=TRUE, full=TRUE)
 	f <- grep("/txt/", f, value=TRUE)
 	g <- gsub("txt/", "", f)
 	g <- gsub("source/", "", g)

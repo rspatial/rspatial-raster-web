@@ -15,13 +15,6 @@ library(deldir)
 
 This handout accompanies Chapter 9 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
-You can get the data for this tutorial with the "rspatial" package that you can install with the line below. 
-
-```{r getData, echo=TRUE}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
-```
-
-
 Here is how you can set up and use the continuous function on page 246. 
 
 ```{r}

@@ -3,8 +3,10 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.width = 4, fig.height = 4, fig.cap='', collapse = TRUE)
+opts_chunk$set(fig.width=5, fig.height=5, fig.cap='', collapse = TRUE)
 library(deldir)
+library(rspatial)
+
 ```
 
 
