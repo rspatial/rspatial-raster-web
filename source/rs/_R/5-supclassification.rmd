@@ -111,7 +111,7 @@ sampdata <- data.frame(classvalue = samp2011@data$nlcd2011, sampvals)
 
 Now we will train the classification algorithm using `training2011` dataset. 
 
-```{r, fig.height=6, fig.width=6}
+```{r cartplot, fig.height=6, fig.width=6}
 library(rpart) 
 
 # Train the model
@@ -144,7 +144,7 @@ pr2011
 
 Now plot the classification result using `rasetrVis`. See will set the `classnames` for the `classvalues`.
 
-```{r fig.width=8, fig.height=8}
+```{r dectree, fig.width=8, fig.height=8}
 pr2011 <- ratify(pr2011)
 
 rat <- levels(pr2011)[[1]]

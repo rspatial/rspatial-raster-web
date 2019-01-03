@@ -11,7 +11,7 @@ library(fields)
 
 ## Introduction
 
-Almost any variable of interest has [spatial autocorrelation](/analysis/rst/3-spauto.html). That can be a problem in statistical tests, but it is a very useful feature when we want to predict values at locations where no measurements have been made; as we can generally safely assume that values at nearby locations will be similar. There are several spatial interpolation techniques. We show some of them in this chapter.
+Almost any variable of interest has [spatial autocorrelation](/analysis/3-spauto.html). That can be a problem in statistical tests, but it is a very useful feature when we want to predict values at locations where no measurements have been made; as we can generally safely assume that values at nearby locations will be similar. There are several spatial interpolation techniques. We show some of them in this chapter.
 
 ## Temperature in California 
 
@@ -403,7 +403,7 @@ ensemble <- sum(s * weights)
 ```
 
 And compare maps.
-```{r, fig.width=10, fig.height=10}
+```{r ensplot, fig.width=10, fig.height=10}
 s <- stack(idw, ok[[1]], tps, ensemble)
 names(s) <- c('IDW', 'OK', 'TPS', 'Ensemble')
 plot(s)

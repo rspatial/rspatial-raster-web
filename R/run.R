@@ -40,7 +40,7 @@ do_build <- function(option) {
 		unlink("_build", recursive=TRUE)
 	} 
 	sysfun("make html")
-	ff1 <- list.files("txt", pattern="rst\\.txt$", full=TRUE)
+	ff1 <- list.files("txt", pattern="md\\.txt$", full=TRUE)
 	ff2 <- paste0("_build/html/_sources/", basename(ff1))
 	file.copy(ff1, ff2, overwrite=TRUE)
 }
@@ -48,17 +48,17 @@ do_build <- function(option) {
 do_knit <- function(option) {
 
 	ff <- list.files("_R", pattern='.Rmd$', ignore.case=TRUE, full.names=TRUE)
-	rst <- list.files(".", pattern='\\.rst')
-	rst <- rst[-grep("index.rst", rst)]
+	md <- list.files(".", pattern='\\.md')
 	if (option=="clean"){
-		file.remove(rst)
+		file.remove(md)
 		file.remove(list.files("txt", full=TRUE))
+		file.remove(list.files("figures", full=TRUE))
 	} else { 
-		if (length(rst) > 0 ) {
+		if (length(md) > 0 ) {
 			stime <- file.info(ff)
 			stime <- data.frame(f=raster::extension(basename(rownames(stime)), ""), stime = stime$mtime, stringsAsFactors=FALSE)
 
-			btime <- file.info(rst)
+			btime <- file.info(md)
 			btime <- data.frame(f=raster::extension(basename(rownames(btime)), ""), btime = btime$mtime, stringsAsFactors=FALSE)
 
 			m <- merge(stime, btime, by=1, all.x=TRUE)
@@ -73,8 +73,8 @@ do_knit <- function(option) {
 		dir.create('figures/', showWarnings=FALSE)
 		dir.create('txt/', showWarnings=FALSE)
 		md <-  raster::extension(basename(ff), '.md')
-		rst <- raster::extension(basename(ff), '.rst')
-		rcd <- file.path("txt", paste0(basename(rst), ".txt"))
+		#rst <- raster::extension(basename(ff), '.rst')
+		rcd <- file.path("txt", paste0(basename(md), ".txt"))
 		
 		opts_chunk$set(
 			dev        = 'png',
@@ -87,11 +87,11 @@ do_knit <- function(option) {
 			cat(paste("   ", raster::extension(basename(ff[i]), ""), "\n"))
 			knit(ff[i], md[i], envir = new.env(), encoding='UTF-8', quiet=TRUE)
 			purl(ff[i], rcd[i], quiet=TRUE)
-			pc <- paste('pandoc',  md[i], '-f markdown -t rst -o', rst[i])
-			sysfun(pc)
+			#pc <- paste('pandoc',  md[i], '-f markdown -t rst -o', rst[i])
+			#sysfun(pc)
 		}
+		#file.remove(md)
 	} 
-	file.remove(md)
 }
 
 

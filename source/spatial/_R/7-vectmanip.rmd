@@ -213,7 +213,7 @@ u <- p + z
 ```
 
 Note that there are many more polygons now. One for each unique combination of polygons (and attributes in this case).
-```{r}
+```{r unionplot}
 u
 set.seed(5)
 plot(u, col=sample(rainbow(length(u))))

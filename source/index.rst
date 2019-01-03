@@ -46,7 +46,7 @@ Special topics
 
 .. topic:: II. `Species Distribution Modeling <sdm/index.html>`__ with R
 
-   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf </sdm/sdm.pdf>`__)
+   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf </sdm/SDM.pdf>`__)
    |
 
 

@@ -6,5 +6,5 @@ This is the introductory part of a [set of resources](/) for learning about spat
 
 You need to need to know some of the basics of the *R* language before you can work with *spatial data* in *R*. If you have not worked with *R* before, or not recently, have a look at this brief [introduction to R](../../intr). 
 
-You can [download this manual as a pdf](/_sources/spatial/rst/RSpatial.pdf).
+You can [download this manual as a pdf](/_sources/spatial/RSpatial.pdf).
 

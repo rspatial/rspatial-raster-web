@@ -36,7 +36,7 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst']
+source_suffix = ['.rst', '.md']
 source_parsers = {
    '.md': 'recommonmark.parser.CommonMarkParser',
 }
@@ -123,7 +123,6 @@ html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = ['themes/sphinx_rtd_theme-0.1.7/']
-html_theme_path = ['../rtheme/theme/']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

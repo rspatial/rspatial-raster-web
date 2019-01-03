@@ -166,7 +166,7 @@ points(log(rulers), log(n), pch=20, cex=2, col='red')
 
 What does this mean? Let's try some very small rulers, from 1 mm to 10 m.
 
-```{r, fig.width=6, fig.height=6}
+```{r fracplot, fig.width=6, fig.height=6}
 small_rulers <- c(0.000001, 0.00001, 0.0001, 0.001, 0.01)  # km
 nprd <- exp(predict(m, data.frame(rulers=small_rulers)))
 coast <- nprd * small_rulers

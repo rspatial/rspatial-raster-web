@@ -27,7 +27,7 @@ Why does scale/resolution matter?
 
 First of all, different processes have different spatial and temporal scales at which they operate [Levin, 1992](http://www.esa.org/history/Awards/papers/Levin_SA_MA.pdf) --- in this context, scale refers both to "extent" and "resolution". Processes that operate over a larger extent (e.g., a forest) can be studied at a larger resolution (trees) whereas processes that operate over a smaller extent (e.g. a tree) may need to be studied at the level of leaves. 
 
-From a practical perspective: it affects our estimates of length and size. For example if you wanted to know the length of the coastline of Britain, you could use the length of spatial dataset representing that coastline. You could get rather different numbers depending on the data set used. The higher the resolution of the spatial data, the longer the coastline would appear to be. This is not just a problem of the representation (the data), also at a theoretical level, one can argue that the length of the coastline is not defined, as it becomes infinite if your resolution approaches zero. This is illustrated [here](http://rspatial.org/cases/rst/2-coastline.html)
+From a practical perspective: it affects our estimates of length and size. For example if you wanted to know the length of the coastline of Britain, you could use the length of spatial dataset representing that coastline. You could get rather different numbers depending on the data set used. The higher the resolution of the spatial data, the longer the coastline would appear to be. This is not just a problem of the representation (the data), also at a theoretical level, one can argue that the length of the coastline is not defined, as it becomes infinite if your resolution approaches zero. This is illustrated [here](http://rspatial.org/cases/2-coastline.html)
 
 Resolution also affects our understanding of relationships between variables of interest. In terms of data collection this means that we want data to be at the highest spatial (and temporal) resolution possible (affordable). We can *aggregate* our data to lower resolutions, but it is not nearly as easy, or even impossible to correctly *disaggregate* ("downscale") data to a higher resolution. 
 
@@ -49,7 +49,7 @@ income <- (runif(1000) * abs((xy[,1] - 50) * (xy[,2] - 50))) / 500
 
 Inspect the data, both spatially and non-spatially. The first two plots show that there are many poor people and a few rich people. The thrird that there is a clear spatial pattern in where the rich and the poor live.
 
-```{r}
+```{r incplot}
 par(mfrow=c(1,3), las=1)
 plot(sort(income), col=rev(terrain.colors(1000)), pch=20, cex=.75, ylab='income')
 hist(income, main='', col=rev(terrain.colors(10)),  xlim=c(0,5), breaks=seq(0,5,0.5))
@@ -91,7 +91,7 @@ r6 <- rasterize(xy, r6, income, mean)
 
 Have a look at the plots of the income distribution and the sub-regional averages. 
 
-```{r, fig.height = 7, fig.width=9}
+```{r incdistplot, fig.height = 7, fig.width=9}
 par(mfrow=c(2,3), las=1)
 plot(r1); plot(r2); plot(r3); plot(r4); plot(r5); plot(r6)
 ```
@@ -99,7 +99,7 @@ plot(r1); plot(r2); plot(r3); plot(r4); plot(r5); plot(r6)
 It is not surprising to see that the smaller the regions get, the better the real pattern is captured. 
 But in all cases, the histograms show that we do not capture the full income distribution (compare to the histogram with the data for individuals).  
 
-```{r}
+```{r inchist}
 par(mfrow=c(1,3), las=1)
 hist(r4, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
 hist(r5, main='', col=rev(terrain.colors(10)), xlim=c(0,5), breaks=seq(0, 5, 0.5))
@@ -131,7 +131,7 @@ pts
 ```
 
 Plot the points and labels:
-```{r, points}
+```{r pointlabs}
 plot(pts, xlim=c(0,120), ylim=c(0,120), pch=20, cex=2, col='red', xlab='X', ylab='Y', las=1)
 text(pts+5, LETTERS[1:6])
 ```

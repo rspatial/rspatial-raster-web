@@ -5,7 +5,7 @@ library(knitr)
 opts_chunk$set(
   fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
-
+library(rspatial)
 library(rasterVis)
 library(rgdal)
 library(deldir)
@@ -92,4 +92,4 @@ dta <- spTransform(dsp, TA)
 cata <- spTransform(CA, TA)
 ```
 
-Continue [here](/analysis/rst/4-interpolation.html)
+Continue [here](/analysis/4-interpolation.html)

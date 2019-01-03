@@ -155,4 +155,4 @@ names(s) <- c('intercept', 'slope')
 plot(s)
 ```
 
-See [this page](http://rspatial.org/analysis/rst/6-local_regression.html) for a more detailed example of Geographically weighted regression.
+See [this page](http://rspatial.org/analysis/6-local_regression.html) for a more detailed example of Geographically weighted regression.

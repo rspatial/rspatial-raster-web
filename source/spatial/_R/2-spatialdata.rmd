@@ -32,7 +32,7 @@ Continuous surface data are sometimes stored as triangulated irregular networks 
 
 ## Simple representation of spatial data
 
-The [basic data types](http://rspatial.org/intr/rst/2-basic-data-types.html) in *R* are numbers, characters, logical (TRUE or FALSE) and factor values. Values of a single type can be combined in vectors and matrices, and variables of multiple types can be combined into a data.frame. We can represent (only very) basic spatial data with these data types. Let's say we have the location (represented by longitude and latitude) of ten weather stations (named A to J) and their annual precipitation.
+The [basic data types](http://rspatial.org/intr/2-basic-data-types.html) in *R* are numbers, characters, logical (TRUE or FALSE) and factor values. Values of a single type can be combined in vectors and matrices, and variables of multiple types can be combined into a data.frame. We can represent (only very) basic spatial data with these data types. Let's say we have the location (represented by longitude and latitude) of ten weather stations (named A to J) and their annual precipitation.
 
 In the example below we make a very simple map. Note that a *map* is special type of plot (like a scatter plot, barplot, etc.). A map is a plot of geospatial data that also has labels and other graphical objects such as a scale bar or legend. The spatial data itself should not be referred to as a map.
 

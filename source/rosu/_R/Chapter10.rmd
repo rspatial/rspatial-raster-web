@@ -88,4 +88,5 @@ axis(1, at=seq(0,80,10))
 axis(2, las=1)
 ```
 
--> continue to analysis / interpolation
+Now continue with the [interpolation chapter](/analysis/4-interpolation.html) of the "Spatial Data Analysis" book.
+

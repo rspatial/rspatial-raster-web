@@ -6,7 +6,6 @@ library(knitr)
 opts_chunk$set(fig.width=5, fig.height=5, fig.cap='', collapse = TRUE)
 library(deldir)
 library(rspatial)
-
 ```
 
 
@@ -203,9 +202,9 @@ ma1$coefficients
 ma2$coefficients 
 ```
 
-Re-creating figure 2.1 takes some effort. We want to make a similar figure three times (two matrices and a plot). That makes it efficient and practical to use a function. [Look here](http://rspatial.org/intr/rst/8-functions.html) if you do not remember how to write and use your own function in `R`:
+Re-creating figure 2.1 takes some effort. We want to make a similar figure three times (two matrices and a plot). That makes it efficient and practical to use a function. [Look here](http://rspatial.org/intr/8-functions.html) if you do not remember how to write and use your own function in `R`:
 
-The function I wrote, called `plotMAUP`, is a bit complex, so I do not show it here. But you can find it in the [source code](/_sources/rosu/rst/Chapter2.txt) for this page. Have a look at it if you can, don't worry about the details, but see if you can understand the main reason for each step. It helps to try the lines of the function one by one (outside of the function). 
+The function I wrote, called `plotMAUP`, is a bit complex, so I do not show it here. But you can find it in the [source code](/_sources/rosu/Chapter2.rst.txt) for this page. Have a look at it if you can, don't worry about the details, but see if you can understand the main reason for each step. It helps to try the lines of the function one by one (outside of the function). 
 
 ```{r, include=FALSE}
 plotMAUP <- function(r1, r2, title='') {
