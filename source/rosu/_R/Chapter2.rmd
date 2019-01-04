@@ -5,7 +5,6 @@
 library(knitr)
 opts_chunk$set(fig.width=5, fig.height=5, fig.cap='', collapse = TRUE)
 library(deldir)
-library(rspatial)
 ```
 
 

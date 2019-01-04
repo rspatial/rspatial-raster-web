@@ -23,4 +23,10 @@ for (pk in pkgs) {
   }
 }
 
+if (!("rspatial" %in% ipkgs)) {
+	devtools::install_github('rspatial/rspatial')
+}
+
+
+
 
