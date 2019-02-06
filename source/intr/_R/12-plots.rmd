@@ -4,7 +4,9 @@ With R you can make beautiful plots. You have a lot of control over what you wan
 
 Moreover, there are entirely different approaches to make plots. Here we only discuss scatter-plots with the "base" package. The next chapter shows other basic plot types. The chapter thereafter shows how you can make plots with additional packages `levelplot` and `ggplot`. It is very useful to learn about "base" plotting first before you get into the more complicated (and sometimes, but not always more fancy) approaches. There are many websites with [cool examples](http://www.sr.bham.ac.uk/~ajrs/R/r-gallery.html).
 
-Here we use the `cars` data set that comes with R. It has two variables: the speed of cars and the distances taken to stop (data recorded in the 1920s), see `?cars`
+Here we use the `cars`, `InsectSprays` and `iris` data sets that come with R. 
+
+`cars` has two variables: the speed of cars and the distances taken to stop (data recorded in the 1920s), see `?cars`
 
 ## Scatter plots
 
@@ -35,6 +37,9 @@ Different symbols (`pch` is the symbol type, `cex` is the size).
 ```{r, plotcars4, fig.cap=''}
 plot(cars, xlab='Speed of car (miles/hr)', ylab='Stopping distances (feet)', pch=20, cex=2, col='red')
 ```
+
+`cex` is the *magnification factor*. The default value is 1.
+
 
 Let's change some things about the axes. Use `xlim` and `ylim` to set the start and end of an axis. `las=1` changes the orientation of the y-axis labels to horizontal.
 
@@ -82,7 +87,7 @@ for (i in 1:4) {
 ## Some other base plots
 
 
-Consider the `InsectSprays` dataset
+Now consider the `InsectSprays` dataset
 
 ```{r, othplot1}
 head(InsectSprays)
@@ -104,3 +109,228 @@ boxplot(count ~ spray, data = InsectSprays, col = "lightgray")
 ```
 
 
+## Exploring the iris data set
+
+Now let's have a look at the 'iris' dataset. It has 150 observations of 5 variables for 3 species of iris.  
+
+```{r}
+data(iris)
+str(iris)
+```
+
+Default plot characteristics are not satisfactory most of the time. You may want different heading, labels of x and y axis or different color of lines/points/bars. There is a large number of graphical parameters to set these. Here are some examples.
+
+### Scatter plot
+
+Note how the scatter plot type is controlled by ```type``` parameter.
+
+```{r iris1, fig.width = 4, fig.height = 4}
+plot(iris$Sepal.Length, type = 'l')
+plot(iris$Sepal.Length, type = 'p')
+plot(iris$Sepal.Length, type = 'o')
+plot(iris$Sepal.Length, iris$Sepal.Width, type = 'p')
+```
+
+
+### Titles and axis labels
+
+
+```{r iris2, fig.width = 4, fig.height = 4}
+plot(iris$Petal.Length, iris$Petal.Width, main = "Edgar Anderson's Iris Data",  
+     xlab = "Petal Length", ylab = "Petal Width")
+```
+
+The font size can be changed by `cex.main` and `cex.lab` argument. Try setting `cex.lab = 2` to increase the font size of the axes. `cex.axis` controls the size of axis tick values.
+
+
+### Plotting characters
+
+You can use `lty` to change the line type, and `pch` to choose a point type. 
+
+```{r iris3, fig.width = 4, fig.height = 4}
+plot(iris$Sepal.Length, type = 'l', lty = 2, lwd = 2,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width")
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width")
+```
+
+There are many choices for `pch`. You can use ```example("pch")```, or do `plot(1:25, pch=1:25)` to see the some plotting characters. Instead of a code, you can also specify the character like in `pch="&"`. 
+
+The size of a point character (pch) can be controlled with ```cex``` argument.
+
+
+### Colors
+```{r iris4, fig.width = 4, fig.height = 4}
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = 'red',
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width")
+```
+
+We can link a color to a value.
+
+```{r iris5, fig.width = 4, fig.height = 4}
+mycolor <- c("red","green3","blue")[as.factor(iris$Species)]
+
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width")
+```
+
+Note that the length of `col` vector should be equal to the number of items you are plotting. 
+   
+You can use `colors()` to see a list of named colors.
+
+
+### Axes
+
+To change the range of an axis you can use `xlim` and/or `ylim` argument(s). 
+
+```{r iris6, fig.width = 4, fig.height = 4}
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width", 
+     xlim = c(0,10), ylim= c(0,10))
+```
+
+You can also set `xlim` and `ylim` with `range`. Try `xlim = range(iris$Petal.Length)`.
+
+Use `axis` function to change the tick position and annotations (axes labels). First you need to turn off the default axes. 
+
+```{r iris7, fig.width = 4, fig.height = 4}
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width", 
+     xlim = c(0,10), ylim= c(0,10), axes = FALSE)
+
+axis(1, at = 1:10, lab = c(1:10))
+axis(2, at = 1:10, lab = c(1:10))
+```
+
+### Interacting with plots
+
+You can use `identify()` to identify a particular point in the plot. Try `identify(iris$Petal.Length, iris$Petal.Width)`. You can left click with the mouse to identify multiple points. Once complete use `ESC` to end the process.
+
+You can use `locator()` to find out the coordinates at a particular position on a graph. Try `locator()` . You can left click with the mouse any number of times within the axes and use `ESC` to end the process. A list of X and Y coordinates of the positions clicked will be returned. You can retain this information by assigning a variable to locator before starting it: ` loc <- locator()`. The coordinates will be stored as `loc$x` and `loc$y`. `locator` is particularly useful to add additional information to the graph. See the following example.
+
+### Legend
+
+We use a different color to represent each species of iris. We can create a legend for this information using `legend` function.
+
+```{r iris10, fig.width = 4, fig.height = 4}
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width",  
+     xlim = c(0,10), ylim= c(0,10))
+
+legend('topright', legend = unique(iris$Species), col = c("red","green3","blue"), pch = 8)
+```
+
+To make a legend with no border use `bty = 'n'`.
+
+###Add text
+
+Often we want include additional text in the plot. `locator` can be used to find the approximate x and y coordinates where you want to place the text. Use `loc <- locator()`.
+
+
+```{r iris11, fig.width = 4, fig.height = 4}
+loc <- list()
+loc$x <- 2.75
+loc$y <- 4.94
+
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Edgar Anderson's Iris Data", xlab = "Petal Length", ylab = "Petal Width", 
+     xlim = c(0,10), ylim= c(0,10))
+
+legend('topright', legend = unique(iris$Species), col = c("red","green3","blue"), 
+       pch = 8, bty = 'n')
+
+text(loc$x, loc$y, labels = "Hello! this is a Scatter Plot")
+```
+
+## Multiple plots
+
+To combine multiple plots in one image you can use `layout()` or `par()`. For example, 4 plots can be combined with `layout(matrix(1:4, 2, 2))` or `par(mfrow=c(2,2))`. 
+
+```{r iris12, fig.width = 8, fig.height = 8}
+par(mfrow=c(2,2))
+
+boxplot(iris$Sepal.Length~iris$Species, main = "Boxplot of Sepal Length", 
+        xlab = "Species", ylab = "Sepal Length", col = c("red","green3","blue"),
+        cex.lab = 1.25)
+
+hist(iris$Sepal.Length, main = "Histogram of Sepal Length", 
+     xlab = "Sepal Length", ylab = "Frequency", col = c("grey"), cex.lab = 1.25)
+
+plot(iris$Sepal.Length, type = 'l', lty = 2, lwd = 2, col = 'red',
+     main = "Variation with of Petal Width and Petal Length", 
+     xlab = "Petal Length", ylab = "Petal Width", cex.lab = 1.25)
+
+plot(iris$Petal.Length, iris$Petal.Width, pch = 8, col = mycolor,
+     main = "Scatter plot of Petal Width and Petal Length", 
+     xlab = "Petal Length", ylab = "Petal Width", cex.lab = 1.25)
+```
+
+## Saving plots
+
+You can directly write a plot to a file such as `pdf` of `png`. To save any of the above plots in a pdf file called `theplot.pdf` you first open the `pdf device`, then do the plotting and use `dev.off()` when done.  
+
+```{r pdf, eval = FALSE}  
+pdf("theplot.pdf")
+boxplot(iris$Sepal.Length~Species, main = "Boxplot of Sepal Length", 
+        xlab = "Species", ylab = "Sepal Length", col = c("red","green3","blue"))  
+dev.off()
+```
+
+For plotting to an image file, you can use `png` and other formats. To set the device size (dimensions and resolution), you can use a few parameters
+
+
+```{r png, eval = FALSE}
+png(filename = "myplot.png", width = 200, height = 300, units = "cm", res = 300)
+
+boxplot(iris$Sepal.Length~iris$Species, main = "Boxplot of Sepal Length", 
+        xlab = "Species", ylab = "Sepal Length", col = c("red","green3","blue"))  
+
+dev.off()
+```
+You should now have a file called "myplot.png" in your working directory.
+
+
+
+## Summary
+
+Some different plot types 
+
+    + `plot( )`                Scatter plot, and general plotting  
+    + `hist( )`                Histogram  
+    + `stem( )`                Stem-and-leaf  
+    + `boxplot( )`             Boxplot  
+    + `qqnorm( )`              Normal probability plot  
+    + `mosaicplot( )`          Mosaic plot  
+
+
+Add elements to a plot  
+
+    + `points( )`              Add points  
+    + `lines( )`               Add lines  
+    + `text( )`                Add text  
+    + `abline( )`              Add lines  
+    + `legend( )`              Add legend  
+	
+
+Important graphical parameters  
+
+    + `par( )`                 Set parameters for plotting  
+    + `cex`                    Font size  
+    + `col`                    Color of plotting symbols  
+    + `lty`                    Line type  
+    + `lwd`                    Line width  
+    + `mar`                    Inner margins  
+    + `mfrow`                  Multiple figures per image  
+    + `oma`                    Outer margins  
+    + `pch`                    Plotting symbol  
+    + `xlim`                   Min and max of X axis range  
+    + `ylim`                   Min and max of Y axis range  
+	
+	
+### Resources  
+
+Additional resources you may want to consult are the R demo for different types of plots: `demo("graphics")` and the help for plot (`?plot`).
+
+There is also a comprehensive [gallery of plots](http://www.statmethods.net/graphs/)
+
+	

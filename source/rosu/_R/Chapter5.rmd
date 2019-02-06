@@ -2,6 +2,7 @@
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
+library(rspatial)
 opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse  = TRUE)
 ```
 
@@ -25,11 +26,12 @@ crime <- sp_data("crime.rds")
 
 Here is a map of both datasets. 
 ```{r, pp1, fig.width=8, fig.height=4}
+par(mai=c(0,0,0,0))
 plot(city, col='light blue')
 points(crime, col='red', cex=.5, pch='+')
 ``` 
 
-A sorted table of the incidence of crime types.
+To find out what we are dealing with, we can make a sorted table of the incidence of crime types.
 
 ```{r}
 tb <- sort(table(crime$CATEGORY))[-1]
@@ -49,6 +51,7 @@ head(xy)
 ## Basic statistics
 
 Compute the mean center and standard distance for the crime data (see page 125 of OSU).
+
 ```{r}
 # mean center
 mc <- apply(xy, 2, mean)
@@ -83,10 +86,11 @@ dens <- nrow(xy) / CityArea
 
 __Question 1a__:*What is the unit of 'dens'?* 
 
-__Question 1b__:*What is the number of crimes per square km?*
+__Question 1b__:*What is the number of crimes per km^2?*
 
 
-To compute  quadrat counts (as on p.127-130) I first create quadrats (a RasterLayer). I get the extent for the raster from the city polygon, and then assign an an arbitrary resolution of 1000. (In real life one should always try a range of resolutions, I think).
+To compute  quadrat counts (as on p.127-130), I first create quadrats (a RasterLayer). I get the extent for the raster from the city polygon, and then assign an an arbitrary resolution of 1000. (In real life one should always try a range of resolutions, I think).
+
 
 ```{r}
 r <- raster(city) 
@@ -120,7 +124,7 @@ plot(ncrimes)
 plot(city, add=TRUE)
 ``` 
 
-Better. Now the frequencies.
+That looks better. Now let's get the frequencies.
 
 ```{r, pp6}
 f <- freq(ncrimes, useNA='no')
@@ -128,7 +132,9 @@ head(f)
 plot(f, pch=20)
 ``` 
 
-Does this look like a pattern you would have expected? Now compute average number of cases per quadrat.
+Does this look like a pattern you would have expected?  
+
+Compute the average number of cases per quadrat.
 ```{r}
 # number of quadrats
 quadrats <- sum(f[,2])
@@ -199,7 +205,7 @@ Do you want to know, for each point, *Which* point is its nearest neighbour? Use
 wdmin <- apply(dm, 1, which.min)
 ```
 
-And what are the most isolated cases? That is the furtest away from their nearest neigbor. I plot the top 25. A bit complicated.
+And what are the most isolated cases? That is, which cases are the furthest away from their nearest neighbor. Below I plot the top 25 cases. It is a bit complicated.
 
 ```{r, pp10, fig.width=8, fig.height=4.5}
 plot(city)
@@ -218,10 +224,11 @@ for (i in far25) {
 }
 ``` 
 
-Note that some points, but actually not that many, are used as isolated and as a neighbor to an isolated points. 
+Note that some points, but actually not that many, are both isolated and a neighbor to another isolated point. 
 
 
-Now on to the G function
+On to the *G* function.
+
 ```{r, pp11}
 max(dmin)
 # get the unique distances (for the x-axis)
@@ -273,7 +280,8 @@ plot(Fdistance, Fd, type='l', lwd=2, xlim=c(0,3000))
 ``` 
 
 
-Compute the expected distributon (5.12 on page 145)
+Compute the expected distribution (5.12 on page 145).
+
 ```{r}
 ef <- function(d, lambda) {
   E <- 1 - exp(-1 * lambda * pi * d^2)
@@ -281,7 +289,8 @@ ef <- function(d, lambda) {
 expected <- ef(0:2000, dens)
 ```
 
-Now, let's combine F and G on one plot.
+We can combine *F* and *G* on one plot.
+
 ```{r, pp14}
 plot(distance, Gd, type='l', lwd=2, col='red', las=1, 
     ylab='F(d) or G(d)', xlab='Distance', yaxs="i", xaxs="i")
@@ -297,7 +306,8 @@ legend(1200, .3,
 __Question 3__: *What does this plot suggest about the point pattern?*
 
 	   
-Finally, let's compute K. Note that I use the original distance matrix 'd' here.
+Finally, we compute *K*. Note that I use the original distance matrix `d` here.
+
 ```{r, pp15}
 distance <- seq(1, 30000, 100)
 Kd <- sapply(distance, function(x) sum(d < x)) # takes a while
@@ -306,12 +316,10 @@ plot(distance, Kd, type='l', lwd=2)
 ``` 
 
 
-
-
 __Question 4__: *Create a single random pattern of events for the city, with the same number of events as the crime data (object xy). Use function 'spsample'*
 
 
-__Question 5__: *Compute the G function, and plot it on a single plot, together with the G function for the observed crime data, and the theoretical expectation (formula 5.12).*
+__Question 5__: *Compute the G function for the observed data, and plot it on a single plot, together with the G function for the theoretical expectation (formula 5.12).*
 
 
 __Question 6__: *(Difficult!) Do a Monte Carlo simulation (page 149) to see if the 'mean nearest distance' of the observed crime data is significantly different from a random pattern. Use a 'for loop'. First write 'pseudo-code'. That is, say in natural language what should happen. Then try to write R code that implements this.*
@@ -319,7 +327,7 @@ __Question 6__: *(Difficult!) Do a Monte Carlo simulation (page 149) to see if t
 	
 ## Spatstat package
 
-Above we did some 'home-brew' point pattern analysis, we will now use the spatstat package. In research you would normally use spatstat rather than your own functions, at least for standard analysis. I showed how you make some of these functions in the previous sections, because understanding how to go about that may allow you to take things in directions that others have not gone. The good thing about spatstat is that it very well documented (see <http://spatstat.github.io/>). The bad thing is that it uses an entirly different sets of classes (ways to represent spatial data) that we we will use in all other labs (classes from sp and raster); but it is not hard to get used to that.
+Above we did some 'home-brew' point pattern analysis, we will now use the spatstat package. In research you would normally use spatstat rather than your own functions, at least for standard analysis. I showed how you make some of these functions in the previous sections, because understanding how to go about that may allow you to take things in directions that others have not gone. The good thing about spatstat is that it very well documented (see <http://spatstat.github.io/>). But note that it uses different spatial data classes (ways to represent spatial data) than those that we use elsewhere (classes from sp and raster).
 
 
 ```{r, message=FALSE}
@@ -346,23 +354,26 @@ head(pts)
 ``` 
 
 Now we can create a 'ppp' (point pattern) object
-```{r, pp20}
+```{r, pp20, fig.width=8, fig.height=4}
 p <- ppp(pts[,1], pts[,2], window=cityOwin)
 class(p)
 p
+par(mai=c(0,0,0,0))
 plot(p)
 ``` 
 
 Note the warning message about 'illegal' points. Do you see them and do you understand why they are illegal?
 
 Having all the data well organized, it is now easy to compute Kernel Density
-```{r, pp21}
+```{r, pp21, fig.width=8, fig.height=4}
 ds <- density(p)
 class(ds)
+par(mai=c(0,0,0.5,0.5))
 plot(ds, main='crime density')
 ``` 
 
-Density is the number of points per unit area. Let's ceck if the numbers makes sense, by adding them up and mulitplying with the area of the raster cells. I use raster package functions for that.
+Density is the number of points per unit area. Let's check if the numbers makes sense, by adding them up and multiplying with the area of the raster cells. I use raster package functions for that.
+
 ```{r}
 nrow(pts)
 r <- raster(ds)
@@ -370,14 +381,15 @@ s <- sum(values(r), na.rm=TRUE)
 s * prod(res(r))
 ``` 
 
-Looks about right. We can also get the information directly from the "im"  (image) object
+Looks about right. We can also get the information directly from the "im"  (image) object.
+
 ```{r}
 str(ds)
 sum(ds$v, na.rm=TRUE) * ds$xstep * ds$ystep
 p$n
 ``` 
 
-Here's another, lenghty, example of generalization. We can interpolate population density from (2000) census data; assigning the values to the centroid of a polygon (as explained in the book, but not a great technique). We use a shapefile with census data. 
+Here's another, lengthy, example of generalization. We can interpolate population density from (2000) census data; assigning the values to the centroid of a polygon (as explained in the book, but not a great technique). We use a shapefile with census data. 
 
 ```{r}
 census <- sp_data("census2000.rds")
@@ -418,9 +430,11 @@ pp
 ``` 
 
 Note the warning message: "1 point was rejected as lying outside the specified window". 
+
 That is odd, there is a polygon that has a centroid that is outside of the polygon. This can happen with, e.g., kidney shaped polygons.
 
 Let's find and remove this point that is outside the study area.
+
 ```{r}
 library(rgeos)
 sp <- SpatialPoints(p, proj4string=CRS(proj4string(win)))
@@ -483,6 +497,7 @@ mpp <- ppp(xy[,1], xy[,2], window = w, marks=crime$fcat)
 
 We can split the mpp object by category (crime)
 ```{r, pp27, fig.width=9}
+par(mai=c(0,0,0,0))
 spp <- split(mpp)
 plot(spp[1:4], main='')
 ``` 
@@ -507,7 +522,7 @@ plot(ktheft)
 plot(ketheft)
 ``` 
 
-Let's try to answer the question you have been wanting to answer all along. Is population density a good predictor of being (booked for) "drunk in public" and for "Arson"? One approach is to do a Kolmogorov-Smirnov ('kstest') on 'Drunk in Public' and 'Arson', using population density as a covariate:
+Let's try to answer the question you have been wanting to answer all along. Is population density a good predictor of being (booked for) "drunk in public" and for "Arson"? One approach is to do a Kolmogorov-Smirnov test on 'Drunk in Public' and 'Arson', using population density as a covariate:
 
 ```{r}
 KS.arson <- cdf.test(spp$Arson, covariate=ds, test='ks')

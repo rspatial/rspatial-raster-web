@@ -27,20 +27,20 @@ f1 <- "C:/projects/research/data/obs.csv"
 f2 <- "C:\\projects\\research\\data\\obs.csv"
 ```
 
-This is just a name. A file with that name may, or may not actually exist.
+The values of `f1` and `f2` are just names. A file with that name may, or may not, actually exist. We can find out with the `file.exists` function.
 
 ```{r}
 file.exists(f1)
 ```
 
-To make what you see here reproducible, we'll first create files from some example data:
+To make what you see here reproducible, we'll first create files from some example data.
 
 ```{r}
 d <- data.frame(id=1:10, name=letters[1:10], value=seq(10,28,2))
 d
 ```
 
-Now we write the values in data.frame `d` to disk. In this section, I show how to write to siple "text" files using two different (but related) functions: `write.csv` and `write.table`. It is also possile to read Excel files (with the `read_excel` function from the `readxl` package) and many other file types but that is not shown here. 
+Now we write the values in data.frame `d` to disk. In this section, I show how to write to simple "text" files using two different (but related) functions: `write.csv` and `write.table`. It is also possible to read Excel files (with the `read_excel` function from the `readxl` package) and many other file types but that is not shown here. 
  
 ```{r}
 write.csv(d, 'test.csv', row.names=FALSE)

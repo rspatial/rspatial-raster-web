@@ -1,0 +1,102 @@
+# Appendix
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE)
+```
+
+This page accompanies the Appendix of [O'Sullivan and Unwin (2010)](https://www.wiley.com/en-us/Geographic+Information+Analysis%2C+2nd+Edition-p-9780470288573). 
+
+Add two matrices
+
+```{r app1}
+A <- matrix(1:4, nrow=2, byrow=TRUE)
+B <- matrix(5:8, nrow=2, byrow=TRUE)
+A + B
+```
+
+Matrix multiplication
+```{r app2}
+A <- matrix(c(1,-4,-2,5,3,-6), nrow=2)
+B <- matrix(c(6,4,2,-5,-3,-1), nrow=3)
+A %*% B
+B %*% A
+```
+
+Matrix transposition
+```{r app3}
+A <- matrix(1:6, nrow=2, byrow=TRUE)
+A
+t(A)
+```
+
+Identity matrix
+```{r app4}
+I <- matrix(0, ncol=2, nrow=2)
+diag(I) <- 1
+I
+
+I <- matrix(0, ncol=5, nrow=5)
+diag(I) <- 1
+I
+```
+
+Finding the inverse matrix
+```{r app5}
+A <- matrix(1:4, nrow=2, byrow=TRUE)
+Inv <- solve(A)
+Inv
+
+AA <- A %*% Inv
+AA
+round(AA, 10)
+```
+
+inv(AB) == inv(A) * inv(B)
+```{r app6}
+A <- matrix(1:4, nrow=2, byrow=TRUE)
+B <- matrix(4:1, nrow=2, byrow=TRUE)
+AB <- A %*% B
+solve(AB)
+# the same as
+solve(B) %*% solve(A)
+```
+
+Simulataneous equations
+```{r app7}
+A <- matrix(c(3,2,4,-4), nrow=2)
+b <- matrix(c(11, -6))
+solve(A) %*% b
+```
+
+Rotation
+```{r app8}
+A <- matrix(c(.6,-.8,.8,.6), nrow=2)
+s <- matrix(c(3, 4))
+As <- A %*% s
+round(As, 10)
+
+S <- matrix(c(1,1,3,-2,0,5,-1,4,-2.5,-4), nrow=2)
+AS <- A %*% S
+AS
+```
+
+The angle of rotation matrix `A` is
+```{r app9}
+angle <- acos(A[1])
+angle
+# in degrees
+180*angle/ pi
+```
+See this [page for more](https://en.wikipedia.org/wiki/Rotation_matrix) on rotation matrices.
+
+Eigenvector and values
+```{r app10}
+M <- matrix(c(3,2,4,-4), nrow=2)
+eigen(M)
+
+M <- matrix(c(1,3,3,2), nrow=2)
+eigen(M)
+```
+
+

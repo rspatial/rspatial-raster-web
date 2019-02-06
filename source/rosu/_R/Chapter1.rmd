@@ -13,7 +13,7 @@ There is only one numerical example in this chapter, and it is a complicated one
 
 On page 13 the fractional dimension of a part of the New Zealand coastline is computed. First we get a high spatial resolution (30 m) coastline. 
 
-Thoughout this book, we will use data that is installed with the `rspatial` package. To install this package (from github) you can use the `install_github` function from the `devtools` package (so you may need to run `install.packages("devtools")` first.
+Throughout this book, we will use data that is installed with the `rspatial` package. To install this package (from github) you can use the `install_github` function from the `devtools` package (so you may need to run `install.packages("devtools")` first.
 
 ```{r getDataOSU1, echo=TRUE}
 if (!require("devtools")) install.packages('devtools')

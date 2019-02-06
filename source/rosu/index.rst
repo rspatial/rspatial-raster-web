@@ -14,4 +14,4 @@ R companion to Geographic Information Analysis
 	Chapter9
 	Chapter10
 	Chapter11
-	
+	Appendix
