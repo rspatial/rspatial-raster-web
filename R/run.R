@@ -48,17 +48,18 @@ do_build <- function(option) {
 do_knit <- function(option) {
 
 	ff <- list.files("_R", pattern='.Rmd$', ignore.case=TRUE, full.names=TRUE)
-	md <- list.files(".", pattern='\\.md')
+	kf <- list.files(".", pattern='\\.rst')
+	kf <- kf[-grep("index.rst", kf, ignore.case=TRUE)]
 	if (option=="clean"){
-		file.remove(md)
+		file.remove(kf)
 		file.remove(list.files("txt", full=TRUE))
 		file.remove(list.files("figures", full=TRUE))
 	} else { 
-		if (length(md) > 0 ) {
+		if (length(kf) > 0 ) {
 			stime <- file.info(ff)
 			stime <- data.frame(f=raster::extension(basename(rownames(stime)), ""), stime = stime$mtime, stringsAsFactors=FALSE)
 
-			btime <- file.info(md)
+			btime <- file.info(kf)
 			btime <- data.frame(f=raster::extension(basename(rownames(btime)), ""), btime = btime$mtime, stringsAsFactors=FALSE)
 
 			m <- merge(stime, btime, by=1, all.x=TRUE)
@@ -73,7 +74,7 @@ do_knit <- function(option) {
 		dir.create('figures/', showWarnings=FALSE)
 		dir.create('txt/', showWarnings=FALSE)
 		md <-  raster::extension(basename(ff), '.md')
-		#rst <- raster::extension(basename(ff), '.rst')
+		rst <- raster::extension(basename(ff), '.rst')
 		rcd <- file.path("txt", paste0(basename(md), ".txt"))
 		
 		opts_chunk$set(
@@ -87,10 +88,10 @@ do_knit <- function(option) {
 			cat(paste("   ", raster::extension(basename(ff[i]), ""), "\n"))
 			knit(ff[i], md[i], envir = new.env(), encoding='UTF-8', quiet=TRUE)
 			purl(ff[i], rcd[i], quiet=TRUE)
-			#pc <- paste('pandoc',  md[i], '-f markdown -t rst -o', rst[i])
-			#sysfun(pc)
+			pc <- paste('pandoc',  md[i], '-f markdown -t rst -o', rst[i])
+			sysfun(pc)
+			file.remove(md[i])
 		}
-		#file.remove(md)
 	} 
 }
 
