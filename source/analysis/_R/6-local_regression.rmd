@@ -323,8 +323,6 @@ So that was a lot of 'home-brew-GWR'.
 
 __Question 1__: *Can you comment on weaknesses (and perhaps strengths) of the approaches I have shown?*
 
-__Question 2__: *Can you do it the easier and more professional way for these data, using the spgwr package?*
-
 
 ## spgwr package
 
@@ -358,13 +356,13 @@ I don't want the third column
 fitpoints <- fitpoints[,-3]
 ```
 
-Now specificy the model
+Now specify the model
 
 ```
 gwr.model <- ______ 
 ```
 
-`gwr` returns a list-like object that includes (as first element) a `SpatialPointsDataFrame` that has the model coeffients. Plot these using `spplot`, and after that, transfer them to a `RasterBrick` object.
+`gwr` returns a list-like object that includes (as first element) a `SpatialPointsDataFrame` that has the model coefficients. Plot these using `spplot`, and after that, transfer them to a `RasterBrick` object.
 
 To extract the SpatialPointsDataFrame:
 
@@ -385,6 +383,6 @@ plot(b)
 ```
 
 
-__Question 3__: *Briefly comment on the results and the differences (if any) with the two home-brew examples.*
+__Question 2__: *Briefly comment on the results and the differences (if any) with the two home-brew examples.*
 
 
