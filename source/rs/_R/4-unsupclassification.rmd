@@ -26,7 +26,7 @@ Learn more about K-means and other unsupervised-supervised algorithms [here](htt
 
 We will perform unsupervised classification on a spatial subset of the `ndvi` layer.
 
-```{r echo = FALSE}
+```{r}
 ndvi <- (landsat5[['NIR']]-landsat5[['red']])/(landsat5[['NIR']]+landsat5[['red']])
 ```
 
