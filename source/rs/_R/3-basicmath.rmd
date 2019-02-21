@@ -92,7 +92,7 @@ plot(land, add=TRUE, legend=FALSE)
 You can also create classes for different amount of vegetation presence. 
 
 ```{r rs3veg2}
-vegc <- reclassify(veg, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
+vegc <- reclassify(ndvi, c(-Inf,0.25,1, 0.25,0.3,2, 0.3,0.4,3, 0.4,0.5,4, 0.5,Inf, 5))
 plot(vegc,col = rev(terrain.colors(4)), main = 'NDVI based thresholding')
 ```
 
