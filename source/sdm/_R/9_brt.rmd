@@ -1,4 +1,4 @@
-# Appendix: A tutorial on boosted regression trees for ecological modeling
+# Appendix: Boosted regression trees for ecological modeling
 
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
