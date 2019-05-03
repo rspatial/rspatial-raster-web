@@ -17,4 +17,4 @@ Robert J. Hijmans and Jane Elith
 	6_sdm_methods
 	7_sdm_NULLmodels
 	8_sdm_references
-	9_brt
+	9_sdm_brt
