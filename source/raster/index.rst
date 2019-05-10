@@ -18,4 +18,3 @@ The raster package
 	appendix1_writingfunctions
 	appendix2_rasterfile
 
-
