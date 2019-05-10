@@ -1,0 +1,32 @@
+## Classes
+
+The package is built around a number of 'S4' classes of which the `RasterLayer`, `RasterBrick`, and `RasterStack` classes are the most important. See Chambers (2009) for a detailed discussion of the use of S4 classes in *R*. When discussing methods that can operate on all three of these objects, they are referred to as `Raster*` objects.
+
+### RasterLayer
+
+A `RasterLayer` object represents single-layer (variable) raster data. A `RasterLayer` object always stores a number of fundamental parameters that describe it. These include the number of columns and rows, the coordinates of its spatial extent ('bounding box'), and the coordinate reference system (the 'map projection'). In addition, a `RasterLayer` can store information about the file in which the raster cell values are stored (if there is such a file). A `RasterLayer` can also hold the raster cell values in memory.
+
+### RasterStack and RasterBrick
+
+It is quite common to analyze raster data using single-layer objects. However, in many cases multi-variable raster data sets are used. The `raster` package has two classes for multi-layer data the `RasterStack` and the `RasterBrick`. The principal difference between these two classes is that a `RasterBrick` can only be linked to a single (multi-layer) file. In contrast, a `RasterStack` can be formed from separate files and/or from a few layers ('bands') from a single file. 
+
+In fact, a `RasterStack` is a collection of `RasterLayer` objects with the same spatial extent and resolution. In essence it is a list of `RasterLayer` objects. A `RasterStack` can easily be formed form a collection of files in different locations and these can be mixed with `RasterLayer` objects that only exist in memory.
+
+A `RasterBrick`  is truly a multilayered object, and processing a `RasterBrick`  can be more efficient than processing a `RasterStack` representing the same data. However, it can only refer to a single file. A typical example of such a file would be a multi-band satellite image or the output of a global climate model (with e.g., a time series of temperature values for each day of the year for each raster cell). Methods that operate on `RasterStack` and `RasterBrick`  objects typically return a `RasterBrick`.
+
+
+### Other classes
+
+Below is some more detail, you do not need to read or understand this section to use the `raster` package. 
+
+The three classes described above inherit from the `raster` class (that means they are derived from this more basic 'parent' class by adding something to that class) which itself inherits from the `BasicRaster` class. The `BasicRaster` only has a few properties (referred to as 'slots' in S4 speak): the number of columns and rows, the coordinate reference system (which itself is an object of class `CRS`, which is defined in package `sp`) and the spatial extent, which is an object of class `Extent`.  
+
+An object of class `Extent` has four slots: xmin, xmax, ymin, and ymax. These represent the minimum and maximum x and y coordinates of the of the Raster object. These would be, for example,  -180, 180, -90, and 90, for a global raster with longitude/latitude coordinates.  Note that raster uses the coordinates of the extremes (corners) of the entire raster (unlike some files/programs that use the coordinates of the center of extreme cells). 
+
+`raster` is a virtual class. This means that it cannot be instantiated (you cannot create objects from this class). It was created to allow the definition of methods for that class. These methods will be dispatched when called with a descendent of the class (i.e. when the method is called with a `RasterLayer`, `RasterBrick` or `RasterStack` object as argument). This allows for efficient code writing because many methods are the same for any of these three classes, and hence a single method for `raster` suffices. 
+
+`RasterStackBrick` is a class union of the `RasterStack` and `RasterBrick` class. This is a also a virtual class. It allows defining methods (functions) that apply to both `RasterStack` and `RasterBrick` objects.
+
+### References
+
+Chambers, J.M., 2009. Software for Data Analysis: Programming with *R*. Springer. 498p.

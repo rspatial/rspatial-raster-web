@@ -1,0 +1,20 @@
+## Plotting
+
+Several generic functions have been implemented for Raster* objects to create maps and other plot types. Use 'plot' to create a map of a Raster* object. When plot is used with a `RasterLayer`, it calls the function 'rasterImage' (but, by default, adds a legend; using code from fields::image.plot). It is also possible to directly call `image`. You can zoom in using 'zoom' and clicking on the map twice (to indicate where to zoom to). With `click` it is possible to interactively query a Raster* object by clicking once or several times on a map plot.
+
+After plotting a `RasterLayer` you can add vector type spatial data (points, lines, polygons). You can do this with functions points, lines, polygons if you are using the basic R data structures or plot(object, add=TRUE) if you are using Spatial* objects as defined in the sp package. When plot is used with a multi-layer Raster* object, all layers are plotted (up to 16), unless the layers desired are indicated with an additional argument. You can also plot Raster* objects with `spplot`. The `rasterVis` package has several other `lattice` based plotting functions for Raster* objects. `rasterVis` also facilitates creating a map from a `RasterLayer` with the `ggplot2` package.
+
+Multi-layer Raster objects can be plotted as individual layers
+```{r  raster-20a, fig=TRUE , echo=TRUE}
+library(raster)
+b <- brick(system.file("external/rlogo.grd", package="raster"))
+plot(b)
+```
+
+They can also be combined into a single image, by assigning individual layers to one of the three color channels (red, green and blue):
+```{r  raster-20b, fig=TRUE , echo=TRUE}
+plotRGB(b, r=1, g=2, b=3)
+```
+
+You can also use the a number of other plotting functions with a `raster` object as argument, including `hist`, `persp`, `contour`, and `density`. See the help files for more info. 
+

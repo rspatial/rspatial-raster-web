@@ -321,13 +321,13 @@ To make this match matrix 2.6 on page 48, set the diagonal values to `NA` (we do
 
 ```{r}
 diag(a) <- NA
-Ad50 <- a * 1
-Ad50
+adj50 <- a * 1
+adj50
 ```
 
-#### Three nearest neighbours
+#### Three nearest neighbors
 
-Computing the "three nearest neighbours" adjacency-matrix requires a bit more advanced understanding of `R`. 
+Computing the "three nearest neighbors" adjacency-matrix requires a bit more advanced understanding of `R`. 
 
 For each row, we first get the column numbers in order of the values in that row (that is, the numbers indicate how the values are ordered).
 
@@ -352,7 +352,7 @@ head(rowcols)
 
 We use these pairs as indices to change the values in matrix `Ak3`.
 ```{r}
-Ak3 <- Ad50 * 0
+Ak3 <- adj50 * 0
 Ak3[rowcols] <- 1
 Ak3
 ```

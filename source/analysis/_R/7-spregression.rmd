@@ -215,9 +215,9 @@ print( p + layer(sp.polygons(hh)) )
 ```
 
 
-Are the resiudals spatially autocorrelated for either of these models? Let's plot them for the spatial error model.
+Are the residuals spatially autocorrelated for either of these models? Let's plot them for the spatial error model.
 
-```{r spregplot3}}
+```{r spregplot3}
 brks <- quantile(hh$residuals, 0:(grps-1)/(grps-1), na.rm=TRUE)
 
 p <- spplot(hh, "residuals", at=brks, col.regions=rev(brewer.pal(grps, "RdBu")),

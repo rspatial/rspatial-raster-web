@@ -3,6 +3,7 @@
 
 ```{r, include=FALSE}
 library(knitr)
+library(rspatial)
 opts_chunk$set(
   fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
 )
@@ -125,14 +126,19 @@ dw <- d[bf[,1] <= -102, ]
 
 Let's first look at a Classification and Regression Trees (CART) model.
 
-```{r, sup10}
+```{r, sup10a}
 library(rpart)
 cart <- rpart(pa~., data=dw)
 printcp(cart)
 plotcp(cart)
+```
+
+And here is the tree
+
+```{r, sup10b}
 plot(cart, uniform=TRUE, main="Regression Tree")
-text(cart, cex=.8)
 # text(cart, use.n=TRUE, all=TRUE, cex=.8)
+text(cart, cex=.8, digits=1)
 ```
 
 
@@ -262,7 +268,7 @@ points(bf[,1:2], cex=.25)
 ```
 
 
-__Question 4__: *Why would it be that the model does not extrapolate well?*
+__Question 3__: *Why would it be that the model does not extrapolate well?*
 
 An important question in the biogeography of the western species is why it does not occur in Mexico. Or if it does, where would that be?
 
@@ -275,7 +281,7 @@ pm <- mask(pm, mex)
 plot(pm)
 ```
 
-__Question 5__: *Where in Mexico are you most likely to encounter western bigfoot?*
+__Question 4__: *Where in Mexico are you most likely to encounter western bigfoot?*
 
 We can also estimate range shifts due to climate change
 
@@ -289,7 +295,7 @@ futusa <- predict(fut, rrf, ext=eus, progress='window')
 plot(futusa)
 ```
 
-__Question 6__: *Make a map to show where conditions are improving for western bigfoot, and where they are not. Is the species headed toward extinction?*
+__Question 5__: *Make a map to show where conditions are improving for western bigfoot, and where they are not. Is the species headed toward extinction?*
 
 
 

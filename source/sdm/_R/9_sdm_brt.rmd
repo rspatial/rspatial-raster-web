@@ -9,7 +9,7 @@ library(gbm)
 
 Jane Elith and John Leathwick
 
-##Introduction
+## Introduction
 
 This is a brief tutorial to accompany a set of functions that we have written to facilitate fitting BRT (boosted regression tree) models in *R*. This tutorial is a modified version of the tutorial accompanying Elith, Leathwick and Hastie's article in Journal of Animal Ecology. It has been adjusted to match the implementation of these functions in the 'dismo' package. The gbm* functions in the dismo package extend functions in the 'gbm' package by Greg Ridgeway. The goal of our functions is to make the functions in the 'gbm' package easier to apply to ecological data, and to enhance interpretation. 
 
@@ -30,7 +30,7 @@ The gbm functions in 'dismo' are as follows:
 6. ```gbm.interactions``` - Tests whether interactions have been detected and modelled, and reports the relative strength of these. Results can be visualised with gbm.perspec 
 
 
-##Example data
+## Example data
 
 Two sets of presence/absence data for *Anguilla australis* (Angaus) are available. One for model training (building) and one for model testing (evaluation). In the example below we load the training data. Presence (1) and absence (0) is recorded in column 2. The environmental variables are in columns 3 to 14. This is the same data as used in Elith, Leathwick and Hastie (2008). 
 
@@ -41,7 +41,7 @@ data(Anguilla_train)
 head(Anguilla_train)
 ```
 
-##Fitting a model
+## Fitting a model
 
 To fit a gbm model, you need to decide what settings to use the article associated with this tutorial gives you information on what to use as rules of thumb. These data have 1000 sites, comprising 202 presence records for the short-finned eel (the command ```sum(model.data$Angaus)``` will give you the total number of presences). As a first guess you could decide:
 
@@ -125,7 +125,7 @@ names(angaus.tc5.lr01)
 summary(angaus.tc5.lr01)
 ```
 
-##Choosing the settings
+## Choosing the settings
 
 The above was a first guess at settings, using rules of thumb discussed in Elith et al. (2008). It made a model with only 650 trees, so our next step would be to reduce the lr. For example, try lr = 0.005, to aim for over 1000 trees:
  
@@ -138,12 +138,12 @@ angaus.tc5.lr005 <- gbm.step(data=Anguilla_train, gbm.x = 3:13, gbm.y = 2,
 To more broadly explore whether other settings perform better, and assuming that these are the only data available, you could either split the data into a training and testing set or use the cross-validation results. You could systematically alter tc,  lr and the bag fraction and compare the results. See the later section on prediction to find out how to predict to independent data and calculate relevant statistics. 
 
 
-##Alternative ways to fit models
+## Alternative ways to fit models
 
 The step function above is slower than just fitting one model and finding a minimum.  If this is a problem, you could use our gbm.holdout code - this combines from the gbm package in ways we find useful.  We tend to prefer gbm.step, especially when modelling many species, because it automatically finds the optimal number of trees.  Alternatively, the gbm.fixed code allows you to fit a model of a set number of trees; this can be used, as in Elith et al. (2008), to predict to new data (see later section).
 
 
-##section{Simplifying the model
+## section{Simplifying the model
 
 For a discussion of simplification see Appendix 2 of the online supplement to Elith et al (2008). Simplification builds many models, so it can be slow. For example, the code below took a few minutes to run on a modern laptop. In it we assess the value in simplifying the model built with a lr of 0.005, but only test dropping up to 5 variables (the "n.drop" argument; the default is an automatic rule so it continues until the average change in predictive deviance exceeds its original standard error as calculated in gbm.step).
 
@@ -165,7 +165,7 @@ angaus.tc5.lr005.simp <- gbm.step(Anguilla_train,
 This has now made a new model (angaus.tc5.lr005.simp) with the same list components as described earlier. We could continue to use it, but given that we don't particularly want a more simple model (our view is that, in a dataset of this size, included variables that contribute little are acceptable), we won't use it further.
 
 
-##Plotting the functions and fitted values from the model
+## Plotting the functions and fitted values from the model
 
 The fitted functions from a BRT model created from any of our functions can be plotted using gbm.plot. If you want to plot all variables on one sheet first set up a graphics device with the right set-up - here we will make one with 3 rows and 4 columns: 
 
@@ -184,7 +184,7 @@ gbm.plot.fits(angaus.tc5.lr005)
 This has options that allow for the plotting of all fitted values or of fitted values only for positive observations, or the plotting of fitted values in factor type graphs that are much quicker to print. Values above each graph indicate the weighted mean of fitted values in relation to each non-factor predictor.
 
 
-##Interrogate and plot the interactions
+## Interrogate and plot the interactions
 
 This code assesses the extent to which pairwise interactions exist in the data.
 
@@ -206,7 +206,7 @@ gbm.perspec(angaus.tc5.lr005, 7, 1, y.range=c(15,20), z.range=c(0,0.6))
 
 Additional options allow specifications of label names, rotations of the 3D graph and so on.
 
-##Predicting to new data
+## Predicting to new data
 
 If you want to predict to a set of sites (rather than to a whole map), the general procedure is to set up a data.frame with rows for sites and columns for the variables that are in your model. R is case sensitive; the names need to exactly match those in the model. Other columns such as site IDs etc can also exist in the data.frame (and are ignored). 
 
@@ -258,7 +258,7 @@ plot(tree.list, angaus.pred.deviance, ylim=c(0.7,1), xlim=c(-100,5000),
 ```
 
 
-##Spatial prediction
+## Spatial prediction
 
 Here we show how to predict to a whole map (technically to a RasterLayer object) using the predict version in the ```raster``` package. The predictor variables are available as a RasterBrick (multi-layered raster) in ```Anguilla_grids```. 
 
@@ -280,7 +280,7 @@ plot(p, main='Angaus - BRT prediction')
 ```
 
 
-##Further reading
+## Further reading
 
 The following includes a mix of both statistical papers and ecological applications:
 

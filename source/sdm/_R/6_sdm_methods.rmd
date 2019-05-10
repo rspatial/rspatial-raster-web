@@ -12,7 +12,7 @@ library(maptools)
 
 ## Types of algorithms and data used in examples
 
-A large number of algorithms has been used in species distribution modeling. They can be classified as 'profile', 'regression', and 'machine learning' methods. Profile methods only consider 'presence' data, not absence or background data. Regression and machine learning methods use both presence and absence or background data. The distinction between regression and machine learning methods is not sharp, but it is perhaps still useful as way to classify models. Another distinction that one can make is between presence-only and presence-absence models. Profile methods are always presence-only, other methods can be either, depending if they are used with survey-absence or with pseudo-absence/backround data. An entirely different class of models consists of models that only, or primarily, use the geographic location of known occurences, and do not rely on the values of predictor variables at these locations. We refer to these models as 'geographic models'. Below we discuss examples of these different types of models.
+A large number of algorithms has been used in species distribution modeling. They can be classified as 'profile', 'regression', and 'machine learning' methods. Profile methods only consider 'presence' data, not absence or background data. Regression and machine learning methods use both presence and absence or background data. The distinction between regression and machine learning methods is not sharp, but it is perhaps still useful as way to classify models. Another distinction that one can make is between presence-only and presence-absence models. Profile methods are always presence-only, other methods can be either, depending if they are used with survey-absence or with pseudo-absence/background data. An entirely different class of models consists of models that only, or primarily, use the geographic location of known occurrences, and do not rely on the values of predictor variables at these locations. We refer to these models as 'geographic models'. Below we discuss examples of these different types of models.
 
 First recreate the data we have used so far.
 
@@ -167,7 +167,7 @@ plot(wrld_simpl, add=TRUE, border='dark grey')
 points(pres_train, pch='+')
 ```
 
-## Regression models
+## Classical regression models
 
 The remaining models need to be fit with presence `and` absence (background) data. With the exception of 'maxent', we cannot fit the model with a RasterStack and points. Instead, we need to extract the environmental data values ourselves, and fit the models with these values. 
 
@@ -234,20 +234,20 @@ Generalized additive models (GAMs; Hastie and Tibshirani, 1990; Wood, 2006) are 
 
 
 
-## Non-paramateric statistical learning methods
+## Machine learning methods
 
-There is a variety of non-parametric statistial learning methods (sometimes referred to as "machine learning") available in *R*. For a long time there have been packages to do Artifical Neural Networks (ANN) and Classification and Regression Trees (CART). More recent methods include Random Forests, Boosted Regression Trees, and Support Vector Machines. Through the dismo package you can also use the Maxent program, that implements the most widely used method (maxent) in species distribution modeling. Breiman (2001a) provides a accessible introduction to machine learning, and how it contrasts with 'classical statistics' (model based probabilistic inference). Hastie *et al.*, 2009 provide what is probably the most extensive overview of these methods.
+Machine learning models, are non-parametric flexible regression models. Methods include Artifical Neural Networks (ANN), Random Forests, Boosted Regression Trees, and Support Vector Machines. Through the dismo package you can also use the Maxent program, that implements the most widely used method (maxent) in species distribution modeling. Breiman (2001a) provides a accessible introduction to machine learning, and how it contrasts with 'classical statistics' (model based probabilistic inference). Hastie *et al.*, 2009 provide what is probably the most extensive overview of these methods.
 
 All the model fitting methods discussed here can be tuned in several ways. We do not explore that here, and only show the general approach. If you want to use one of the methods, then you should consult the *R* help pages (and other sources) to find out how to best implement the model fitting procedure.
 
 ### Maxent
 
-MaxEnt (short for "Maximum Entropy"; Phillips *et al.*, 2006) is the most widely used SDM algorithm. Elith *et al.* (2010) provide an explanation of the algorithm (and software) geared towards ecologists. MaxEnt is available as a stand-alone Java program. Dismo has a function 'maxent' that communicates with this program. To use it you must first download the program from [here](http://www.cs.princeton.edu/~schapire/maxent/). Put the file `maxent.jar` in the `java` folder of the `dismo` package. That is the folder returned by `system.file("java", package="dismo")`.  
+MaxEnt (short for "Maximum Entropy"; Phillips *et al.*, 2006) is the most widely used SDM algorithm. Elith *et al.* (2010) provide an explanation of the algorithm (and software) geared towards ecologists. MaxEnt is available as a stand-alone Java program. Dismo has a function 'maxent' that communicates with this program. 
 
 Because MaxEnt is implemented in dismo you can fit it like the profile methods (e.g. Bioclim). That is, you can provide presence points and a RasterStack. However, you can also first fit a model, like with the other methods such as glm. But in the case of MaxEnt you cannot use the formula notation.
 
 ```{r, sdm68a, fig.width=9, fig.fig.height=6}
-jar <- paste(system.file(package="dismo"), "/java/maxent.jar", sep='')
+maxent()
 xm <- maxent(predictors, pres_train, factors='biome')
 plot(xm)
 ```
@@ -275,7 +275,7 @@ points(pres_train, pch='+')
 
 Boosted Regression Trees (BRT) is, unfortunately, known by a large number of different names. It was developed by Friedman (2001), who referred to it as a "Gradient Boosting Machine" (GBM). It is also known as "Gradient Boost", "Stochastic Gradient Boosting", "Gradient Tree Boosting". The method is implemented in the `gbm` package in *R*. 
 
-The article by Elith, Leathwick and Hastie (2009) describes the use of BRT in the context of species distribution modeling. Their article is accompanied by a number of R functions and a tutorial that have been slightly adjusted and incorporated into the 'dismo' package. These functions extend the functions in the `gbm` package, with the goal to make these easier to apply to ecological data, and to enhance interpretation.  The adapted tutorial is available as a [vignette to the dismo package](https://cran.r-project.org/web/packages/dismo/vignettes/brt.pdf). 
+The article by Elith, Leathwick and Hastie (2009) describes the use of BRT in the context of species distribution modeling. Their article is accompanied by a number of R functions and a tutorial that have been slightly adjusted and incorporated into the 'dismo' package. These functions extend the functions in the `gbm` package, with the goal to make these easier to apply to ecological data, and to enhance interpretation.  The adapted tutorial is available as an [appendix](https://rspatial.org/sdm/9_sdm_brt.html). 
 
 
 ### Random Forest

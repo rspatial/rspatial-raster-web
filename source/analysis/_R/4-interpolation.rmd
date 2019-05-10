@@ -213,13 +213,15 @@ We use California Air Pollution data to illustrate geostatistcal (Kriging) inter
 We use the airqual dataset to interpolate ozone levels for California (averages for 1980-2009). Use the variable `OZDLYAV` (unit is parts per billion). [Original data source]( http://www.arb.ca.gov/aqd/aqdcd/aqdcddld.htm).
 
 Read the data file. To get easier numbers to read, I multiply OZDLYAV with 1000
-```{r}
-x <- sp_data("airqual.csv")
+
+```{r aqual}
+library(rspatial)
+x <- sp_data("airqual")
 x$OZDLYAV <- x$OZDLYAV * 1000
 ```
 
+Create a SpatialPointsDataFrame and transform to Teale Albers. Note the `units=km`, which was needed to fit the variogram.
 
-Create a SpatialPointsDataFrame and transform to Teale Albers. Note the `units=km` which was needed to fit the variogram.
 ```{r}
 library(sp)
 coordinates(x) <- ~LONGITUDE + LATITUDE

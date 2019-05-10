@@ -7,7 +7,6 @@ library(rasterVis)
 
 Here we explore supervised classification. Various supervised classification algorithms exist, and the choice of algorithm can affect the results. Here we explore two related algorithms (CART and RandomForest).
 
-
 In supervised classification, we have prior knowledge about some of the land-cover types through, for example, fieldwork, reference spatial data or interpretation of high resolution imagery (such as available on Google maps). Specific sites in the study area that represent homogeneous examples of these known land-cover types are identified. These areas are commonly referred to as training sites because the spectral properties of these sites are used to train the classification algorithm. 
 
 The following examples uses a Classification and Regression Trees (CART) classifier (Breiman et al. 1984) ([further reading](https://doi.org/10.1016/S0034-4257(97)00049-7) to predict land use land cover classes in the study area.
@@ -77,8 +76,8 @@ Let's plot the training sites over the `nlcd2011` RasterLayer to visualize the d
 
 ```{r plots, fig.height=8, fig.width=8}
 library(rasterVis)
-levelplot(nlcd2011, col.regions = classcolor, main = 'Distribution of Training Sites')+
-  layer(sp.points(samp2011, pch = 3, cex = 0.5, col = 1))
+plt <- levelplot(nlcd2011, col.regions = classcolor, main = 'Distribution of Training Sites')
+print(plt + layer(sp.points(samp2011, pch = 3, cex = 0.5, col = 1)))
 ```
 
 `rasterVis` offers more advanced (trellis/lattice) plotting of Raster* objects. Please install the package if it is not available for your machine.
@@ -138,7 +137,7 @@ Now we have our trained classification model (`cart`), we can use it to make pre
 
 ```{r prediction}
 # Now predict the subset data based on the model; prediction for entire area takes longer time
-pr2011 <- predict(landsat5, cart, type='class', progress = 'text')
+pr2011 <- predict(landsat5, cart, type='class')
 pr2011
 ```
 

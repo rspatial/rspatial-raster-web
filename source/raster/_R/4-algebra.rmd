@@ -1,0 +1,55 @@
+## Raster algebra
+
+Many generic functions that allow for simple and elegant raster algebra have been implemented for `Raster*` objects, including the normal algebraic operators such as `+`, `-`, `*`, `/`, logical operators such as `>`, `>=`, `<`, `==`, `!`} and functions such as `abs`, `round`, `ceiling`, `floor`, `trunc`, `sqrt`, `log`, `log10`, `exp`, `cos`, `sin`, `max`, `min`, `range`, `prod`, `sum`, `any`, `all`. In these functions you can mix `raster` objects with numbers, as long as the first argument is a `raster` object. 
+
+```{r  raster-3a}
+# create an empty RasterLayer
+r <- raster(ncol=10, nrow=10)
+# assign values to cells
+values(r) <- 1:ncell(r)
+s <- r + 10
+s <- sqrt(s)
+s <- s * r + 5
+r[] <- runif(ncell(r))
+r <- round(r)
+r <- r == 1
+```
+
+You can also use replacement functions:
+```{r  raster-3b}
+s[r] <- -0.5
+s[!r] <- 5
+s[s == 5] <- 15
+```
+
+If you use multiple ```Raster*``` objects (in functions where this is relevant, such as range), these must have the same resolution and origin. The origin of a ```Raster*``` object is the point closest to (0, 0) that you could get if you moved from a corners of a ```Raster*``` object towards that point in steps of the ```x``` and ```y``` resolution. Normally these objects would also have the same extent, but if they do not, the returned object covers the spatial intersection of the objects used.
+
+
+When you use multiple multi-layer objects with different numbers or layers, the 'shorter' objects are 'recycled'. For example, if you multuply a 4-layer object (a1, a2, a3, a4) with a 2-layer object (b1, b2), the result is a four-layer object (a1b1, a2b2, a3b1, a3b2). 
+
+```{r  raster-3c}
+r <- raster(ncol=5, nrow=5)
+r[] <- 1
+s <- stack(r, r+1)
+q <- stack(r, r+2, r+4, r+6)
+x <- r + s + q
+x
+```
+
+
+Summary functions (**min, max, mean, prod, sum, Median, cv, range, any, all**) always return a `RasterLayer` object. Perhaps this is not obvious when using functions like **min, sum or mean**. 
+
+```{r  raster-3d}
+a <- mean(r,s,10)
+b <- sum(r,s)
+st <- stack(r, s, a, b)
+sst <- sum(st)
+sst
+```
+
+Use `cellStats` if instead of a `RasterLayer` you want a single number summarizing the cell values of each layer. 
+```{r  raster-3e}
+cellStats(st, 'sum')
+cellStats(sst, 'sum')
+```
+

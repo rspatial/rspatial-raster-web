@@ -1,0 +1,16 @@
+## Introduction
+
+This vignette describes the *R* package `raster`. A raster is a spatial (geographic) data structure that divides a region into rectangles called 'cells' (or 'pixels') that can store one or more values for each of these cells.  Such a data structure is also referred to as a 'grid' and is often contrasted with 'vector' data that is used to represent points, lines, and polygons. 
+
+The `raster` package has functions for creating, reading, manipulating, and writing raster data. The package provides, among other things, general raster data manipulation functions that can easily be used to develop more specific functions. For example, there are functions to read a chunk of raster values from a file or to convert cell numbers to coordinates and back. The package also implements raster algebra and most functions for raster data manipulation that are common in Geographic Information Systems (GIS). These functions are similar to those in GIS programs such as Idrisi, the raster functions of GRASS, and the 'grid' module of ArcInfo ('workstation').
+
+A notable feature of the `raster` package is that it can work with raster datasets that are stored on disk and are too large to be loaded into memory (RAM). The package can work with large files because the objects it creates from these files only contain information about the structure of the data, such as the number of rows and columns, the spatial extent, and the filename, but it does not attempt to read all the cell values in memory. In computations with these objects, data is processed in chunks. If no output filename is specified to a function, and the output raster is too large to keep in memory, the results are written to a temporary file. 
+
+To understand what is covered in this vignette, you must understand the basics of the *R* language. There is a multitude of on-line and other resources that can help you to get acquainted with it. The `raster` package does not operate in isolation. For example, for vector type data it uses classes defined in the `sp` package. See the vignette and help pages of that package or Bivand *et al.* (2008). Bivand *et al.*, provide an introduction to the use of *R* for handling spatial data, and to statistically oriented spatial data analysis (such as inference from spatial data, point pattern analysis, and geostatistics). 
+
+In the next section, some general aspects of the design of the `raster` package are discussed, notably the structure of the main classes, and what they represent. The use of the package is illustrated in subsequent sections. `raster` has a large number of functions, not all of them are discussed here, and those that are discussed are mentioned only briefly. See the help files of the package for more information on individual functions and ```help("raster-package")``` for an index of functions by topic.
+
+
+### References
+
+Bivand, R.S., E.J. Pebesma and V. Gomez-Rubio, 2008. Applied Spatial Data Analysis with *R*. Springer. 378p.

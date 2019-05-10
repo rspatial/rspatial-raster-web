@@ -39,18 +39,24 @@ Tutorial
 Special topics
 --------------
 
-.. topic:: I. `Spherical computation <sphere/index.html>`__ 
+.. topic:: I. `The raster package <raster/index.html>`__
+
+  | An introduction to the raster package. (`pdf </raster/RasterPackage.pdf>`__)
+  | 
+
+
+.. topic:: II. `Spherical computation <sphere/index.html>`__ 
 
    | Computing distances and other measures on a sphere or spheroid. (`pdf </sphere/sphere.pdf>`__)
    |
 
-.. topic:: II. `Species Distribution Modeling <sdm/index.html>`__ with R
+.. topic:: III. `Species Distribution Modeling <sdm/index.html>`__ with R
 
    | An in-depth tutorial for predicting the geographic ranges of species. (`pdf </sdm/SDM.pdf>`__)
    |
 
 
-.. topic:: III. `Geographic Information Analysis <rosu/index.html>`__ 
+.. topic:: IV. `Geographic Information Analysis <rosu/index.html>`__ 
 
    | R companion to Geographic Information Analysis by O'Sullivan and Unwin. (`pdf </rosu/ROSU.pdf>`__)
    |
@@ -71,6 +77,7 @@ Special topics
    rs/index.rst
    cases/index.rst
    sphere/index.rst
+   raster/index.rst
    sdm/index.rst
    rosu/index.rst
    

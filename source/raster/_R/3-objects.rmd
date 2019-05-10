@@ -1,0 +1,122 @@
+## Creating Raster* objects
+
+A `RasterLayer` can easily be created from scratch using the function `raster`. The default settings will create a global raster data structure with a longitude/latitude coordinate reference system and 1 by 1 degree cells. You can change these settings by providing additional arguments such as **xmin**, **nrow**, **ncol**, and/or **crs**, to the function. You can also change these parameters after creating the object. If you set the projection, this is only to properly define it, not to change it. To transform a `RasterLayer` to another coordinate reference system (projection) you can use the function ** projectRaster**. 
+
+Here is an example of creating and changing a `RasterLayer` object 'r' from scratch.
+```{r  raster-1a}
+library(raster)
+# RasterLayer with the default parameters
+x <- raster()
+x
+
+# With other parameters
+x <- raster(ncol=36, nrow=18, xmn=-1000, xmx=1000, ymn=-100, ymx=900)
+# that can be changed
+res(x)
+
+# change resolution
+res(x) <- 100
+res(x)
+ncol(x)
+# change the numer of columns (affects resolution)
+ncol(x) <- 18
+ncol(x)
+res(x)
+
+# set the coordinate reference system (CRS) (define the projection)
+projection(x) <- "+proj=utm +zone=48 +datum=WGS84"
+x
+```
+
+The object `x` created in the example above only consist of a "skeleton", that is, we have defined the number of rows and columns, and where the raster is located in geographic space, but there are no cell-values associated with it. Setting and accessing values is illustrated below.
+
+```{r  raster-1b, fig=TRUE , echo=TRUE}
+r <- raster(ncol=10, nrow=10)
+ncell(r)
+hasValues(r)
+
+# use the 'values' function
+# e.g., 
+values(r) <- 1:ncell(r)
+# or
+set.seed(0)
+values(r) <- runif(ncell(r))
+
+hasValues(r)
+inMemory(r)
+values(r)[1:10]
+
+plot(r, main='Raster with 100 cells')
+```
+
+In some cases, for example when you change the number of columns or rows, you will lose the values associated with the `RasterLayer` if there were any (or the link to a file if there was one). The same applies, in most cases, if you change the resolution directly (as this can affect the number of rows or columns). Values are not lost when changing the extent as this change adjusts the resolution, but does not change the number of rows or columns. 
+
+```{r  raster-1c, echo=TRUE}
+hasValues(r)
+res(r)
+dim(r)
+xmax(r)
+
+# change the maximum x coordinate of the extent (bounding box) of the RasterLayer
+xmax(r) <- 0
+
+hasValues(r)
+res(r)
+dim(r)
+
+ncol(r) <- 6
+hasValues(r)
+res(r)
+dim(r)
+xmax(r)
+```
+
+The function `raster` also allows you to create a `RasterLayer` from another object, including another `RasterLayer`, `RasterStack` and `RasterBrick` , as well as from a `SpatialPixels*` and `SpatialGrid*` object (defined in the `sp` package), an `Extent` object, a matrix, an 'im' object (SpatStat), and 'asc' and 'kasc' objects (adehabitat).
+
+It is more common, however, to create a `RasterLayer` object from a file. The raster package can use raster files in several formats, including some 'natively' supported formats and other formats via the `rgdal` package. Supported formats for reading include GeoTIFF, ESRI, ENVI, and ERDAS. Most formats supported for reading can also be written to. Here is an example using the 'Meuse' dataset (taken from the `sp` package), using a file in the native 'raster-file' format:
+
+```{r  raster-2a, fig=TRUE , echo=TRUE}
+# get the name of an example file installed with the package
+# do not use this construction of your own files
+filename <- system.file("external/test.grd", package="raster")
+
+filename
+r <- raster(filename)
+filename(r)
+hasValues(r)
+inMemory(r)
+plot(r, main='RasterLayer from file')
+```
+
+Multi-layer objects can be created in memory (from `RasterLayer` objects) or from files. 
+
+```{r  raster-2b}
+# create three identical RasterLayer objects
+r1 <- r2 <- r3 <- raster(nrow=10, ncol=10)
+# Assign random cell values 
+values(r1) <- runif(ncell(r1))
+values(r2) <- runif(ncell(r2))
+values(r3) <- runif(ncell(r3))
+
+# combine three RasterLayer objects into a RasterStack
+s <- stack(r1, r2, r3)
+s
+nlayers(s)
+
+# combine three RasterLayer objects into a RasterBrick 
+b1 <- brick(r1, r2, r3)
+# equivalent to:
+b2 <- brick(s)
+
+# create a RasterBrick  from file
+filename <- system.file("external/rlogo.grd", package="raster")
+filename
+b <- brick(filename)
+b
+nlayers(b)
+
+# extract a single RasterLayer
+r <- raster(b, layer=2)
+# equivalent to creating it from disk
+r <- raster(filename, band=2)
+```

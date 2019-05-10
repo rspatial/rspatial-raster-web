@@ -30,7 +30,7 @@ We will perform unsupervised classification on a spatial subset of the `ndvi` la
 ndvi <- (landsat5[['NIR']]-landsat5[['red']])/(landsat5[['NIR']]+landsat5[['red']])
 ```
 
-Now we will perform unsupervised `kmeans` clustering on the `ndvi` layer. First we use `crop` to make a spatial subset of the `ndvi` layer. The smaller spatial extent allows for faster processing (you can select any `extent` using the `drawExtent()` function).  
+We will do `kmeans` clustering of the `ndvi` data. First we use `crop` to make a spatial subset of the `ndvi`, to allow for faster processing (you can select any `extent` using the `drawExtent()` function).  
 
 ## kmeans classification
 ```{r kmeans, fig.width = 8, fig.height = 4}

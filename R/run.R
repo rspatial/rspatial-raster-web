@@ -17,7 +17,7 @@ if (length(args) < 2) {
 cmd <- args[1]
 stopifnot(cmd %in% c("knit", "build"))
 
-chapters <- c("rosu", "intr", "spatial", "analysis", "cases", "sdm", "sphere", "rs")
+chapters <- c("rosu", "intr", "spatial", "analysis", "cases", "sdm", "sphere", "rs", "raster")
 chapter <- tolower(args[2])
 if (chapter == "all") {
 # this is problematic as there is a lot of function hiding 
@@ -81,6 +81,7 @@ do_knit <- function(option) {
 			dev        = 'png',
 			fig.path   = 'figures/',
 			fig.width  = 6,	fig.height = 6,
+			fig.cap="",
 			collapse   = TRUE
 		)
 		

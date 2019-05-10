@@ -7,6 +7,9 @@ for (f in fff) {
 	d <- readLines(f, warn=FALSE)
 	dd <- trimws(d)
 	d <- d[dd != ""]
+	if (basename(f) != "index.html") {
+		d <- gsub("\\.rst\\.txt", ".R.txt", d)
+	}
 	writeLines(d, f)	
 }
 
@@ -43,6 +46,7 @@ f <- grep("/txt/", f, value=TRUE)
 g <- gsub("txt/", "", f)
 g <- gsub("source/", "", g)
 h <- file.path("build/html/_sources", g)
+h <- gsub("\\.md\\.txt", ".R.txt", h)
 #x <- file.remove(h)
 y <- file.copy(f, h, overwrite=TRUE)
 stopifnot(all(y))

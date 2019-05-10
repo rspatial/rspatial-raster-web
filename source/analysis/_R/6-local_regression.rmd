@@ -376,7 +376,7 @@ To reconnect these values to the raster structure (etc.)
 ```
 cells <- cellFromXY(r, fitpoints)
 dd <- as.matrix(data.frame(sp))
-b <- brick(r, values=FALSE, nl=nrow(dd))
+b <- brick(r, values=FALSE, nl=ncol(dd))
 b[cells] <- dd
 names(b) <- colnames(dd)
 plot(b)

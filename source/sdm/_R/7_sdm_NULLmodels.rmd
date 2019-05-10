@@ -10,7 +10,7 @@ library(maptools)
 ```
 
 
-The 'geographic Null models' described here are not commonly used in species distribution modeling. They use the geographic location of known occurences, and do not rely on the values of predictor variables at these locations. We are exploring their use in comparing and contrasting them with the other approaches (Bahn and McGill, 2007); in model evaluation as as null-models (Hijmans 2012); to sample background points; and generally to help think about the duality between geographic and environmental space (Colwel and Rangel, 2009). Below we show examples of these different types of models.
+The 'geographic Null models' described here are not commonly used in species distribution modeling. They use the geographic location of known occurrences, and do not rely on the values of predictor variables at these locations. We are exploring their use in comparing and contrasting them with the other approaches (Bahn and McGill, 2007); in model evaluation as as null-models (Hijmans 2012); to sample background points; and generally to help think about the duality between geographic and environmental space (Collwel and Rangel, 2009). Below we show examples of these different types of models.
 
 ## Geographic Distance
 
@@ -111,7 +111,7 @@ points(backg_train, pch='-', cex=0.25)
 
 ## Presence/absence
 
-Spatial-only models for presence/background (or absence) data are also available through functions `geoIDW`, `voronoiHull`, and general geostatistical methods such as indicator kriging (available in the gstat pacakge).
+Spatial-only models for presence/background (or absence) data are also available through functions `geoIDW`, `voronoiHull`, and general geostatistical methods such as indicator kriging (available in the "gstat" package).
 
 ```{r, sdm106, fig.width=9, fig.height=6}
 idwm <- geoIDW(p=pres_train, a=data.frame(back_train))

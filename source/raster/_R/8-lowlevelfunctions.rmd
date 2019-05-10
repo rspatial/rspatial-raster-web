@@ -1,0 +1,74 @@
+
+## Low-level functions
+
+The cell number is an important concept in the raster package. Raster data can be thought of as a matrix, but in a `RasterLayer` it is more commonly treated as a vector. Cells are numbered from the upper left cell to the upper right cell and then continuing on the left side of the next row, and so on until the last cell at the lower-right side of the raster. There are several helper functions to determine the column or row number from a cell and vice versa, and to determine the cell number for x, y coordinates and vice versa.
+
+```{r  raster-15}
+library(raster)
+r <- raster(ncol=36, nrow=18)
+ncol(r)
+nrow(r)
+ncell(r)
+rowFromCell(r, 100)
+colFromCell(r, 100)
+cellFromRowCol(r,5,5)
+xyFromCell(r, 100)
+cellFromXY(r, c(0,0))
+colFromX(r, 0)
+rowFromY(r, 0)
+```
+
+
+## Accessing cell values
+
+Cell values can be accessed with several methods. Use `getValues` to get all values or a single row; and `getValuesBlock` to read a block (rectangle) of cell values. 
+
+```{r  raster-20}
+r <- raster(system.file("external/test.grd", package="raster"))
+v <- getValues(r, 50)
+v[35:39]
+getValuesBlock(r, 50, 1, 35, 5)
+```
+
+
+You can also read values using cell numbers or coordinates (xy) using the `extract` method.
+```{r  raster-21}
+cells <- cellFromRowCol(r, 50, 35:39)
+cells
+extract(r, cells)
+xy <- xyFromCell(r, cells)
+xy
+extract(r, xy)
+```
+
+
+You can also extract values using SpatialPolygons* or SpatialLines*. The default approach for extracting raster values with polygons is that a polygon has to cover the center of a cell, for the cell to be included. However, you can use argument "weights=TRUE" in which case you get, apart from the cell values, the percentage of each cell that is covered by the polygon, so that you can apply, e.g., a "50% area covered" threshold, or compute an area-weighted average.
+
+In the case of lines, any cell that is crossed by a line is included. For lines and points, a cell that is only 'touched' is included when it is below or to the right (or both) of the line segment/point (except for the bottom row and right-most column).
+
+In addition, you can use standard *R* indexing to access values, or to replace values (assign new values to cells) in a `raster` object. If you replace a value in a `raster` object based on a file, the connection to that file is lost (because it now is different from that file). Setting raster values for very large files will be very slow with this approach as each time a new (temporary) file, with all the values, is written to disk. If you want to overwrite values in an existing file, you can use `update` (with caution!)
+
+```{r  raster-32}
+r[cells] 
+r[1:4]
+filename(r)
+r[2:3] <- 10
+r[1:4]
+filename(r)
+```
+
+Note that in the above examples values are retrieved using cell numbers. That is, a raster is represented as a (one-dimensional) vector. Values can also be inspected using a (two-dimensional) matrix notation. As for *R* matrices, the first index represents the row number, the second the column number.
+
+```{r  raster-33}
+r[1]
+r[2,2]
+r[1,]
+r[,2]
+r[1:3,1:3]
+
+# keep the matrix structure
+r[1:3,1:3, drop=FALSE]
+```
+
+Accessing values through this type of indexing should be avoided inside functions as it is less efficient than accessing values via functions like `getValues`. 
+

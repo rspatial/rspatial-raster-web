@@ -1,0 +1,7 @@
+
+## Writing files
+
+### File format
+
+Raster can read most, and write several raster file formats, via the ```rgdal``` package. However, it directly reads and writes a native 'rasterfile' format. A rasterfile consists of two files: a binary sequential data file and a text header file. The header file is of the "windows .ini" type. When reading, you do not have to specify the file format, but you do need to do that when writing (except when using the default native format). This file format is also used in (http://www.diva-gis.org/)[DIVA-GIS]. See the help file for function `writeRaster` or the "Description of the rasterfile format" vignette.
+

@@ -13,7 +13,7 @@ library(deldir)
 
 This handout accompanies Chapter 7 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). 
 
-### Get the data
+First load the `rspatial` package, to get access to the data we will use.
 
 ```{r getData, echo=TRUE}
 if (!require("rspatial")) devtools::install_github('rspatial/rspatial')

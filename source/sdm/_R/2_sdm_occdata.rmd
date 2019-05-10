@@ -3,6 +3,7 @@
 ```{r, echo=FALSE, include=FALSE}
 library(knitr)
 opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='',  collapse = TRUE)
+library(dismo)
 ```
 
 
@@ -13,14 +14,14 @@ Importing occurrence data into *R* is easy. But collecting, georeferencing, and 
 
 ## Importing occurrence data
 
-In most cases you will have a file with point locality data representing the known distribution of a species. Below is an example of using `read.table` to read records that are stored in a text file. Comments are preceded by a hash (\#). 
+In most cases you will have a file with point locality data representing the known distribution of a species. Below is an example of using `read.table` to read records that are stored in a text file. 
 
 We are using an example file that is installed with the `dismo`  package, and for that reason we use a complex way to construct the filename, but you can replace that with your own filename. (remember to use forward slashes in the path of filenames!).  `system.file` inserts the file path to where dismo is installed. If you haven't used the `paste` function before, it's worth familiarizing yourself with it (type `?paste`in the command window). 
 
 ```{r, sdm1}
 # loads the dismo library
 library(dismo)
-file <- paste(system.file(package="dismo"), "/ex/bradypus.csv", sep="")
+file <- paste0(system.file(package="dismo"), "/ex/bradypus.csv")
 # this is the file we will use:
 file
 ```
@@ -202,17 +203,17 @@ georef[1:3,1:13]
 ```
 
 
-For georeferencing, you can try to use the dismo package function `geocode` that sends requests to the Google API. We demonstrate below, but its use is generally not recommended because for accurate georeferencing you need a detailed map interface, and ideally one that allows you to capture the uncertainty associated with each georeference (Wieczorek *et al.*, 2004). 
+For georeferencing, you can try to use the dismo package function `geocode` that sends requests to the Google API (this used to be simple, but these days you need to first get an "API_KEY" from Google). We demonstrate below, but its use is generally not recommended because for accurate georeferencing you need a detailed map interface, and ideally one that allows you to capture the uncertainty associated with each georeference (Wieczorek *et al.*, 2004). 
 
 Here is an example for one of the records with longitude = 0, using Google's geocoding service. We put the function into a 'try' function, to assure elegant error handling if the computer is not connected to the Internet. Note that we use the "cloc" (concatenated locality) field.
 
 ```{r, sdm9}
 georef$cloc[4]
-b <- try(  geocode(georef$cloc[4]) )
-b
+#b <- geocode(georef$cloc[4], geo_key="abcdef" )
+#b
 ```
 
-Before using the geocode function it is best to write the records to a table and "clean" them in a spreadsheet. Cleaning involves traslation, expanding abbreviations, correcting misspellings, and making duplicates exactly the same so that they can be georeferenced only once. Then read the the table back into *R*, and create unique localities, georeference these and merge them with the original data.
+Before using the geocode function it is best to write the records to a table and "clean" them in a spreadsheet. Cleaning involves translation, expanding abbreviations, correcting misspellings, and making duplicates exactly the same so that they can be georeferenced only once. Then read the the table back into *R*, and create unique localities, georeference these and merge them with the original data.
 
 
 ## Sampling bias
