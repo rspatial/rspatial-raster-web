@@ -5,9 +5,6 @@ Spatial Data Science with R
 This website provides materials to learn about spatial data analysis and modeling with *R*. *R* is a widely used programming language and software environment for data science. *R* has advanced capabilities for managing spatial data; and it provides unparalleled opportunities for analyzing such data. 
 
 
-Tutorial
---------
-
 .. topic:: 1. `Introduction to R <intr/index.html>`__  
 
   | Start here if you have never used *R*, or if you need a refresher. (`pdf </intr/IntroductiontoR.pdf>`__)
@@ -27,8 +24,14 @@ Tutorial
 
   | Introduction to remote sensing (satellite) image analysis spatial data. (`pdf </rs/rs.pdf>`__)
   |
+
+.. topic:: 5. `Species Distribution Modeling <sdm/index.html>`__ with R
+
+   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf </sdm/SDM.pdf>`__)
+   |
   
-.. topic:: 5. `Case studies <cases/index.html>`__
+  
+.. topic:: 6. `Case studies <cases/index.html>`__
 
    | A (small) collection of case studies that can help you learn more about particular topics and design your own workflows. (`pdf </cases/cases.pdf>`__)
    |
@@ -36,8 +39,8 @@ Tutorial
 
    
    
-Special topics
---------------
+Manuals
+-------
 
 .. topic:: I. `The raster package <raster/index.html>`__
 
@@ -50,13 +53,8 @@ Special topics
    | Computing distances and other measures on a sphere or spheroid. (`pdf </sphere/sphere.pdf>`__)
    |
 
-.. topic:: III. `Species Distribution Modeling <sdm/index.html>`__ with R
 
-   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf </sdm/SDM.pdf>`__)
-   |
-
-
-.. topic:: IV. `Geographic Information Analysis <rosu/index.html>`__ 
+.. topic:: III. `Geographic Information Analysis <rosu/index.html>`__ 
 
    | R companion to Geographic Information Analysis by O'Sullivan and Unwin. (`pdf </rosu/ROSU.pdf>`__)
    |

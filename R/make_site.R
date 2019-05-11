@@ -14,7 +14,12 @@ for (f in fff) {
 }
 
 
-ff <- grep("/rosu/", fff, value=TRUE)
+ff1 <- grep("/rosu/", fff, value=TRUE)
+ff2 <- grep("/raster/", fff, value=TRUE)
+ff3 <- grep("/sdm/", fff, value=TRUE)
+ff4 <- grep("/sphere/", fff, value=TRUE)
+ff <- c(ff1, ff2, ff3, ff4)
+
 for (f in ff) {
 	d <- readLines(f, warn=FALSE)
 	txt <- '<a href="http://www.feedthefuture.gov/"><img class="logos" alt="Feed the Future" src="../_static/img/t-feed-the-future.png" /></a>'
