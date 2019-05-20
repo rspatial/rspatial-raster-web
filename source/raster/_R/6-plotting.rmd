@@ -1,4 +1,4 @@
-## Plotting
+# Plotting
 
 Several generic functions have been implemented for Raster* objects to create maps and other plot types. Use 'plot' to create a map of a Raster* object. When plot is used with a `RasterLayer`, it calls the function 'rasterImage' (but, by default, adds a legend; using code from fields::image.plot). It is also possible to directly call `image`. You can zoom in using 'zoom' and clicking on the map twice (to indicate where to zoom to). With `click` it is possible to interactively query a Raster* object by clicking once or several times on a map plot.
 

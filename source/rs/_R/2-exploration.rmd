@@ -2,20 +2,19 @@
 
 ```{r setup, echo=TRUE, include=FALSE}
 library(knitr)
+library(raster)
 ```
 
-In this chapter we describe how to access and explore attributes of remote sensing images with R. We also show how to plot (make maps).
+In this chapter we describe how to access and explore satellite remote sensing data with *R*. We also show how to use them to make maps.
 
-We will primarily use a spatial subset of Landsat 8 scene collected on June 14, 2017. The subset covers the area between Concord and Stockton, in California, USA.
+We will primarily use a spatial subset of a Landsat 8 scene collected on June 14, 2017. The subset covers the area between [Concord and Stockton](https://www.google.com/maps/@37.940913,-121.7143556,55474m/data=!3m1!1e3), in California, USA.
 
-All Landsat image scenes have a unique product ID and metadata. You can find the information on Landsat sensor, satellite, [location on Earth (WRS path, WRS row)](https://landsat.usgs.gov/what-worldwide-reference-system-wrs) and acquisition date from the product ID. For example, the product identifier of the data we will use is 'LC08_044034_20170614'. Based on [this guide](https://landsat.usgs.gov/landsat-collections#Prod IDs), you can see that the Sensor-Satellite is OLI/TIRS combined Landsat 8, WRS Path 44, WRS Row 34 and collected on June 14, 2017. Landsat scenes are most commonly delivered as zipped file, which contains separate files for the reflectance values at each bandwidth (wavelength).  
+All Landsat image scenes have a unique product ID and metadata. You can find the information on Landsat sensor, satellite, [location on Earth (WRS path, WRS row)](https://landsat.usgs.gov/what-worldwide-reference-system-wrs) and acquisition date from the product ID. For example, the product identifier of the data we will use is 'LC08_044034_20170614'. Based on [this guide](https://landsat.usgs.gov/landsat-collections#Prod IDs), you can see that the Sensor-Satellite is OLI/TIRS combined Landsat 8, WRS Path 44, WRS Row 34 and collected on June 14, 2017. Landsat scenes are most commonly delivered as zipped file, which contains separate files for each band.  
 
-We will start by exploring and visualizing the data (See [chapter 1] for data downloading instructions if you have not already done so).
-
-
+We will start by exploring and visualizing the data (See the instructions in [Chapter 1](https://rspatial.org/rs/1-introduction.html#data) for data downloading instructions if you have not already done so).
 
 
-## View image properties 
+## Image properties 
 
 
 Create RasterLayer objects for single Landsat layers (bands)
@@ -52,7 +51,7 @@ The below shows how you can access various properties from a Raster* object (thi
 # coordinate reference system (CRS)
 crs(b2)
 
-# Number of rows, columns, or cells
+# Number of cells, rows, columns
 ncell(b2)
 dim(b2)
 
@@ -69,14 +68,11 @@ compareRaster(b2,b3)
 You can create a RasterStack (an object with multiple layers) from the existing RasterLayer (single band) objects.
 
 ```{r}
-landsatRGB <- stack(b4, b3, b2)
-landsatFCC <- stack(b5, b4, b3)
-
+s <- stack(b5, b4, b3)
 # Check the properties of the RasterStack
-landsatRGB
+s
 ```
 
-Notice the order of the layers. These are suitable for plotting different color composites. You can learn more about color composites in remote sensing [here](https://crisp.nus.edu.sg/~research/tutorial/opt_int.htm) and also in the section below.
 
 You can also create the RasterStack using the filenames.
 
@@ -89,10 +85,10 @@ landsat <- stack(filenames)
 landsat
 ```
 
-Above we created a RasterStack with 11 layers. The layers represent reflection intensity in the following wavelengths: Ultra Blue, Blue, Green, Red, Near Infrared (NIR), Shortwave Infrared (SWIR) 1, Shortwave Infrared (SWIR) 2, Panchromatic, Cirrus, Thermal Infrared (TIRS) 1, Thermal Infrared (TIRS) 2. We won't use the last four layers and we will learn how to remove those in following sections. 
+Above we created a RasterStack with 11 layers. The layers represent reflection intensity in the following wavelengths: Ultra Blue, Blue, Green, Red, Near Infrared (NIR), Shortwave Infrared (SWIR) 1, Shortwave Infrared (SWIR) 2, Panchromatic, Cirrus, Thermal Infrared (TIRS) 1, Thermal Infrared (TIRS) 2. We won't use the last four layers and you will see how to remove those in following sections. 
 
 
-## Visualize single and multi-band imagery
+## Single band and composite maps
 
 You can plot individual layers of a RasterStack of a multi-spectral image.
 
@@ -104,27 +100,35 @@ plot(b4, main = "Red", col = gray(0:100 / 100))
 plot(b5, main = "NIR", col = gray(0:100 / 100))
 ```
 
-Check the legends. They represent the range of values in each layer, and they range from 0 and 1. Notice the difference in shading and range of legends between the different bands. This is because different Earth surface features reflect the incident solar radiation differently. Each layer represent how much incident solar radiation is reflected for that particular wavelength. For example, vegetation reflects more energy in NIR than other wavelengths and thus appears brighter in NIR wavelength. However water absorbs most of the incident energy in NIR regions and appears dark.    
+Have a look at the legends of the maps created above. They can range between 0 and 1. Notice the difference in shading and range of legends between the different bands. This is because different surface features reflect the incident solar radiation differently. Each layer represent how much incident solar radiation is reflected for a particular wavelength range. For example, vegetation reflects more energy in NIR than other wavelengths and thus appears brighter. In contrast, water absorbs most of the energy in the NIR wavelength and it appears dark.    
 
-However we did not get much information from these grey-scale plots, but these are often combined to create more interesting plots. To combine three bands, we can use `plotRGB`. To make a "true/natural color" image (that is, something that looks like a normal photograph), we need to  select the bands that we want to render in the red, green and blue regions. For this Landsat image, r = 3 (red), g = 2(green), b = 1(blue) will plot the true color composite (vegetation in green, water blue etc). You can also supply additional arguments to `plotRGB` to improve the visualization (e.g. a linear stretch of the values, using `strecth = "lin"`). 
+We do not gain that much information from these grey-scale plots; they are often combined into a "composite" to create more interesting plots. You can learn more about color composites in remote sensing [here](https://crisp.nus.edu.sg/~research/tutorial/opt_int.htm) and also in the section below.
+
+
+To make a "true (or natural) color" image, that is, something that looks like a normal photograph (vegetation in green, water blue etc), we need bands in the red, green and blue regions. For this Landsat image, band 4 (red), 3 (green), and 2 (blue) can be used. The `plotRGB` method can be used to combine them into a single composite. You can also supply additional arguments to `plotRGB` to improve the visualization (e.g. a linear stretch of the values, using `strecth = "lin"`). 
 
 ```{r truecolor}
+landsatRGB <- stack(b4, b3, b2)
 plotRGB(landsatRGB, axes = TRUE, stretch = "lin", main = "Landsat True Color Composite")
 ```
 
-This RGB-plot has lot more information than the previous ones, although it has been created using the same bands. Another popular image visualization method in remote sensing is known "false color" image where red, green and blue bands are replaced by other bands. Selecting r = NIR, g = red, b = green will plot a "false color"" composite. This representation is popular as it makes it easy to see the vegetation (in red).
+The true-color composite reveals much more about the landscape than the earlier gray images. Another popular image visualization method in remote sensing is known "false color" image in which NIR, red, and green bands are combined. This representation is popular as it makes it easy to see the vegetation (in red).
 
 ```{r rs2plotrgb, fig.width = 8, fig.height = 4}
 par(mfrow = c(1,2))
-plotRGB(landsatRGB, r=1, g=2, b=3, axes=TRUE, stretch="lin", main="Landsat True Color Composite")
-plotRGB(landsatFCC, r=1, g=2, b=3, axes=TRUE, stretch="lin", main="Landsat False Color Composite")
+plotRGB(landsatRGB, axes=TRUE, stretch="lin", main="Landsat True Color Composite")
+
+landsatFCC <- stack(b5, b4, b3)
+plotRGB(landsatFCC, axes=TRUE, stretch="lin", main="Landsat False Color Composite")
 ```
 
 *Note*: Always check for package documentation (`help(plotRGB)`) for other arguments that can be added (like scale) to improve or modify the image.
 
-**Exercise 1** Use the RasterStack `landsat` to create a true and false color composite (*hint* remember the position of the bands in the stack). 
 
-## Subset and rename spectral bands
+__Question 1__: *Use the plotRGB function with RasterStack `landsat` to create a true and false color composite (hint remember the position of the bands in the stack).* 
+
+
+## Subset and rename bands
 
 You can select specific layers (bands) using `subset` function, or via indexing.
 
@@ -134,19 +138,19 @@ landsatsub1 <- subset(landsat, 1:3)
 # same
 landsatsub2 <- landsat[[1:3]]
 
-# Number of bands in orginal and new data
+# Number of bands in the original and new data
 nlayers(landsat)
 nlayers(landsatsub1)
 nlayers(landsatsub2)
 ```
 
-As mentioned above, we have no use here for the last four bands in`landsat`. You can remove those using
+We won't use the last four bands in `landsat`. You can remove those using
 
 ```{r}
 landsat <- subset(landsat, 1:7)
 ```
 
-Set the names of the bands using the following:
+For clarity, it is useful to set the names of the bands.
 
 ```{r}
 names(landsat)
@@ -156,7 +160,7 @@ names(landsat)
 
 ## Spatial subset or crop
 
-Spatial subsetting can be used to limit analysis to a geographic subset of the image. Spatial subsets can be created with the `crop` function, using an `extent` object, or another spatial object from which an Extent can be extracted/created,. 
+Spatial subsetting can be used to limit analysis to a geographic subset of the image. Spatial subsets can be created with the `crop` function, using an `extent` object, or another spatial object from which an Extent can be extracted. 
 
 ```{r, fig.width = 10}
 # Using extent
@@ -167,9 +171,10 @@ e <- extent(624387, 635752, 4200047, 4210939)
 landsatcrop <- crop(landsat, e)
 ```
 
-**Exercise 2** Interactive selection from the image is also possible. Use `drawExtent` and `drawPoly` to select an area of interest. *Note*: drawing will not work for plots generated within the markdown document. Please run the `plot` and `draw` commands from the RStudio console.
+__Question 2__: *Interactive selection from the image is also possible. Use `drawExtent` and `drawPoly` to select an area of interest*
 
-**Exercise 3** Use the RasterStack `landsatcrop` to create a true and false color composite (*hint* remember the position of the bands in the stack).
+
+__Question 3__: *Use the RasterStack `landsatcrop` to create a true and false color composite*
 
 
 ## Saving results to disk
@@ -177,16 +182,15 @@ landsatcrop <- crop(landsat, e)
 At this stage we may want to save the raster to disk using the function `writeRaster`. Multiple file types are supported. We will use the commonly used GeoTiff format. While the layer order is preserved, layer names are unfortunately lost in the GeoTiff format.
 
 ```{r}
-writeRaster(landsatcrop,filename = "cropped-landsat.tif", overwrite = TRUE)
+x <- writeRaster(landsatcrop, filename="cropped-landsat.tif", overwrite=TRUE)
 ```
 
-To keep the layer names, you can used the 'raster-grd' format:
+Alternatively you can used the 'raster-grd' format. 
 
 ```{r}
-writeRaster(landsatcrop, filename = "cropped-landsat.grd", overwrite = TRUE)
+writeRaster(landsatcrop, filename="cropped-landsat.grd", overwrite=TRUE)
 ```
-
-The disadvantage of this format is that not many other programs can read the data, in contrast to the GeoTiff format.
+An advantage of this format is that it saves the layer names. The disadvantage of this format is that not many other programs can read the data, in contrast to the GeoTiff format.
 
 *Note*: Check for package documentation (`help(writeRaster)`) for additional helpful arguments that can be added.
 
@@ -207,11 +211,12 @@ Plot of reflection in the red wavelength against reflection in the NIR wavelengt
 pairs(landsatcrop[[4:5]], main = "Red versus NIR")
 ```
 
-The first plot reveals high correlations between the blue wavelength regions. Because of the high correlation, we can just use one of the Blue bands without losing much information. 
+The first plot reveals high correlations between the blue wavelength regions. Because of the high correlation, we can just use one of the blue bands without losing much information. 
 
-This distribution of points in second plot (between NIR and Red) is unique due to its triangular shape. Vegetation reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting surface features like bright soil or concrete.  
+This distribution of points in second plot (between NIR and red) is unique due to its triangular shape. Vegetation reflects very highly in the NIR range than red and creates the upper corner close to NIR (y) axis. Water absorbs energy from all the bands and occupies the location close to origin. The furthest corner is created due to highly reflecting surface features like bright soil or concrete.  
 
-## Extract raster values
+
+## Extract pixel values
 
 Often we want to get the values of raster cells for specific geographic locations or area. The `extract` function is used to get raster values at the locations of other spatial data. You can use points, lines, polygons or an Extent (rectangle) object. You can also use cell numbers to extract values. When using points, `extract` returns the values of a `Raster*` object for the cells in which a set of points fall. 
 
@@ -219,9 +224,10 @@ Often we want to get the values of raster cells for specific geographic location
 # load the polygons with land use land cover information
 samp <- readRDS('data/rs/samples.rds')
 
-# generate 300 point samples from the polygons; 
-ptsamp <- spsample(samp, 300, type = 'random')
-# add the class information to the point samples from polygons
+# generate 300 point samples from the polygons 
+ptsamp <- spsample(samp, 300, type='regular')
+
+# add the land cover class to the points
 ptsamp$class <- over(ptsamp, samp)$class
 
 # extract values with points
@@ -238,13 +244,13 @@ A plot of the spectrum (all bands) for pixels representing a certain earth surfa
 ```{r}
 ms <- aggregate(df, list(ptsamp$class), mean)
   
-# instead of the first column, we use rownames 
+# instead of the first column, we use row names 
 rownames(ms) <- ms[,1]
 ms <- ms[,-1]
 ms
 ```
 
-Now we will plot the mean spectra of these features. 
+Now we plot the mean spectra of these features. 
 
 ```{r rs2spect, fig.width  = 6, fig.height = 4}
 # Create a vector of color for the land cover classes for use in plotting
@@ -269,4 +275,4 @@ legend("topleft", rownames(ms),
        cex=0.8, col=mycolor, lty = 1, lwd =3, bty = "n")
 ```
 
-The spectral profile shows (dis)similarity in the reflectance of different features on the earth's surface (or above it). Unsurprisingly, the spectral signatures of 'crop' and 'vegetation' are similar. 'Water' shows relatively low reflection in all wavelengths, and 'built', 'fallow' and 'open' have relatively high reflectance in the longer wavelengts.
+The spectral profile shows (dis)similarity in the reflectance of different features on the earth's surface (or above it). 'Water' shows relatively low reflection in all wavelengths, and 'built', 'fallow' and 'open' have relatively high reflectance in the longer wavelengts.

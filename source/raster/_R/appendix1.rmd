@@ -1,12 +1,12 @@
-## Appendix I. Writing functions for large raster files
+# Appendix I. Writing functions for large raster files
 
-### Introduction
+## Introduction
 
 The `raster` package has a number of 'low-level' functions (e.g. to read and write files) that allow you to write your own 'high-level' functions. Here I explain how to use these low-level functions in developing 'memory-safe' high-level functions. With 'memory-safe' I refer to function that can process raster files that are too large to be loaded into memory. To understand the material discussed in this vignette you should be already somewhat familiar with the raster package. It is also helpful to have some general knowledge of S4 classes and methods.
 
 I should also note that if you are not sure, you probably do not need to read this vignette, or use the functions described herein. That is, the high-level functions in the raster package are already based on these techniques, and they are very flexible. It is likely that you can accomplish your goals with the functions already available in 'raster' and that you do not need to write your own. 
 
-### How not to do it
+## How not to do it
 
 Let's start with two simple example functions, f1 and f2, that are NOT memory safe. The purpose of these simple example functions is to add a numerical constant 'a' to all values of RasterLayer 'x'.
 
@@ -45,7 +45,7 @@ f2 is much better than f1. Function `getValues` gets the cell values whether the
 
 However, this function could fail when used with very large raster files, depending on the amount of RAM your computer has and that *R* can access, because all values are read into memory at once. Processing data in chunks circumvents this problem.
 
-### Row by row processing
+## Row by row processing
 
 The next example shows how you can read, process, and write values row by row. 
 
@@ -67,7 +67,7 @@ s
 Note how, in the above example, first a new empty RasterLayer, 'out' is created using the {bf raster} function. 'out' has the same extent and resolution as 'x', but it does not have the values of 'x'.
 
 
-### Processing multiple rows at once
+## Processing multiple rows at once
 
 Row by row processing is easy to do but it can be a bit inefficient because there is some overhead associated with each read and write operation. An alternative is to read, calculate, and write by block; here defined as a number of rows (1 or more). The function `blockSize` is a helper function to determine appropriate block size (number of rows). 
 
@@ -88,7 +88,7 @@ s <- f4(r, 5, filename='test.grd')
 blockSize(s)
 ```
 
-### Filename optional
+## Filename optional
 
 In the above examples (functions f3 and f4) you must supply a filename. However, in the raster package that is never the case, it is always optional. If a filename is provided, values are written to disk. If no filename is provided the values are only written to disk if they cannot be stored in RAM. To determine whether the output needs to be written to disk, the function `canProcessInMemory` is used. This function uses the size of the output raster to determine the total memory size needed. Multiple copies of the values are often made when doing computations. And perhaps you are combining values from several RasterLayer objects in which case you need to be able to use much more memory than for the output RasterLayer object alone. To account for this you can supply an additional parameter, indicating the total number of copies needed. In the examples below we use '3', indicating that we would need RAM to hold three times the size of the output RasterLayer. That seems reasonably safe in this case.
 
@@ -207,7 +207,7 @@ f7 <- function(x, a, filename='') {
 s <- f7(r, 5)
 ```
 
-### A complete function
+## A complete function
 
 Finally, let's add some useful bells and whistles. For example, you may want to specify a file format and data type, be able to overwrite an existing file, and use a progress bar. So far, default values have been used. If you use the below function, the dots '...' allow you to change these by providing additional arguments 'overwrite', 'format', and 'datatype'. (In all cases you can also set default values with the `rasterOptions` function).
 
@@ -267,12 +267,12 @@ Note that most of the additional arguments are passed on to writeStart:
 Only the `progress=` argument goes to `pbCreate`
 
 
-### Debugging
+## Debugging
 
 Typically functions are developed and tested with small (RasterLayer) objects. But you also need to test your functions for the case it needs to write values to disk. You can use a very large raster for that, but then you may need to wait a long time each time you run it. Depending on how you design your function you may be able to test alternate forks in your function by providing a file name. But this would not necessarily work for function f7. You can force functions of that type to treat the input as a very large raster by setting to option 'todisk' to `TRUE` as in `setOptions(todisk=TRUE)`. If that option is set, `canProcessInMemory` always returns `FALSE`. This should only be used in debugging. 
 
 
-### Methods
+## Methods
 
 The raster package is build with S4 classes and methods. If you are developing a package that builds on the raster package I would advise to also use S4 classes and methods. Thus, rather than using plain functions, define generic methods (where necessary) and implement them for a RasterLayer, as in the example below (the function does not do anything; replace 'return(x)' with something meaningful along the pattern explained above. 
 
@@ -292,7 +292,7 @@ setMethod('f9', signature(x='RasterLayer'),
 s <- f9(r)
 ```
 
-### Mutli-core functions
+## Mutli-core functions
 
 Below is an example of an implementation of a customized raster function that can use multiple processors (cores), via the snow package. This is still very much under development, but you can try it at your own risk.
 

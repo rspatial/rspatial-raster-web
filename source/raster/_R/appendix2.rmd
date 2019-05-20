@@ -1,6 +1,6 @@
-## Appendix II. The "rasterfile" format
+# Appendix II. The "rasterfile" format
 
-### Introduction
+## Introduction
 
 The `raster` package has a default 'native' file format called 'rasterfile'. This file format is used because it is simple, flexible and extensible and does not require rgdal, which may be difficult to install. The `raster` package can read and write other formats via the `rgdal` package. 
 
@@ -8,7 +8,7 @@ The rasterfile format is highly similar to many other formats used for raster da
 
 The purpose is to standardize the format and help others to read and write files of the same format if they wish to do so. This vignette is aimed at software developers. The typical user of the `raster` package does not need to be familiar with it.
 
-### ini files
+## ini files
 
 The header ('.grd') file is organized as an '.ini' file.  This is a simple database format that is subdivided in sections indicated with brackets '[]'. Within each section there are variables and their values seperated by the equal '=' sign.
 
@@ -31,11 +31,11 @@ Thus, .ini files have a layout like this:
 Variables names must be unique within a section, but the same variable name could occur in multiple sections. This is not done for raster files (variable names are unique) such that section names could be ignored. The `raster` package has a convenient function, `readIniFile`, to read .ini files.
 
 
-### Sections
+## Sections
 
 The rasterfile ini format has four sections (general, georeference, data, legend, description) that are discussed below
 
-#### general
+### general
 This section has two variables, 'creator' and 'created'. For example:
 
 `[general]` 
@@ -46,7 +46,7 @@ This section has two variables, 'creator' and 'created'. For example:
 
 These are metadata that are useful but not strictly required.
 
-#### georeference
+### georeference
 
 This section has the number of rows (nrows) and columns (ncols), and describes the spatial extent (bounding box) with four variables (xmin, xmax, ymin, ymax), and the coordinate reference system (projection). These variables are obviously required. 
 
@@ -73,7 +73,7 @@ The coordinate reference system is specified with the variable 'projection'. Its
 `projection=+proj=longlat +datum=WGS84` 
 
 
-#### data
+### data
 
 This subsection has information about the file type as well as the cell values. Here is an example
 
@@ -118,7 +118,7 @@ If the values are integers representing a class (e.g. land cover types such as '
 
 `ratvalues=1:2:3:Pine:Oak:Meadow:12:25:30`
 
-#### description
+### description
 
 This section only has the layer names. As above, these are separated by colons. Therefore, colons are not allowed in the layer names. If they occur, they could be replaced with at dot '.'. 
 

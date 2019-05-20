@@ -1,4 +1,4 @@
-## Creating Raster* objects
+# Creating Raster* objects
 
 A `RasterLayer` can easily be created from scratch using the function `raster`. The default settings will create a global raster data structure with a longitude/latitude coordinate reference system and 1 by 1 degree cells. You can change these settings by providing additional arguments such as **xmin**, **nrow**, **ncol**, and/or **crs**, to the function. You can also change these parameters after creating the object. If you set the projection, this is only to properly define it, not to change it. To transform a `RasterLayer` to another coordinate reference system (projection) you can use the function ** projectRaster**. 
 

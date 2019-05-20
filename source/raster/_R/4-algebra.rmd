@@ -1,4 +1,4 @@
-## Raster algebra
+# Raster algebra
 
 Many generic functions that allow for simple and elegant raster algebra have been implemented for `Raster*` objects, including the normal algebraic operators such as `+`, `-`, `*`, `/`, logical operators such as `>`, `>=`, `<`, `==`, `!`} and functions such as `abs`, `round`, `ceiling`, `floor`, `trunc`, `sqrt`, `log`, `log10`, `exp`, `cos`, `sin`, `max`, `min`, `range`, `prod`, `sum`, `any`, `all`. In these functions you can mix `raster` objects with numbers, as long as the first argument is a `raster` object. 
 
@@ -48,6 +48,7 @@ sst
 ```
 
 Use `cellStats` if instead of a `RasterLayer` you want a single number summarizing the cell values of each layer. 
+
 ```{r  raster-3e}
 cellStats(st, 'sum')
 cellStats(sst, 'sum')

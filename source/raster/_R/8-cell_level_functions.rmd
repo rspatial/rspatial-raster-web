@@ -1,5 +1,6 @@
+# Cell-level functions
 
-## Low-level functions
+## Introduction
 
 The cell number is an important concept in the raster package. Raster data can be thought of as a matrix, but in a `RasterLayer` it is more commonly treated as a vector. Cells are numbered from the upper left cell to the upper right cell and then continuing on the left side of the next row, and so on until the last cell at the lower-right side of the raster. There are several helper functions to determine the column or row number from a cell and vice versa, and to determine the cell number for x, y coordinates and vice versa.
 
@@ -32,6 +33,7 @@ getValuesBlock(r, 50, 1, 35, 5)
 
 
 You can also read values using cell numbers or coordinates (xy) using the `extract` method.
+
 ```{r  raster-21}
 cells <- cellFromRowCol(r, 50, 35:39)
 cells

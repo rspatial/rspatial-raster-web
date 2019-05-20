@@ -1,12 +1,12 @@
-## Classes
+# Classes
 
-The package is built around a number of 'S4' classes of which the `RasterLayer`, `RasterBrick`, and `RasterStack` classes are the most important. See Chambers (2009) for a detailed discussion of the use of S4 classes in *R*. When discussing methods that can operate on all three of these objects, they are referred to as `Raster*` objects.
+The package is built around a number of "classes" of which the `RasterLayer`, `RasterBrick`, and `RasterStack` are the most important. When discussing methods that can operate on objects of all three of these classes, they are referred to as `Raster*` objects.
 
-### RasterLayer
+## RasterLayer
 
-A `RasterLayer` object represents single-layer (variable) raster data. A `RasterLayer` object always stores a number of fundamental parameters that describe it. These include the number of columns and rows, the coordinates of its spatial extent ('bounding box'), and the coordinate reference system (the 'map projection'). In addition, a `RasterLayer` can store information about the file in which the raster cell values are stored (if there is such a file). A `RasterLayer` can also hold the raster cell values in memory.
+A `RasterLayer` represents single-layer (variable) raster data. A `RasterLayer` object always stores a number of fundamental parameters that describe it. These include the number of columns and rows, the coordinates of its spatial extent ('bounding box'), and the coordinate reference system (the 'map projection'). In addition, a `RasterLayer` can store information about the file in which the raster cell values are stored (if there is such a file). A `RasterLayer` can also hold the raster cell values in memory.
 
-### RasterStack and RasterBrick
+## RasterStack and RasterBrick
 
 It is quite common to analyze raster data using single-layer objects. However, in many cases multi-variable raster data sets are used. The `raster` package has two classes for multi-layer data the `RasterStack` and the `RasterBrick`. The principal difference between these two classes is that a `RasterBrick` can only be linked to a single (multi-layer) file. In contrast, a `RasterStack` can be formed from separate files and/or from a few layers ('bands') from a single file. 
 
@@ -15,7 +15,7 @@ In fact, a `RasterStack` is a collection of `RasterLayer` objects with the same 
 A `RasterBrick`  is truly a multilayered object, and processing a `RasterBrick`  can be more efficient than processing a `RasterStack` representing the same data. However, it can only refer to a single file. A typical example of such a file would be a multi-band satellite image or the output of a global climate model (with e.g., a time series of temperature values for each day of the year for each raster cell). Methods that operate on `RasterStack` and `RasterBrick`  objects typically return a `RasterBrick`.
 
 
-### Other classes
+## Other Classes
 
 Below is some more detail, you do not need to read or understand this section to use the `raster` package. 
 
@@ -27,6 +27,3 @@ An object of class `Extent` has four slots: xmin, xmax, ymin, and ymax. These re
 
 `RasterStackBrick` is a class union of the `RasterStack` and `RasterBrick` class. This is a also a virtual class. It allows defining methods (functions) that apply to both `RasterStack` and `RasterBrick` objects.
 
-### References
-
-Chambers, J.M., 2009. Software for Data Analysis: Programming with *R*. Springer. 498p.

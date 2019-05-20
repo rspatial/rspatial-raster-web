@@ -1,6 +1,6 @@
-## Miscellaneous
+# Miscellaneous
 
-### Session options
+## Session options
 
 There is a number of session options that influence reading and writing files. These can be set in a session, with ```rasterOptions```, and saved to make them persistent in between sessions. But you probably should not change the default values unless you have pressing need to do so. You can, for example, set the directory where temporary files are written, and set your preferred default file format and data type. Some of these settings can be overwritten by arguments to functions where they apply (with arguments like filename, datatype, format). Except for generic functions like mean, '+', and sqrt. These functions may write a file when the result is too large to hold in memory and then these options can only be set through the session options.  The options chunksize and maxmemory determine the maximum size (in number of cells) of a single chunk of values that is read/written in chunk-by-chunk processing of very large files.
 
@@ -10,7 +10,7 @@ rasterOptions()
 ```
 
 
-### Coercion to objects of other classes
+## Coercion to objects of other classes
 
 Although the raster package defines its own set of classes, it is easy to coerce objects of these classes to objects of the 'spatial' family defined in the sp package. This allows for using functions defined by sp (e.g. spplot) and for using other packages that expect spatial* objects. To create a Raster object from variable n in a SpatialGrid* x use ```raster(x, n)``` or ```stack(x)``` or ```brick(x)```. Vice versa use ```as( , )```
 
@@ -28,7 +28,7 @@ news <- stack(sgdf)
 ```
 
 
-### Extending raster objects
+## Extending raster objects
 
 It is straightforward to build on the Raster* objects using the S4 inheritance mechanism. Say you need objects that behave like a `RasterLayer`, but have some additional properties that you need to use in your own functions (S4 methods). See Chambers (2009) and the help pages of the Methods package for more info. Below is an example:
 

@@ -1,4 +1,4 @@
-# Supervised Image Classification
+# Supervised Classification
 
 ```{r setup, echo=TRUE, include=FALSE}
 library(knitr)
@@ -24,7 +24,7 @@ We will perform the following steps:
 
 The [National Land Cover Database 2011 (NLCD 2011)](https://www.mrlc.gov/nlcd2011.php) is a land cover product for the USA. NLCD is a 30-m Landsat-based land cover database spanning 4 epochs (1992, 2001, 2006 and 2011). NLCD 2011 is based primarily on a decision-tree classification of circa 2011 Landsat data.
 
-You can find the class names in NCLD 2011 (here)[https://www.mrlc.gov/nlcd11_leg.php]. It has two pairs of classvalues and classnames that correspond to the levels of land use and land cover classification system. These levels usually represent the level of complexity, level I being the simplest with broad land use land cover categories. Read [this report by Anderson et al](https://pubs.usgs.gov/pp/0964/report.pdf) to learn more about this land use and land cover classification system for use with Remote Sensor data. 
+You can find the class names in NCLD 2011 (here)[https://www.mrlc.gov/nlcd11_leg.php]. It has two pairs of classvalues and classnames that correspond to the levels of land use and land cover classification system. These levels usually represent the level of complexity, level I being the simplest with broad land use land cover categories. Read [this report by Anderson et al](https://pubs.usgs.gov/pp/0964/report.pdf) to learn more about this land use and land cover classification system for use with Remote Sensing data. 
 
 ```{r nlcd}
 library(raster)
@@ -106,7 +106,7 @@ sampdata <- data.frame(classvalue = samp2011@data$nlcd2011, sampvals)
 ```
 
 
-## Train the classifier using training samples 
+## Train the classifier 
 
 Now we will train the classification algorithm using `training2011` dataset. 
 
@@ -158,7 +158,7 @@ levelplot(pr2011, maxpixels = 1e6,
           main = "Decision Tree classification of Landsat 5")
 ```
 
-**Exercise 1** Plot `nlcd2011` and `pr2011` side-by-side and comment about the accuracy of the prediction (e.g. mixing between cultivated crops, pasture, grassland and shrubs). 
+__Question 1__:*Plot `nlcd2011` and `pr2011` side-by-side and comment about the accuracy of the prediction (e.g. mixing between cultivated crops, pasture, grassland and shrubs).* 
 
 You may need to select more samples and use additional predictor variables. The choice of classifier also plays an important role.
 
@@ -177,6 +177,7 @@ table(j)
 ```
 
 Now we train and test the model five times, each time computing a confusion matrix that we store in a list.
+
 ```{r}
 x <- list()
 
@@ -204,14 +205,15 @@ rownames(conmat) <- classdf$classnames
 conmat
 ```
 
-**Exercise 2** Comment on the miss-classification between different classes.
+__Question 2__:*Comment on the miss-classification between different classes.*
 
-**Exercise 3** Can you think of ways to to improve the accuracy.
+__Question 3__:*Can you think of ways to to improve the accuracy.*
 
 
-Compute overall accuracy and Kappa statistics. 
+Compute the overall accuracy and the "Kappa" statistic. 
 
-Overall accuray
+Overall accuracy:
+
 ```{r Accuracy Statistics}
 # number of cases
 n <- sum(conmat) 
@@ -225,7 +227,8 @@ OA <- sum(diag) / n
 OA
 ```
 
-Kappa
+Kappa:
+
 ```{r kappa}
 # observed (true) cases per class
 rowsums <- apply(conmat, 1, sum) 
@@ -241,6 +244,7 @@ kappa
 ```
 
 Producer and user accuracy
+
 ```{r User/Producer accuracy}
 
 # Producer accuracy
@@ -254,11 +258,12 @@ outAcc <- data.frame(producerAccuracy = PA, userAccuracy = UA)
 outAcc
 ```
 
-**Exercise 4** Perform the classification using Random Forest classifiers from the package [`randomForest`](https://cran.r-project.org/web/packages/randomForest/index.html). For help see this [discussion](https://gis.stackexchange.com/questions/39021/how-to-perform-random-forest-land-cover-classification).
+__Question 4__:*Perform the classification using Random Forest classifiers from the `randomForest` package*
 
-**Exercise 5** Plot the results of `rpart` and 'rf` classifier side-by-side.  
 
-**Exercise 6 (optional)** Please repeat the steps for the year 2001 using `rpart`. You will use cloud-free composite image from [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) with 6-bands. The reference data will be the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the Central Valley regions.
+__Question 5__:*Plot the results of `rpart` and `rf` classifier side-by-side.*
 
-**Exercise 7 (optional)** You have been training your classifiers using 160 samples for each class. Now we want to see the effect of sample size on classification. Please repeat the steps with different subset of the sample size (e.g. 120, 100). Use the same holdout samples for accuracy assessment.  
+__Question 6 (optional)__:*Repeat the steps for the year 2001 using Random Forest*. Use cloud-free composite image from [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) with 6-bands. Use as reference data the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the California Central Valley.*
+
+__Question 7 (optional)__:*We have trained the classifiers using 160 samples for each class. Investigate the effect of sample size on classification. Repeat the steps with different subsets, e.g. a sample size of 120, 80 per class. Use the same holdout samples for model evaluation.*  
 
