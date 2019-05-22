@@ -24,7 +24,7 @@ We will perform the following steps:
 
 The [National Land Cover Database 2011 (NLCD 2011)](https://www.mrlc.gov/nlcd2011.php) is a land cover product for the USA. NLCD is a 30-m Landsat-based land cover database spanning 4 epochs (1992, 2001, 2006 and 2011). NLCD 2011 is based primarily on a decision-tree classification of circa 2011 Landsat data.
 
-You can find the class names in NCLD 2011 (here)[https://www.mrlc.gov/nlcd11_leg.php]. It has two pairs of classvalues and classnames that correspond to the levels of land use and land cover classification system. These levels usually represent the level of complexity, level I being the simplest with broad land use land cover categories. Read [this report by Anderson et al](https://pubs.usgs.gov/pp/0964/report.pdf) to learn more about this land use and land cover classification system for use with Remote Sensing data. 
+You can find the class names in NCLD 2011 (here)[https://www.mrlc.gov/nlcd11_leg.php]. It has two pairs of class values and names that correspond to the levels of land use and land cover classification system. These levels usually represent the level of complexity, level I being the simplest with broad land use land cover categories. Read [this report by Anderson et al](https://pubs.usgs.gov/pp/0964/report.pdf) to learn more about this land use and land cover classification system. 
 
 ```{r nlcd}
 library(raster)
@@ -82,8 +82,9 @@ print(plt + layer(sp.points(samp2011, pch = 3, cex = 0.5, col = 1)))
 
 `rasterVis` offers more advanced (trellis/lattice) plotting of Raster* objects. Please install the package if it is not available for your machine.
 
-## Extract cell values for the sample sites
+## Extract values for sites
 
+Here is our Landsat data.
 
 ```{r landsat5}
 landsat5 <- stack('data/rs/centralvalley-2011LT5.tif')
@@ -96,7 +97,7 @@ Once we have the sites, we can extract the cell values from `landsat5` RasterSta
 # Extract the layer values for the locations
 sampvals <- extract(landsat5, samp2011, df = TRUE)
 
-# sampvals no longer has the spatial information. To keep the spatial information you use `sp = TRUE` argument in `extract` function. 
+# sampvals no longer has the spatial information. To keep the spatial information you use `sp=TRUE` argument in the `extract` function. 
 
 # drop the ID column
 sampvals <- sampvals[, -1]
@@ -118,12 +119,12 @@ cart <- rpart(as.factor(classvalue)~., data=sampdata, method = 'class', minsplit
 
 # print(model.class)
 
-# Much cleaner way is to plot the trained classification tree
+# Plot the trained classification tree
 plot(cart, uniform=TRUE, main="Classification Tree")
 text(cart, cex = 0.8)
 ```
 
-In the classification tree plot classvalues are printed at the leaf node. You can find the corresponding land use land cover names from the `classdf` dataframe. 
+In the classification tree plot classvalues are printed at the leaf nodes. You can find the corresponding land use land cover names from the `classdf` data.frame. 
 
 See `?rpart.control` to set different parameters for building the model.
 
@@ -133,7 +134,7 @@ You can print/plot more about the `cart` model created in the previous example. 
 
 Now we have our trained classification model (`cart`), we can use it to make predictions, that is, to classify all cells in the `landsat5` RasterStack.
 
-**Important** The names in the Raster object to be classified should exactly match those expected by the model. This will be the case if the same Raster object was used (via extract) to obtain the values to fit the model (previous example). 
+**Important** The names in the Raster object to be classified should exactly match those expected by the model. This will be the case if the same Raster object was used (via extract) to obtain the values to fit the model. 
 
 ```{r prediction}
 # Now predict the subset data based on the model; prediction for entire area takes longer time
@@ -141,7 +142,7 @@ pr2011 <- predict(landsat5, cart, type='class')
 pr2011
 ```
 
-Now plot the classification result using `rasetrVis`. See will set the `classnames` for the `classvalues`.
+Now plot the classification result using `rasterVis`. See will set the `classnames` for the `classvalues`.
 
 ```{r dectree, fig.width=8, fig.height=8}
 pr2011 <- ratify(pr2011)
@@ -165,7 +166,7 @@ You may need to select more samples and use additional predictor variables. The 
 
 ## Model evaluation
 
-Now let's assess the accuracy of the model to get an idea of how accurate the classified map might be. Two widely used measures in remote sensing community are "overall accuracy" and "kappa". You can perform the accuracy assessment using the independent samples (`validation2011`).
+Now let's assess the accuracy of the model to get an idea of how accurate the classified map might be. Two widely used measures in remote sensing are "overall accuracy" and "kappa". You can perform the accuracy assessment using the independent samples (`validation2011`).
 
 To evaluate any model, you can use k-fold cross-validation. In this technique the data used to fit the model is split into `k` groups (typically 5 groups). In turn, one of the groups will be used for model testing, while the rest of the data is used for model training (fitting).
 
@@ -192,6 +193,7 @@ for (k in 1:5) {
 ```
 
 Now combine the five list elements into a single data.frame, using `do.call` and compute a confusion matrix.
+
 ```{r}
 y <- do.call(rbind, x)
 y <- data.frame(y)
@@ -261,9 +263,9 @@ outAcc
 __Question 4__:*Perform the classification using Random Forest classifiers from the `randomForest` package*
 
 
-__Question 5__:*Plot the results of `rpart` and `rf` classifier side-by-side.*
+__Question 5__:*Plot the results of rpart and Random Forest classifier side-by-side.*
 
 __Question 6 (optional)__:*Repeat the steps for the year 2001 using Random Forest*. Use cloud-free composite image from [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) with 6-bands. Use as reference data the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the California Central Valley.*
 
-__Question 7 (optional)__:*We have trained the classifiers using 160 samples for each class. Investigate the effect of sample size on classification. Repeat the steps with different subsets, e.g. a sample size of 120, 80 per class. Use the same holdout samples for model evaluation.*  
+__Question 7 (optional)__:*We have trained the classifiers using 200 samples for each class. Investigate the effect of sample size on classification. Repeat the steps with different subsets, e.g. a sample size of 150, 100, 50 per class, and compare the results. Use the same holdout samples for model evaluation.*  
 
