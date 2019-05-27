@@ -29,7 +29,8 @@ latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9, 36.2, 39, 41.6, 36.9)
 lonlat <- cbind(longitude, latitude)
 ```
 
-Now create a `SpatialPoints` object
+Now create a `SpatialPoints` object. First load the `sp` package from the library. If this command fails with `Error in library(sp) : there is no package called ‘sp’`, then you need to *install* the package first, with `install.packages("sp")`
+
 
 ```{r}
 library(sp)
