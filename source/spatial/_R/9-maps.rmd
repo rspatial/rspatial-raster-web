@@ -10,7 +10,7 @@ library(XML)
 
 Like for other plots, there are different approaches in R to make maps. You can use "base plot" in many cases. Alternatively use levelplot, either via the `spplot` function (implemented in `sp` and `raster`) or via the `rasterVis` package.
 
-Here are some brief examples about making maps. You can also look elsewhere on the Internet, [like here](http://www.nickeubank.com/wp-content/uploads/2015/10/RGIS3_MakingMaps_part1_mappingVectorData.html), or this for [spplot](http://rspatial.r-forge.r-project.org/gallery/) and [rasterVis](https://oscarperpinan.github.io/rastervis/).
+Here are some brief examples about making maps. You can also look elsewhere on the Internet, [like here](http://www.nickeubank.com/wp-content/uploads/2015/10/RGIS3_MakingMaps_part1_mappingVectorData.html), or this for [spplot](https://edzer.github.io/sp/) and [rasterVis](https://oscarperpinan.github.io/rastervis/).
 
 
 ## Vector data
@@ -100,7 +100,7 @@ spplot(b, layout=c(3,1))
 The `rasterVis` package has several other `lattice` based plotting functions for `Raster*` objects. The [rasterVis](https://oscarperpinan.github.io/rastervis/) package also facilitates creating a map from a `RasterLayer` with the `ggplot2` package.
 
 
-You can also use the a number of other plotting functions with a `raster` object as argument, including `hist`, `persp`, `contour`}, and `density`. See the help files for more info. 
+You can also use a number of other plotting functions with `raster` objects, including `hist`, `persp`, `contour`}, and `density`. See the help files for more info. 
 
 
 

@@ -32,7 +32,7 @@ Basic operations are pretty much like working with a data.frame.
 
 ### Geometry and attributes
 
-To extracting the attributes (data.frame) from a Spatial object, use:
+To extract the attributes (data.frame) from a Spatial object, use:
 ```{r}
 d <- data.frame(p)
 head(d)
@@ -81,6 +81,7 @@ You can join a table (data.frame) with a Spatial* object with `merge`.
 
 ```{r}
 dfr <- data.frame(District=p$NAME_1, Canton=p$NAME_2, Value=round(runif(length(p), 100, 1000)))
+
 dfr <- dfr[order(dfr$Canton), ]
 pm <- merge(p, dfr, by.x=c('NAME_1', 'NAME_2'), by.y=c('District', 'Canton'))
 pm
@@ -97,7 +98,7 @@ g <- p[i,]
 g
 ```
 
-It is also possible to interactively select and query records by clikcing on a plotted dataset. That is difficult to show here. See `?select` for interactively selecting spatial features and `?click` to identify attributes by clicking on a plot (map).
+It is also possible to interactively select and query records by clicking on a plotted dataset. That is difficult to show here. See `?select` for interactively selecting spatial features and `?click` to identify attributes by clicking on a plot (map).
 
 
 ## Append and aggregate
@@ -105,7 +106,7 @@ It is also possible to interactively select and query records by clikcing on a p
 
 ## Append
 
-More example data. Object `z`, consisting of four, and `z2` which is one of these four polygons.
+More example data. Object `z`, consisting of four polygons, and `z2` which is one of these four polygons.
 
 ```{r, zzz}
 z <- raster(p, nrow=2, ncol=2, vals=1:4)

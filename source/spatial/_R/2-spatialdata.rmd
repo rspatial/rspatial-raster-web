@@ -79,7 +79,7 @@ points(x, cex=2, pch=20)
 points(stations, cex=psize, pch=20, col='red', main='Precipitation')
 ```
 
-The above illustrates how numeric vectors representing locations can be used to draw simple maps. It also shows how points can (and typically are) represented by pairs of numbers, and a line and a polygons by a number of these points. Polygons is that they are "closed", i.e. the first point coincides with the last point, but the `polygon` function took care of that for us. 
+The above illustrates how numeric vectors representing locations can be used to draw simple maps. It also shows how points can (and typically are) represented by pairs of numbers. A line and a polygon can be represented by a number of these points. Polygons need to "closed", that is, the first point must coincide with the last point, but the `polygon` function took care of that for us. 
 
 There are cases where a simple approach like this may suffice and you may come across this in older *R* code or packages. Likewise, raster data could be represented by a matrix or higher-order array. Particularly when only dealing with point data such an approach may be practical. For example, a spatial data set representing points and attributes could be made by combining geometry and attributes in a single 'data.frame`.
 

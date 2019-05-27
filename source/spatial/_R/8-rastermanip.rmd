@@ -248,7 +248,7 @@ The "..."  argument allows for setting additional arguments that are relevant wh
 
 There are several functions that deal with modifying the spatial extent of `Raster` objects. The `crop` function lets you take a geographic subset of a larger `raster` object. You can crop a `Raster` by providing an extent object or another spatial object from which an extent can be extracted (objects from classes deriving from Raster and from Spatial in the sp package). An easy way to get an extent object is to plot a `RasterLayer` and then use `drawExtent` to visually determine the new extent (bounding box) to provide to the crop function. 
 
-`trim` crops a `RasterLayer` by removing the outer rows and columns that only contain `NA` values. In contrast, `extend` adds new rows and/or columns with `NA` values. The purpose of this could be to create a new `RasterLayer` with the same Extent of another larger `RasterLayer` such that the can be used together in other functions. 
+`trim` crops a `RasterLayer` by removing the outer rows and columns that only contain `NA` values. In contrast, `extend` adds new rows and/or columns with `NA` values. The purpose of this could be to create a new `RasterLayer` with the same Extent of another, larger, `RasterLayer` such that they can be used together in other functions. 
 
 The `merge` function lets you merge 2 or more `Raster` objects into a single new object. The input objects must have the same resolution and origin (such that their cells neatly fit into a single larger raster). If this is not the case you can first adjust one of the `Raster` objects with use `(dis)aggregate` or `resample`.
 
@@ -378,7 +378,7 @@ The package has two functions to make model predictions to (potentially very lar
 
 ### Vector to raster conversion
 
-The raster packages supports point, line, and polygon to raster conversion with the `rasterize` function. For vector type data (points, lines, polygons), objects of Spatial* classes defined in the `sp` package are used; but points can also be represented by a two-column matrix (x and y). 
+The raster package supports point, line, and polygon to raster conversion with the `rasterize` function. For vector type data (points, lines, polygons), objects of Spatial* classes defined in the `sp` package are used; but points can also be represented by a two-column matrix (x and y). 
 
 Point to raster conversion is often done with the purpose to analyze the point data. For example to count the number of distinct species (represented by point observations) that occur in each raster cell. `rasterize` takes a `Raster` object to set the spatial extent and resolution, and a function to determine how to summarize the points (or an attribute of each point) by cell. 
 

@@ -265,7 +265,9 @@ __Question 4__:*Perform the classification using Random Forest classifiers from 
 
 __Question 5__:*Plot the results of rpart and Random Forest classifier side-by-side.*
 
-__Question 6 (optional)__:*Repeat the steps for the year 2001 using Random Forest*. Use cloud-free composite image from [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) with 6-bands. Use as reference data the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the California Central Valley.*
+
+__Question 6 (optional)__:*Repeat the steps for the year 2001 using Random Forest*. Use the cloud-free composite image `data/centralvalley-2001LE7.tif`. This is [Landsat 7](https://landsat.gsfc.nasa.gov/landsat-7/) data . Use as reference data the [National Land Cover Database 2001 (NLCD 2001)](https://www.mrlc.gov/nlcd2011.php) for the subset of the California Central Valley.*
+
 
 __Question 7 (optional)__:*We have trained the classifiers using 200 samples for each class. Investigate the effect of sample size on classification. Repeat the steps with different subsets, e.g. a sample size of 150, 100, 50 per class, and compare the results. Use the same holdout samples for model evaluation.*  
 

@@ -74,7 +74,7 @@ crs(p)
 
 ## Assigning a CRS
 
-Sometimes we have data without a CRS. This can be because the file used was incomplete, or perhaps because we created the data ourselves with R code. In that case we can assign the CRS __if we know what it should be__. Here it first remove the CRS of `pp` and then I set it again. 
+Sometimes we have data without a CRS. This can be because the file used was incomplete, or perhaps because we created the data ourselves with R code. In that case we can assign the CRS __if we know what it should be__. Here I first remove the CRS of `pp` and then I set it again. 
 
 ```{r}
 pp <- p
@@ -84,7 +84,7 @@ crs(pp) <- CRS("+proj=longlat +datum=WGS84")
 crs(pp)
 ```
 
-Note that you should __not__ use this approach to change the CRS of a data set from what it __is__ to what you __want it to be___. Assigning a CRS is like labeling something. You need to provide the label that corresponds to the item. Not to what you would like it to be. For example if you label a bicycle, you can write "bicycle". Perhaps you would prefer a car, and you can label your bicycle as "car" but that would not do you any good. It is still a bicycle. You can try to transform your bicycle into a car. That would not be easy. Transforming spatial data is easier.
+Note that you should __not__ use this approach to change the CRS of a data set from what it __is__ to what you __want it to be__. Assigning a CRS is like labeling something. You need to provide the label that corresponds to the item. Not to what you would like it to be. For example if you label a bicycle, you can write "bicycle". Perhaps you would prefer a car, and you can label your bicycle as "car" but that would not do you any good. It is still a bicycle. You can try to transform your bicycle into a car. That would not be easy. Transforming spatial data is easier.
 
 
 ## Transforming vector data
@@ -92,7 +92,7 @@ Note that you should __not__ use this approach to change the CRS of a data set f
 
 We can transform these data to a new data set with another CRS using the `spTransform` function from the `rgdal` package. 
 
-Here we use the Robinson projection. First we need to find the correction notation. 
+Here we use the Robinson projection. First we need to find the correct notation. 
 
 ```{r}
 newcrs <- CRS("+proj=robin +datum=WGS84")
@@ -116,9 +116,9 @@ p2 <- spTransform(rob, CRS("+proj=longlat +datum=WGS84"))
 
 ## Transforming raster data
 
-Vector data can be transformed from lon/lat coordinates to planar and back with loss of precision. This is not the case with raster data. A raster consists of rectangular cells of the same size (in terms of the units of the CRS; their actual size may vary). It is not possible to transform cell by cell. Rather estimates for the values of new cells must be made based on the values in the old cells. If the values are class data, the 'nearest neighbor' is commonly used. Otherwise some sort of interpolation (e.g. 'bilinear').
+Vector data can be transformed from lon/lat coordinates to planar and back without loss of precision. This is not the case with raster data. A raster consists of rectangular cells of the same size (in terms of the units of the CRS; their actual size may vary). It is not possible to transform cell by cell. Rather estimates for the values of new cells must be made based on the values in the old cells. If the values are class data, the 'nearest neighbor' is commonly used. Otherwise some sort of interpolation (e.g. 'bilinear').
 
-Because projection of rasters affects the cells values, in most cases you will want to avoid projecting raster data and rather project vector data. But when you do project raster data, you want to assure that you project to exactly the raster definition you need (so that it lines up with other raster data you are using).  
+Because projection of rasters affects the cell values, in most cases you will want to avoid projecting raster data and rather project vector data. But when you do project raster data, you want to assure that you project to exactly the raster definition you need (so that it lines up with other raster data you are using).  
 
 
 ```{r, prj1}

@@ -15,7 +15,7 @@ We will be using the `sp` package here. Note that this package will eventually b
 
 Package `sp` introduces a number of classes with names that start with `Spatial`. For vector data, the basic types are the `SpatialPoints`, `SpatialLines`, and `SpatialPolygons`. These classes only represent geometries. To also store attributes, classes are available with these names plus `DataFrame`, for example, `SpatialPolygonsDataFrame` and `SpatialPointsDataFrame`. When referring to any object with a name that starts with `Spatial`, it is common to write  `Spatial*`. When referring to a `SpatialPolygons` or `SpatialPolygonsDataFrame` object it is common to write `SpatialPolygons*`. The `Spatial` classes (and their use) are described in detail by [Bivand, Pebesma and Gómez-Rubio](http://www.springer.com/us/book/9781461476177).
 
-It is possible to create `Spatial*` objects from scratch with *R* code. That can be very useful to create small self contained example to illustrate something, for example to ask a question about how to do a particular operation without needing to give access to the real data you are using (which is always cumbersome). But in real life you will read these from a file or database, for example from a "shapefile" [see Chapter 5](./5-files.html). 
+It is possible to create `Spatial*` objects from scratch with *R* code. It can be very useful to create small self contained example to illustrate something, for example to ask a question about how to do a particular operation without needing to give access to the real data you are using (which is always cumbersome). But in real life you will read these from a file or database, for example from a "shapefile" [see Chapter 5](./5-files.html). 
 
 To get started, let's make some Spatial objects from scratch anyway, using the same data as were used in the previous chapter. 
 
@@ -113,7 +113,7 @@ str(pols)
 
 Fortunately, you do not need to understand how these structures are organized. The main take home message is that they store geometries (coordinates), the name of the coordinate reference system, and attributes. 
 
-We can make use generic *R* function plot to make a map.
+We can make use `plot` to make a map.
 
 ```{r, vectordata-1}
 plot(pols, axes=TRUE, las=1)

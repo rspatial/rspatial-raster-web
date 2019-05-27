@@ -12,6 +12,10 @@ The directory where packages are stored is called the library. Once installed, a
 
 `library(raster)`
 
+If the package is not installed, you get an error message like this
+
+`Error in library(raster) : there is no package called ‘raster’`
+
 So you install a package only once (for each R version), or once in a while (to get updates), but you load a package every time you start a new R session (script) that needs it.
 
 It is very important to stay up to date with R and the packages, as they improve every day....  You should update the main *R* program every 6 months and update your packages more regularly, perhaps once a month. To update all your packages you can run `update.packages()`

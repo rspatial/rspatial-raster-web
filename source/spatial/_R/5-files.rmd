@@ -10,7 +10,7 @@ library(rgdal)
 
 ## Introduction
 
-Reading and writing spatial is complicated by the fact that there are many different file formats. However, there are a few formats that are most common that we discuss here.
+Reading and writing spatial data is complicated by the fact that there are many different file formats. However, there are a few formats that are most common that we discuss here.
 
 ## Vector files
 
