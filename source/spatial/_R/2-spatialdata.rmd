@@ -45,7 +45,7 @@ latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9,
 stations <- cbind(longitude, latitude)
 # Simulated rainfall data
 set.seed(0)
-precip <- (runif(length(latitude))*10)^3
+precip <- round((runif(length(latitude))*10)^3)
 ```
 
 A map of point locations is not that different from a basic x-y scatter plot. Here I make a plot (a map in this case) that shows the location of the weather stations, and the size of the dots is proportional to the amount of precipitation. The point size is set with argument `cex`. 
@@ -58,8 +58,9 @@ plot(stations, cex=psize, pch=20, col='red', main='Precipitation')
 text(stations, name, pos=4)
 
 # add a legend
-breaks <- c(100, 500, 1000, 2000)
-legend("topright", legend=breaks, pch=20, pt.cex=psize, col='red', bg='gray')
+breaks <- c(100, 250, 500, 1000)
+legend.psize <- 1+breaks/500
+legend("topright", legend=breaks, pch=20, pt.cex=legend.psize, col='red', bg='gray')
 ```
 
 Note that the data are represented by "longitude, latitude", in that order, do not use "latitude, longitude" because on most maps latitude (North/South) is used for the vertical axis and longitude (East/West) for the horizontal axis. This is important to keep in mind, as it is a very common source of mistakes! 
