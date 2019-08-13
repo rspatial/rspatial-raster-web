@@ -1,0 +1,95 @@
+# Reading and writing spatial data
+
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='',  collapse = TRUE)
+library(terra)
+library(rgdal)
+```
+
+## Introduction
+
+Reading and writing spatial data is complicated by the fact that there are many different file formats. However, there are a few formats that are most common that we discuss here.
+
+## Vector files
+
+The `shapefile` is the most commonly used file format for vector data. It is trivial to read and write such files. Here we use a shapefile that comes with the `terra` package. 
+
+### Reading
+
+We use the `system.file` function to get the full path name of the file's location. We need to do this as the location of this file depends on where the raster package is installed. You should not use the `system.file` function for your own files. It only serves for creating examples with data that ships with *R*. 
+
+```{r, shp1}
+library(terra)
+filename <- system.file("exdata/lux.shp", package="terra")
+filename
+```
+
+Now we have the filename we need we use the `vect` function.
+
+```{r, shp2}
+s <- vect(filename)
+s
+```
+
+The `rast` function returns `SpatVector` objects. It is important to recognise the difference between this type of *R* object (SpatVector), and the file (shapefile) that was used to create it. (Do not say "I have a shapefile in R", say "I have a SpatVector of polygons in R" ("created from a shapefile").
+
+
+### Writing
+
+You can also write new shapefiles using the `writeVector` method. You can add argument `overwrite=TRUE` if you want to overwrite an existing file.
+
+```{r, shp3}
+#outfile <- 'shptest.shp'
+#writeVector(s, outfile, overwrite=TRUE)
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+ff <- list.files(patt="^shptest")
+file.remove(ff)
+```
+
+
+## Raster files
+
+The raster package can read and write several raster file formats. 
+
+### Reading raster data
+
+Again we need to get a filename for an example file.
+```{r, ras0}
+f <- system.file("exdata/logo.grd", package="terra")
+f
+```
+
+Now we can do 
+```{r, ras1}
+r <- rast(f)
+r
+```
+
+Note that `x` is a SpatRasterayer of three layers ("bands"). We can subset it to get a single layer.
+
+```{r, ras2}
+r2 <- r[[2]]
+r2
+```
+
+The same approach holds for other raster file formats, including GeoTiff, NetCDF, Imagine, and ESRI Grid formats.
+
+
+### Writing raster data
+
+Use `writeRaster` to write raster data. You must provide a Raster* object and a filename. The file format will be guessed from the filename extension (if that does not work you can provide an argument like `format=GTIFF`). Note the argument `overwrite=TRUE` and see `?writeRaster` for more arguments, such as `datatype=` to set the datatype (e.g., integer, float).
+
+```{r, ras5}
+x <- writeRaster(r, "output.tif", overwrite=TRUE)
+x
+```
+
+```{r, echo=FALSE, include=FALSE}
+file.remove("output.tif")
+```
+

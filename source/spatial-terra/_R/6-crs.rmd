@@ -1,0 +1,145 @@
+# Coordinate Reference Systems
+
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE
+)
+library(terra)
+```
+
+## Introduction
+
+A very important aspect of spatial data is the coordinate reference system (CRS) that is used. For example, a location of (140, 12) is not meaningful if you do know where the origin is and if the x-coordinate is 140 meters, kilometers, or perhaps degrees away from it (in the x direction).
+
+## Coordinate Reference Systems (CRS)
+
+### Angular coordinates 
+
+The earth has an irregular spheroid-like shape. The natural coordinate reference system for geographic data is longitude/latitude. This is an *angular* system. The latitude (phi) of a point is the angle between the equatorial plane and the line that passes through a point and the center of the Earth. Longitude (lambda) is the angle from a reference meridian (lines of constant longitude) to a meridian that passes through the point. 
+
+```{r, echo=FALSE}
+knitr::include_graphics("img/sphere.png")
+```
+
+Obviously we cannot actually measure these angles. But we can estimate them. To do so, you need a model of the shape of the earth. Such a model is called a 'datum'. The simplest datums are a spheroid (a sphere that is 'flattened' at the poles and bulges at the equator). More complex datums allow for more variation in the earth's shape. The most commonly used datum is called WGS84 (World Geodesic System 1984). This is very similar to NAD83 (The North American Datum of 1983). Other, local datums exist to more precisely record locations for a single country or region. 
+
+So the basic way to record a location is a coordinate pair in degrees and a reference datum. (Sometimes people say that their coordinates are "in WGS84". That is meaningless; but they typically mean to say that they are longitude/latitude relative to the WGS84 datum).
+
+### Projections
+
+A major question in spatial analysis and cartography is how to transform this three dimensional angular system to a two dimensional planar (sometimes called "Cartesian") system. A planar system is easier to use for certain calculations and required to make maps (unless you have a 3-d printer). The different types of planar coordinate reference systems are referred to as 'projections'. Examples are 'Mercator', 'UTM', 'Robinson', 'Lambert', 'Sinusoidal' 'Robinson' and 'Albers'. 
+
+There is not one best projection. Some projections can be used for a map of the whole world; other projections are appropriate for small areas only. One of the most important characteristics of a map projection is whether it is "equal area" (the scale of the map is constant) or "conformal" (the shapes of the geographic features are as they are seen on a globe). No two dimensional map projection can be both conformal and equal-area (but they can be approximately both for smaller areas, e.g. UTM, or Lambert Equal Area for a larger area), and some are neither. 
+
+
+### Notation
+
+
+A planar CRS is defined by a projection, datum, and a set of parameters. The parameters determine things like where the center of the map is. The number of parameters depends on the projection. It is therefore not trivial to document a projection used, and several systems exist. In *R* we use the [PROJ.4[(ftp://ftp.remotesensing.org/proj/OF90-284.pdf
+) notation. PROJ.4 is the name of an open source software library that is commonly used for CRS transformation. 
+
+Here is a list of [commonly used projections](http://www.remotesensing.org/geotiff/proj_list/) and their parameters in PROJ4 notation. You can find many more of these on [spatialreference.org](http://spatialreference.org/ref/epsg/4326/)
+
+Most commonly used CRSs have been assigned a "EPSG code" (EPSG stands for European Petroleum Survey Group). This is a unique ID that can be a simple way to identify a CRS. For example `EPSG:27561` is equivalent to `+proj=lcc +lat_1=49.5 +lat_0=49.5 +lon_0=0 +k_0=0.999877341 +x_0=6 +y_0=2 +a=6378249.2 +b=6356515` `+towgs84=-168,-60,320,0,0,0,0 +pm=paris +units=m +no_defs`. However `EPSG:27561` is opaque and should not be used outside of databases. In R use the PROJ.4 notation, as that can be readily interpreted without relying on software. 
+
+
+Now let's look at an example with a spatial data set in *R*. 
+
+```{r, crs1}
+library(terra)
+f <- system.file("exdata/lux.shp", package="terra")
+p <- vect(f)
+p
+```
+
+We can inspect the coordinate reference system like this.
+```{r}
+crs(p)
+```
+
+
+
+## Assigning a CRS
+
+Sometimes we have data without a CRS. This can be because the file used was incomplete, or perhaps because we created the data ourselves with R code. In that case we can assign the CRS __if we know what it should be__. Here I first remove the CRS of `pp` and then I set it again. 
+
+```{r}
+pp <- p
+crs(pp) <- ""
+crs(pp)
+crs(pp) <- "+proj=longlat +datum=WGS84"
+crs(pp)
+```
+
+Note that you should __not__ use this approach to change the CRS of a data set from what it __is__ to what you __want it to be__. Assigning a CRS is like labeling something. You need to provide the label that corresponds to the item. Not to what you would like it to be. For example if you label a bicycle, you can write "bicycle". Perhaps you would prefer a car, and you can label your bicycle as "car" but that would not do you any good. It is still a bicycle. You can try to transform your bicycle into a car. That would not be easy. Transforming spatial data is easier.
+
+
+## Transforming vector data
+
+
+We can transform these data to a new data set with another CRS using the `spTransform` function from the `rgdal` package. 
+
+Here we use the Robinson projection. First we need to find the correct notation. 
+
+```{r}
+newcrs <- "+proj=robin +datum=WGS84"
+```
+
+Now use it
+```{r}
+rob <- terra::project(p, newcrs)
+rob
+```
+
+After the transformation, the units of the geometry are no longer in degrees, but in meters away from (longitude=0, latitude=0). The spatial extent of the data is also in these units.
+
+We can backtransform to longitude/latitude:
+
+```{r}
+p2 <- terra::project(rob, "+proj=longlat +datum=WGS84")
+```
+
+
+
+## Transforming raster data
+
+Vector data can be transformed from lon/lat coordinates to planar and back without loss of precision. This is not the case with raster data. A raster consists of rectangular cells of the same size (in terms of the units of the CRS; their actual size may vary). It is not possible to transform cell by cell. Rather estimates for the values of new cells must be made based on the values in the old cells. If the values are class data, the 'nearest neighbor' is commonly used. Otherwise some sort of interpolation (e.g. 'bilinear').
+
+Because projection of rasters affects the cell values, in most cases you will want to avoid projecting raster data and rather project vector data. But when you do project raster data, you want to assure that you project to exactly the raster definition you need (so that it lines up with other raster data you are using).  
+
+
+```{r, prj1}
+r <- rast(xmn=-110, xmx=-90, ymn=40, ymx=60, ncols=40, nrows=40)
+values(r) <- 1:ncell(r)
+r
+plot(r)
+```
+
+Simplest approach
+```{r}
+newcrs
+pr1 <- terra::project(r, crs=newcrs)
+crs(pr1)
+plot(pr1)
+```
+
+
+But to have more control, provide an existing SpatRaster. That is generally the best way to project raster. By providing an existing SpatRaster, such that your newly projected data perfectly aligns with it. In this example we do not have an existing SpatRaster object, so we create from the result obtained above.
+
+```{r}
+x <- rast(pr1)
+# Set the cell size 
+res(x) <- 200000
+```
+
+Now project, and note the change in the coordinates.
+```{r, prj3}
+pr3 <- warp(r, x)
+pr3
+plot(pr3)
+```
+
+For raster based analysis it is often important to use equal area projections, particularly when large areas are analyzed. This will assure that the grid cells are all of same size, and therefore comparable to each other.
+
+

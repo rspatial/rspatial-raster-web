@@ -12,7 +12,7 @@ set arg2=%2
 set arg3=%3
 
 if %arg2% == all (
-	for %%i in (rosu intr spatial analysis cases sdm sphere rs) do Rscript.exe --vanilla R\run.R %arg1% %%i %arg3%
+	for %%i in (rosu intr spatial analysis cases sdm sphere rs, spatial-terra, rs-terra) do Rscript.exe --vanilla R\run.R %arg1% %%i %arg3%
 ) else (
 	Rscript.exe --vanilla R\run.R %arg1% %arg2% %arg3%
 )

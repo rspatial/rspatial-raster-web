@@ -61,7 +61,24 @@ Manuals
 
    
  
+   
+The terra package
+-----------------
+
+.. topic:: A. `Spatial data manipulation with terra <spatial-terra/index.html>`__
+
+  | Read this to learn about the basics of reading, writing, and manipulating spatial data. (`pdf </spatial/SpatialTerra.pdf>`__)
+  | 
+
+
+.. topic:: B. `Remote Sensing with terra <terra-rs/index.html>`__ 
+
+  | Introduction to remote sensing (satellite) image analysis spatial data. (`pdf </rs/rsterra.pdf>`__)
+  |
+
       
+	  
+	  
 
 .. This is the table of contents, must be here, but can be hidden so we can format how we like above.
 
@@ -78,4 +95,6 @@ Manuals
    raster/index.rst
    sdm/index.rst
    rosu/index.rst
+   spatial-terra/index.rst
+   rs-terra/index.rst
    

@@ -282,31 +282,5 @@ plot(p, main='Angaus - BRT prediction')
 
 ## Further reading
 
-The following includes a mix of both statistical papers and ecological applications:
-
-
 Elith, J., Leathwick, J.R., and Hastie, T. (2008). Boosted regression trees - a new technique for modelling ecological data. Journal of Animal Ecology
-
-Friedman, J.H. (2001) Greedy function approximation: a gradient boosting machine. The Annals of Statistics, 29, 1189-1232.
-
-Friedman, J.H. (2002) Stochastic gradient boosting. Computational Statistics and Data Analysis, 38, 367-378.
-
-Friedman, J.H., Hastie, T., and Tibshirani, R. (2000) Additive logistic regression: a statistical view of boosting. The Annals of Statistics, 28, 337-407.
-
-Friedman, J.H. and Meulman, J.J. (2003) Multiple additive regression trees with application in epidemiology. Statistics in Medicine, 22, 1365-1381.
-
-Hastie, T., R. Tibshirani, and J. H. Friedman. 2001. The Elements of Statistical Learning: Data Mining, Inference, and Prediction. Springer-Verlag, New York.
-
-Leathwick, J.R., Elith, J., Francis, M.P., Hastie, T., and Taylor, P. (2006a) Variation in demersal fish species richness in the oceans surrounding New Zealand: an analysis using boosted regression trees. Marine Ecology Progress Series, 321, 267-281.
-
-Moisen, G.G., Freeman, E.A., Blackard, J.A., Frescino, T.S., Zimmermann, N.E., and Edwards, T.C.. (2006) Predicting tree species presence and basal area in Utah: a comparison of stochastic gradient boosting, generalized additive models, and tree-based methods. Ecological Modelling, 199, 176-187.
-
-Ridgeway, G. (1999) The state of boosting. Computing Science and Statistics, 31, 172-181.
-
-Ridgeway, G. (2006) Generalized boosted regression models. Documentation on the R package "gbm", version 1.5-7. http://www.i-pensieri.com/gregr/gbm.shtml.
-
-Schapire, R. (2003). The boosting approach to machine learning - an overview. In MSRI Workshop on Nonlinear Estimation and Classification, 2002. (eds D.D. Denison, M.H. Hansen, C. Holmes, B. Mallick and B. Yu), Springer, NY.
-
-Wintle, B. A., J. Elith, and J. Potts. 2005. Fauna habitat modelling and mapping in an urbanising environment; A case study in the Lower Hunter Central Coast region of NSW. Austral Ecology 30:729-748.
-
 

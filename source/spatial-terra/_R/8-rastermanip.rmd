@@ -1,0 +1,487 @@
+# Raster data manipulation
+
+```{r, echo=FALSE, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap = '', collapse = TRUE)
+```
+
+## Introduction
+
+In this chapter general aspects of the design of the `raster` package are discussed, notably the structure of the main classes, and what they represent. The use of the package is illustrated in subsequent sections. `raster` has a large number of functions, not all of them are discussed here, and those that are discussed are mentioned only briefly. See the help files of the package for more information on individual functions and `help("raster-package")` for an index of functions by topic.
+
+
+## Creating SpatRaster objects
+
+A `SpatRaster` can easily be created from scratch using the function `rast`. The default settings will create a global raster data structure with a longitude/latitude coordinate reference system and 1 by 1 degree cells. You can change these settings by providing additional arguments such as `xmn`, `nrow`, `ncol`, and/or `crs`, to the function. You can also change these parameters after creating the object. If you set the projection, this is only to properly define it, not to change it. To transform a `SpatRaster` to another coordinate reference system (projection) you can use the function 1projectRaster1. 
+
+Here is an example of creating and changing a `SpatRaster` object 'r' from scratch.
+
+```{r, raster-1a}
+library(terra)
+# SpatRaster with the default parameters
+x <- rast()
+x
+``` 
+
+With some other parameters
+```{r, raster-1b}
+x <- rast(ncol=36, nrow=18, xmin=-1000, xmax=1000, ymin=-100, ymax=900)
+```
+
+These parameters can be changed. Resolution:
+```{r, raster-1c}
+res(x)
+res(x) <- 100
+res(x)
+```
+
+Change the number of columns (this affects the resolution).
+
+```{r, raster-1d}
+ncol(x)
+ncol(x) <- 18
+ncol(x)
+res(x)
+```
+
+Set the coordinate reference system (CRS) (i.e., define the projection).
+```{r, raster-1e}
+crs(x) <- "+proj=utm +zone=48 +datum=WGS84"
+x
+```
+
+The objects `x` created in the examples above only consist of the raster 'geometry', that is, we have defined the number of rows and columns, and where the raster is located in geographic space, but there are no cell-values associated with it. Setting and accessing values is illustrated below.
+
+First another example empty raster geometry.
+```{r, raster-1h }
+r <- rast(ncol=10, nrow=10)
+ncell(r)
+hasValues(r)
+```
+
+Use the 'values' function.
+```{r, raster-1i }
+values(r) <- 1:ncell(r)
+```
+
+Another example.
+```{r, raster-1j }
+set.seed(0)
+values(r) <- runif(ncell(r))
+
+hasValues(r)
+sources(r)
+values(r)[1:10]
+plot(r, main='Raster with 100 cells')
+```
+
+In some cases, for example when you change the number of columns or rows, you will lose the values associated with the `SpatRaster` if there were any (or the link to a file if there was one). The same applies, in most cases, if you change the resolution directly (as this can affect the number of rows or columns). Values are not lost when changing the extent as this change adjusts the resolution, but does not change the number of rows or columns. 
+
+```{r, raster-1x}
+hasValues(r)
+res(r)
+dim(r)
+# extent
+ext(r)
+```
+
+Now change the maximum x coordinate of the extent (bounding box) of the SpatRaster.
+
+```{r, raster-1y}
+xmax(r) <- 0
+hasValues(r)
+res(r)
+dim(r)
+```
+
+And the number of columns (the values disappear)
+
+```{r, raster-1z}
+ncol(r) <- 6
+hasValues(r)
+res(r)
+dim(r)
+xmax(r)
+```
+
+While we can create a `SpatRaster` from scratch, it is more common to do so from a file. The `terra` package can use raster files in several formats, including GeoTiff, ESRI, ENVI, and ERDAS. 
+
+A notable feature of the `raster` package is that it can work with raster datasets that are stored on disk and are too large to be loaded into memory (RAM). The package can work with large files because the objects it creates from these files only contain information about the structure of the data, such as the number of rows and columns, the spatial extent, and the filename, but it does not attempt to read all the cell values in memory. In computations with these objects, data is processed in chunks. If no output filename is specified to a function, and the output raster is too large to keep in memory, the results are written to a temporary file. 
+
+For this example, we first we get the name of an example file installed with the package. Do __not__ use this `system.file` construction of your own files (just type the file name; don't forget the forward slashes).
+
+```{r, raster-2a1 }
+filename <- system.file("exdata/test.tif", package="terra")
+filename
+```
+
+```{r, raster-2a2 }
+r <- rast(filename)
+sources(r)
+hasValues(r)
+plot(r, main='SpatRaster from file')
+```
+
+Multi-layer objects can be created in memory or from files. 
+
+Create three identical SpatRaster objects
+
+```{r, raster-2b1}
+r1 <- r2 <- r3 <- rast(nrow=10, ncol=10)
+# Assign random cell values 
+values(r1) <- runif(ncell(r1))
+values(r2) <- runif(ncell(r2))
+values(r3) <- runif(ncell(r3))
+```
+
+Combine three SpatRaster objects into a RasterStack.
+```{r, raster-2b2}
+s <- c(r1, r2, r3)
+s
+nlyr(s)
+```
+
+
+You can also create a multilayer object from a file.
+```{r, raster-2b5}
+filename <- system.file("exdata/logo.tif", package="terra")
+filename
+b <- rast(filename)
+b
+nlyr(b)
+```
+
+Extract a single layer (the second one on this case)
+
+```{r, raster-2b6}
+r <- b[[2]]
+```
+
+
+## Raster algebra
+
+Many generic functions that allow for simple and elegant raster algebra have been implemented for `Raster` objects, including the normal algebraic operators such as `+`, `-`, `*`, `/`, logical operators such as `>`, `>=`, `<`, `==`, `!` and functions like `abs`, `round`, `ceiling`, `floor`, `trunc`, `sqrt`, `log`, `log10`, `exp`, `cos`, `sin`, `atan`, `tan`, `max`, `min`, `range`, `prod`, `sum`, `any`, `all`. In these functions you can mix `raster` objects with numbers, as long as the first argument is a `raster` object. 
+
+Create an empty SpatRaster and assign values to cells.
+
+```{r, raster-3a1}
+r <- rast(ncol=10, nrow=10)
+values(r) <- 1:ncell(r)
+```
+
+Now some algebra.
+
+```{r, raster-3a2}
+s <- r + 10
+s <- sqrt(s)
+s <- s * r + 5
+values(r) <- runif(ncell(r))
+r <- round(r)
+r <- r == 1
+```
+
+You can also use replacement functions.
+
+```{r, raster-3b}
+#Not yet implemented
+#s[r] <- -0.5
+#s[!r] <- 5
+#s[s == 5] <- 15
+```
+
+If you use multiple `SpatRaster` objects (in functions where this is relevant, such as range), these must have the same resolution and origin. The origin of a `Raster` object is the point closest to (0, 0) that you could get if you moved from a corners of a `SpatRaster` object toward that point in steps of the `x` and `y` resolution. Normally these objects would also have the same extent, but if they do not, the returned object covers the spatial intersection of the objects used.
+
+When you use multiple multi-layer objects with different numbers or layers, the 'shorter' objects are 'recycled'. For example, if you multiply a 4-layer object (a1, a2, a3, a4) with a 2-layer object (b1, b2), the result is a four-layer object (a1b1, a2b2, a3b1, a3b2). 
+
+```{r, raster-3c}
+r <- rast(ncol=5, nrow=5)
+values(r) <- 1
+s <- c(r, r+1)
+q <- c(r, r+2, r+4, r+6)
+x <- r + s + q
+x
+```
+
+Summary functions (min, max, mean, prod, sum, Median, cv, range, any, all) always return a `SpatRaster` object. Perhaps this is not obvious when using functions like `min`, `sum` or `mean`. 
+
+```{r, raster-3d}
+a <- mean(r,s,10)
+b <- sum(r,s)
+st <- c(r, s, a, b)
+sst <- sum(st)
+sst
+```
+
+Use  `global` if you want a single number summarizing the cell values of each layer. 
+```{r, raster-3e}
+global(st, 'sum')
+global(sst, 'sum')
+```
+
+
+## 'High-level' functions
+
+Several 'high level' functions have been implemented for `SpatRaster` objects. 'High level' functions refer to functions that you would normally find in a computer program that supports the analysis of raster data. Here we briefly discuss some of these functions. All these functions work for raster datasets that cannot be loaded into memory. See the help files for more detailed descriptions of each function.
+
+The high-level functions have some arguments in common. The first argument is typically a `SpatRaster` 'x' or 'object'. It is followed by one or more arguments specific to the function (either additional `SpatRaster` objects or other arguments), followed by a filename="" and "..." arguments. 
+
+The default filename is an empty character "". If you do not specify a filename, the default action for the function is to return a `raster` object that only exists in memory. However, if the function deems that the `raster` object to be created would be too large to hold memory it is written to a temporary file instead.
+
+The "..."  argument allows for setting additional arguments that are relevant when writing values to a file: the file format, datatype (e.g. integer or real values), and a to indicate whether existing files should be overwritten. 
+
+
+### Modifying a SpatRaster object
+
+There are several functions that deal with modifying the spatial extent of `SpatRaster` objects. The `crop` function lets you take a geographic subset of a larger `raster` object. You can crop a `SpatRaster` by providing an extent object or another spatial object from which an extent can be extracted (objects from classes deriving from Raster and from Spatial in the sp package). An easy way to get an extent object is to plot a `SpatRaster` and then use `drawExtent` to visually determine the new extent (bounding box) to provide to the crop function. 
+
+`trim` crops a `SpatRaster` by removing the outer rows and columns that only contain `NA` values. In contrast, `extend` adds new rows and/or columns with `NA` values. The purpose of this could be to create a new `SpatRaster` with the same Extent of another, larger, `SpatRaster` such that they can be used together in other functions. 
+
+The `merge` function lets you merge 2 or more `Raster` objects into a single new object. The input objects must have the same resolution and origin (such that their cells neatly fit into a single larger raster). If this is not the case you can first adjust one of the `Raster` objects with use `(dis)aggregate` or `resample`.
+
+`aggregate` and `disaggregate` allow for changing the resolution (cell size) of a `SpatRaster` object. In the case of `aggregate`, you need to specify a function determining what to do with the grouped cell values `mean`. It is possible to specify different (dis)aggregation factors in the x and y direction. `aggregate` and `disaggregate` are the best functions when adjusting cells size only, with an integer step (e.g. each side 2 times smaller or larger), but in some cases that is not possible. 
+
+For example, you may need nearly the same cell size, while shifting the cell centers. In those cases, the `resample` function can be used. It can do either nearest neighbor assignments (for categorical data) or bilinear interpolation (for numerical data). Simple linear shifts of a Raster object can be accomplished with the `shift` function or with the `extent` function. `resample` should not be used to create a Raster* object with much larger resolution. If such adjustments need to be made then you can first use aggregate. 
+
+With the `warp` function you can transform values of `SpatRaster` object to a new object with a different coordinate reference system.
+
+Here are some simple examples.
+
+Aggregate and disaggregate.
+```{r, raster-5, fig.width=9, fig.height=4 }
+r <- rast()
+values(r) <- 1:ncell(r)
+ra <- aggregate(r, 20)
+rd <- disaggregate(ra, 20)
+```
+
+Crop and merge example.
+
+```{r, raster-5b, fig.width=9, fig.height=4 }
+r1 <- crop(r, ext(-50,0,0,30))
+r2 <- crop(r, ext(-10,50,-20, 10))
+m <- merge(r1, r2, filename='test.tif', overwrite=TRUE)
+plot(m)
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+ff <- list.files(patt="^test")
+file.remove(ff)
+```
+
+
+`flip` lets you flip the data (reverse order) in horizontal or vertical direction -- typically to correct for a 'communication problem' between different R packages or a misinterpreted file. `rotate` lets you rotate longitude/latitude rasters that have longitudes from 0 to 360 degrees (often used by climatologists) to the standard -180 to 180 degrees system. With `t` you can rotate a `SpatRaster` object 90 degrees.
+
+
+### Overlay
+
+The `overlay` function can be used as an alternative to the raster algebra discussed above. Overlay, like the functions discussed in the following subsections provide either easy to use short-hand, or more efficient computation for large (file based) objects. 
+
+With `overlay` you can combine multiple Raster objects (e.g. multiply them). The related function `mask` removes all values from one layer that are `NA` in another layer, and  `cover` combines two layers by taking the values of the first layer except where these are `NA`.
+
+
+### Calc
+
+`calc` allows you to do a computation for a single `SpatRaster` object by providing a function. If you supply a `SpatRaster`, another `SpatRaster` is returned. If you provide a multi-layer object you get a (single layer) `SpatRaster` if you use a summary type function (e.g. `sum` but a `RasterBrick` if multiple layers are returned. `stackApply` computes summary type layers for subsets of a `RasterStack` or `RasterBrick`.
+
+
+### Reclassify
+You can use `cut` or `reclassify` to replace ranges of values with single values, or `subs` to substitute (replace) single values with other values. 
+
+```{r, raster-6a}
+r <- rast(ncol=3, nrow=2)
+values(r) <- 1:ncell(r)
+values(r)
+```
+
+Set all values above 4 to `NA`
+
+```{r, raster-6b}
+s <- app(r, fun=function(x){ x[x < 4] <- NA; return(x)} )
+as.matrix(s)
+```
+
+Divide the first raster with two times the square root of the second raster and add five.
+
+```{r, raster-6c}
+w <- overlay(r, s, fun=function(x, y){ x / (2 * sqrt(y)) + 5 } )
+as.matrix(w)
+```
+
+Remove from `r` all values that are `NA` in `w`.
+
+```{r, raster-6d}
+u <- mask(r, w)
+as.matrix(u)
+```
+
+Identify the cell values in `u` that are the same as in `s`.
+```{r, raster-6e}
+v <- u==s
+as.matrix(v)
+```
+
+Replace `NA` values in `w` with values of `r`. 
+```{r, raster-6f}
+cvr <- cover(w, r)
+as.matrix(w)
+```
+
+Change value between 0 and 2 to 1, etc.
+```{r, raster-6g}
+x <- classify(w, rbind(c(0,2,1),  c(2,5,2), c(4,10,3)))
+as.matrix(x)
+```
+
+Substitute 2 with 40 and 3 with 50.
+```{r, raster-6h}
+y <- classify(x, cbind(id=c(2,3), v=c(40,50)))
+as.matrix(y)
+```
+
+### Focal functions
+
+The `focal` function currently only work for (single layer) SpatRaster objects. They make a computation using values in a neighborhood of cells around a focal cell, and putting the result in the focal cell of the output SpatRaster. The neighborhood is a user-defined matrix of weights and could approximate any shape by giving some cells zero weight. It is possible to only computes new values for cells that are `NA` in the input SpatRaster.
+
+
+### Distance
+
+There are a number of distance related functions. `distance` computes the shortest distance to cells that are not `NA`. `pointDistance` computes the shortest distance to any point in a set of points. `gridDistance` computes the distance when following grid cells that can be traversed (e.g. excluding water bodies). `direction` computes the direction toward (or from) the nearest cell that is not `NA`. `adjacency` determines which cells are adjacent to other cells. See the `gdistance` package for more advanced distance calculations (cost distance, resistance distance)
+
+### Spatial configuration
+Function `clump` identifies groups of cells that are connected. `boundaries` identifies edges, that is, transitions between cell values. `area` computes the size of each grid cell (for unprojected rasters), this may be useful to, e.g. compute the area covered by a certain class on a longitude/latitude raster. 
+
+```{r, raster-7}
+r <- rast(nrow=45, ncol=90)
+values(r) <- round(runif(ncell(r))*3)
+a <- area(r)
+zonal(a, r, "sum")
+```
+
+### Predictions
+The package has two functions to make model predictions to (potentially very large) rasters. `predict` takes a multilayer raster and a fitted model as arguments. Fitted models can be of various classes, including glm, gam, and RandomForest. The function `interpolate` is similar but is for models that use coordinates as predictor variables, for example in Kriging and spline interpolation.
+
+
+### Vector to raster conversion
+
+The raster package supports point, line, and polygon to raster conversion with the `rasterize` function. For vector type data (points, lines, polygons), objects of Spatial* classes defined in the `sp` package are used; but points can also be represented by a two-column matrix (x and y). 
+
+Point to raster conversion is often done with the purpose to analyze the point data. For example to count the number of distinct species (represented by point observations) that occur in each raster cell. `rasterize` takes a `SpatRaster` object to set the spatial extent and resolution, and a function to determine how to summarize the points (or an attribute of each point) by cell. 
+
+Polygon to raster conversion is typically done to create a `SpatRaster` that can act as a mask, i.e. to set to `NA` a set of cells of a `SpatRaster` object, or to summarize values on a raster by zone. For example a country polygon is transferred to a raster that is then used to set all the cells outside that country to `NA`; whereas polygons representing administrative regions such as states can be transferred to a raster to summarize raster values by region. 
+
+It is also possible to convert the values of a `SpatRaster` to points or polygons, using `as.points` and `as.polygons`. Both functions only return values for cells that are not `NA`. Unlike `rasterToPolygons`, `rasterToPoints` is reasonably efficient and allows you to provide a function to subset the output before it is produced (which can be necessary for very large rasters as the point object is created in memory). 
+
+
+## Summarizing functions
+
+When used with a `SpatRaster` object as first argument, normal summary statistics functions such as min, max and mean return a SpatRaster. You can use cellStats if, instead, you want to obtain a summary for all cells of a single `SpatRaster` object. You can use `freq` to make a frequency table, or to count the number of cells with a specified value. Use `zonal` to summarize a `SpatRaster` object using zones (areas with the same integer number) defined in a `SpatRaster` and `crosstab` to cross-tabulate two `SpatRaster` objects.
+
+```{r, raster-10a}
+r <- rast(ncol=36, nrow=18)
+values(r) <- runif(ncell(r))
+global(r, mean)
+```
+
+Zonal stats
+
+```{r, raster-10b}
+s <- r
+values(s) <- round(runif(ncell(r)) * 5)
+zonal(r, s, 'mean')
+```
+
+Count cells
+
+```{r, raster-10c}
+freq(s)
+freq(s, value=3)
+```
+Cross-tabulate
+
+```{r, raster-10d}
+#ctb <- crosstab(r*3, s)
+#head(ctb)
+```
+
+
+
+## Helper functions
+
+The cell number is an important concept in the raster package. Raster data can be thought of as a matrix, but in a `SpatRaster` it is more commonly treated as a vector. Cells are numbered from the upper left cell to the upper right cell and then continuing on the left side of the next row, and so on until the last cell at the lower-right side of the raster. There are several helper functions to determine the column or row number from a cell and vice versa, and to determine the cell number for x, y coordinates and vice versa.
+
+```{r, raster-15}
+library(terra)
+r <- rast(ncol=36, nrow=18)
+ncol(r)
+nrow(r)
+ncell(r)
+rowFromCell(r, 100)
+colFromCell(r, 100)
+cellFromRowCol(r,5,5)
+xyFromCell(r, 100)
+cellFromXY(r, cbind(0,0))
+colFromX(r, 0)
+rowFromY(r, 0)
+```
+
+## Accessing cell values
+
+Cell values can be accessed with several methods. Use `getValues` to get all values or a single row; and `getValuesBlock` to read a block (rectangle) of cell values. 
+
+```{r, raster-20}
+r <- rast(system.file("external/test.grd", package="raster"))
+#v <- values(r, 50)
+#v[35:39]
+#getValuesBlock(r, 50, 1, 35, 5)
+```
+
+You can also read values using cell numbers or coordinates (xy) using the `extract` method.
+```{r, raster-21}
+cells <- cellFromRowCol(r, 50, 35:39)
+cells
+r[cells]
+xy <- xyFromCell(r, cells)
+xy
+extract(r, xy)
+```
+
+You can also extract values using `SpatVector` objects. The default approach for extracting raster values with polygons is that a polygon has to cover the center of a cell, for the cell to be included. However, you can use argument "weights=TRUE" in which case you get, apart from the cell values, the percentage of each cell that is covered by the polygon, so that you can apply, e.g., a "50% area covered" threshold, or compute an area-weighted average.
+
+In the case of lines, any cell that is crossed by a line is included. For lines and points, a cell that is only 'touched' is included when it is below or to the right (or both) of the line segment/point (except for the bottom row and right-most column).
+
+In addition, you can use standard *R* indexing to access values, or to replace values (assign new values to cells) in a `SpatRaster` object. If you replace a value in a `SpatRaster` object based on a file, the connection to that file is lost (because it now is different from that file). Setting raster values for very large files will be very slow with this approach as each time a new (temporary) file, with all the values, is written to disk. If you want to overwrite values in an existing file, you can use `update` (with caution!)
+
+```{r, raster-32}
+r[cells] 
+r[1:4]
+sources(r)
+#r[2:3] <- 10
+r[1:4]
+sources(r)
+```
+Note that in the above examples values are retrieved using cell numbers. That is, a raster is represented as a (one-dimensional) vector. Values can also be inspected using a (two-dimensional) matrix notation. As for *R* matrices, the first index represents the row number, the second the column number.
+
+```{r, raster-33}
+r[1]
+r[2,2]
+r[1,]
+r[,2]
+r[1:3,1:3]
+
+# keep the matrix structure
+r[1:3,1:3, drop=FALSE]
+```
+Accessing values through this type of indexing should be avoided inside functions as it is less efficient than accessing values via functions like `getValues`. 
+
+
+## Coercion to other classes
+
+You can convert `SpatRaster` objects to `Raster*` objects defined in the `raster` package. 
+
+```{r, raster-120}
+r <- rast(ncol=36, nrow=18)
+values(r) <- runif(ncell(r))
+library(raster)
+x <- rast(r)
+```
