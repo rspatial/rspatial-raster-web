@@ -42,7 +42,7 @@ This website provides materials to learn about spatial data analysis and modelin
 Manuals
 -------
 
-.. topic:: I. `The raster package <raster/index.html>`__
+.. topic:: I. `The raster package <pkg/index.html>`__
 
   | An introduction to the raster package. (`pdf </raster/RasterPackage.pdf>`__)
   | 
@@ -59,26 +59,7 @@ Manuals
    | R companion to Geographic Information Analysis by O'Sullivan and Unwin. (`pdf </rosu/ROSU.pdf>`__)
    |
 
-   
- 
-   
-The terra package
------------------
-
-.. topic:: A. `Spatial data manipulation with terra <spatial-terra/index.html>`__
-
-  | Read this to learn about the basics of reading, writing, and manipulating spatial data. (`pdf </spatial/SpatialTerra.pdf>`__)
-  | 
-
-
-.. topic:: B. `Remote Sensing with terra <terra-rs/index.html>`__ 
-
-  | Introduction to remote sensing (satellite) image analysis spatial data. (`pdf </rs/rsterra.pdf>`__)
-  |
-
-      
-	  
-	  
+     
 
 .. This is the table of contents, must be here, but can be hidden so we can format how we like above.
 
@@ -92,9 +73,7 @@ The terra package
    rs/index.rst
    cases/index.rst
    sphere/index.rst
-   raster/index.rst
+   pkg/index.rst
    sdm/index.rst
    rosu/index.rst
-   spatial-terra/index.rst
-   rs-terra/index.rst
    
