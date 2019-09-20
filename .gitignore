@@ -11,7 +11,7 @@
 *.dat
 *.rst
 !index.rst
-aws.bat
+sync.bat
 
 build
 _build

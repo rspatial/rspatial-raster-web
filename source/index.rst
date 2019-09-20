@@ -37,8 +37,7 @@ This website provides materials to learn about spatial data analysis and modelin
    |
    
 
-   
-   
+      
 Manuals
 -------
 
@@ -46,6 +45,7 @@ Manuals
 
   | An introduction to the raster package. (`pdf </raster/RasterPackage.pdf>`__)
   | 
+
 
 
 .. topic:: II. `Spherical computation <sphere/index.html>`__ 

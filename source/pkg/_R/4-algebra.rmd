@@ -4,6 +4,7 @@ Many generic functions that allow for simple and elegant raster algebra have bee
 
 ```{r  raster-3a}
 # create an empty RasterLayer
+library(raster)
 r <- raster(ncol=10, nrow=10)
 # assign values to cells
 values(r) <- 1:ncell(r)
