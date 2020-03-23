@@ -29,9 +29,7 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'sphinx.ext.todo',
-]
+extensions = ['sphinx.ext.mathjax', 'recommonmark', 'sphinx.ext.todo']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,9 +38,6 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 # source_suffix = ['.rst', '.md']
 source_suffix = ['.rst', '.md']
-source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
-}
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -52,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Case studies in spatial data analysis'
-copyright = u'2016-2019, Robert J. Hijmans'
+copyright = u'2016-2020, Robert J. Hijmans'
 author = u'Robert J. Hijmans'
 
 # The version info for the project you're documenting, acts as replacement for
