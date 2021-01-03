@@ -260,7 +260,7 @@ yiyj <- g[,1] * g[,2]
 Method 2:
 ```{r}
 yi <- rep(dy, each=n)
-yj <- rep(dy)
+yj <- rep(dy, n)
 yiyj <- yi * yj
 ``` 
 

@@ -9,7 +9,7 @@ library(rgdal)
 
 This page accompanies Chapter 1 of [O'Sullivan and Unwin (2010)](https://www.wiley.com/en-us/Geographic+Information+Analysis%2C+2nd+Edition-p-9780470288573). 
 
-There is only one numerical example in this chapter, and it is a complicated one. I reproduce it here anyway, perhaps you can revisit it wnen you reach the end of the book (and you will be amazed to see how much you have learned!).
+There is only one numerical example in this chapter, and it is a complicated one. I reproduce it here anyway, perhaps you can revisit it when you reach the end of the book (and you will be amazed to see how much you have learned!).
 
 On page 13 the fractional dimension of a part of the New Zealand coastline is computed. First we get a high spatial resolution (30 m) coastline. 
 

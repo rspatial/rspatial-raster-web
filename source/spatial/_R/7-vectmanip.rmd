@@ -1,15 +1,12 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 # Vector data manipulation
 
 
 ```{r, echo=FALSE, include=FALSE}
-library(knitr)
-opts_chunk$set(fig.width = 4, fig.height = 5, fig.cap='',  collapse = TRUE)
-
-opts_knit$set(
-    progress = FALSE,
-	global.par = TRUE
-)
-	
 library(raster)
 library(rgeos)
 library(rgdal)
