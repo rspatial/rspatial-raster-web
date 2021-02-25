@@ -1,8 +1,6 @@
 # Interpolation
 
 ```{r, include=FALSE}
-library(knitr)
-opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='',  collapse = TRUE)
 library(rgdal)
 library(raster)
 library(gstat)
@@ -37,7 +35,7 @@ plot(sort(d$prec), ylab='Annual precipitation (mm)', las=1, xlab='Stations')
 ```
 
 Now make a quick map.
-```{r fields15}
+```{r fields15, warning=FALSE}
 library(sp)
 dsp <- SpatialPoints(d[,4:3], proj4string=CRS("+proj=longlat +datum=NAD83"))
 dsp <- SpatialPointsDataFrame(dsp, d)
@@ -54,8 +52,8 @@ spplot(dsp, 'prec', cuts=cuts, col.regions=blues(5), sp.layout=pols, pch=20, cex
 
 Transform longitude/latitude to planar coordinates, using the commonly used coordinate reference system for California ("Teale Albers") to assure that our interpolation results will align with other data sets we have.
  
-```{r}
-TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=m +ellps=GRS80 +towgs84=0,0,0")
+```{r, warning=FALSE}
+TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=WGS84 +units=m")
 library(rgdal)
 dta <- spTransform(dsp, TA)
 cata <- spTransform(CA, TA)
@@ -66,7 +64,7 @@ cata <- spTransform(CA, TA)
 
 We are going to interpolate (estimate for unsampled locations) the precipitation values. The simplest way would be to take the mean of all observations. We can consider that a "Null-model" that we can compare other approaches to. We'll use the Root Mean Square Error (RMSE) as evaluation statistic. 
 
-```{r}
+```{r, warning=FALSE}
 RMSE <- function(observed, predicted) {
   sqrt(mean((predicted - observed)^2, na.rm=TRUE))
 }
@@ -82,7 +80,7 @@ null
 
 Proximity polygons can be used to interpolate categorical variables. Another term for this is "nearest neighbour" interpolation.
 
-```{r fields25}
+```{r fields25, warning=FALSE}
 library(dismo)
 v <- voronoi(dta)
 plot(v)
@@ -90,7 +88,7 @@ plot(v)
 
 Looks weird. Let's confine this to California
 
-```{r fields35}
+```{r fields35, warning=FALSE}
 ca <- aggregate(cata)
 vca <- intersect(v, ca)
 spplot(vca, 'prec', col.regions=rev(get_col_regions()))
@@ -98,7 +96,7 @@ spplot(vca, 'prec', col.regions=rev(get_col_regions()))
 
 Much better. These are polygons. We can 'rasterize' the results like this.
 
-```{r fields45}
+```{r fields45, warning=FALSE}
 r <- raster(cata, res=10000)
 vr <- rasterize(vca, r, 'prec')
 plot(vr)
@@ -106,7 +104,7 @@ plot(vr)
 
 Now evaluate with 5-fold cross validation.
 
-```{r}
+```{r, warning=FALSE}
 set.seed(5132015)
 kf <- kfold(nrow(dta))
 
@@ -138,7 +136,7 @@ Here we do nearest neighbour interpolation considering multiple (5) neighbours.
 We can use the `gstat` package for this. First we fit a model. `~1` means "intercept only". In the case of spatial data, that would be only 'x' and 'y' coordinates are used. We set the maximum number of points to 5, and the "inverse distance power" `idp` to zero, such that all five neighbors are equally weighted 
 
 
-```{r nneigh}
+```{r nneigh, warning=FALSE}
 library(gstat)
 gs <- gstat(formula=prec~1, locations=dta, nmax=5, set=list(idp = 0))
 nn <- interpolate(r, gs)
@@ -148,7 +146,7 @@ plot(nnmsk)
 
 Cross validate the result. Note that we can use the `predict` method to get predictions for the locations of the test points.
 
-```{r}
+```{r, warning=FALSE}
 rmsenn <- rep(NA, 5)
 for (k in 1:5) {
   test <- dta[kf == k, ]
@@ -167,7 +165,7 @@ mean(rmsenn)
 
 A more commonly used method is "inverse distance weighted" interpolation. The only difference with the nearest neighbour approach is that points that are further away get less weight in predicting a value a location.
 
-```{r fields70}
+```{r fields70, warning=FALSE}
 library(gstat)
 gs <- gstat(formula=prec~1, locations=dta)
 idw <- interpolate(r, gs)
@@ -180,7 +178,7 @@ __Question 4__: *IDW generated rasters tend to have a noticeable artefact. What 
 
 Cross validate. We can predict to the locations of the test points
 
-```{r}
+```{r, warning=FALSE}
 rmse <- rep(NA, 5)
 for (k in 1:5) {
   test <- dta[kf == k, ]
@@ -197,7 +195,7 @@ mean(rmse)
 
 __Question 5__: *Inspect the arguments used for and make a map of the IDW model below. What other name could you give to this method (IDW with these parameters)? Why?*
 
-```{r}
+```{r, warning=FALSE}
 gs2 <- gstat(formula=prec~1, locations=dta, nmax=1, set=list(idp=1))
 ```
 
@@ -214,26 +212,24 @@ We use the airqual dataset to interpolate ozone levels for California (averages 
 
 Read the data file. To get easier numbers to read, I multiply OZDLYAV with 1000
 
-```{r aqual}
-library(rspatial)
+```{r aqual, warning=FALSE}
 x <- sp_data("airqual")
 x$OZDLYAV <- x$OZDLYAV * 1000
 ```
 
 Create a SpatialPointsDataFrame and transform to Teale Albers. Note the `units=km`, which was needed to fit the variogram.
 
-```{r}
-library(sp)
+```{r, warning=FALSE}
 coordinates(x) <- ~LONGITUDE + LATITUDE
 proj4string(x) <- CRS('+proj=longlat +datum=NAD83')
-TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=NAD83 +units=km +ellps=GRS80")
+TA <- CRS("+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +datum=WGS84 +units=km")
 library(rgdal)
 aq <- spTransform(x, TA)
 ```   
 
 Create an template raster to interpolate to. E.g., given a SpatialPolygonsDataFrame of California, 'ca'. Coerce that to a 'SpatialGrid' object (a different representation of the same idea)
 
-```{r}
+```{r, warning=FALSE}
 cageo <- sp_data('counties.rds')
 ca <- spTransform(cageo, TA)
 r <- raster(ca)
@@ -245,7 +241,7 @@ g <- as(r, 'SpatialGrid')
 ### Fit a variogram
 
 Use gstat to create an emperical variogram 'v'
-```{r krig20}
+```{r krig20, warning=FALSE}
 library(gstat)
 gs <- gstat(formula=OZDLYAV~1, locations=aq)
 v <- variogram(gs, width=20)
@@ -255,7 +251,7 @@ plot(v)
 
 
 Now, fit a model variogram 
-```{r krig22}
+```{r krig22, warning=FALSE}
 fve <- fit.variogram(v, vgm(85, "Exp", 75, 20))
 fve
 plot(variogramLine(fve, 400), type='l', ylim=c(0,120))
@@ -264,7 +260,7 @@ points(v[,2:3], pch=20, col='red')
 
 
 Try a different type (spherical in stead of exponential)
-```{r krig24}
+```{r krig24, warning=FALSE}
 fvs <- fit.variogram(v, vgm(85, "Sph", 75, 20))
 fvs
 plot(variogramLine(fvs, 400), type='l', ylim=c(0,120) ,col='blue', lwd=2)
@@ -274,7 +270,7 @@ points(v[,2:3], pch=20, col='red')
 Both look pretty good in this case. 
 
 Another way to plot the variogram and the model
-```{r krig26}
+```{r krig26, warning=FALSE}
 plot(v, fve)
 ``` 
   
@@ -282,7 +278,7 @@ plot(v, fve)
 ### Ordinary kriging
 
 Use variogram `fve` in a kriging interpolation
-```{r krig28, fig.width=10}
+```{r krig28, fig.width=10, warning=FALSE}
 k <- gstat(formula=OZDLYAV~1, locations=aq, model=fve)
 # predicted values
 kp <- predict(k, g)
@@ -299,7 +295,7 @@ plot(ok)
 
 Let's use gstat again to do IDW interpolation. The basic approach first.
 
-```{r krig30}
+```{r krig30, warning=FALSE}
 library(gstat)
 idm <- gstat(formula=OZDLYAV~1, locations=aq)
 idp <- interpolate(r, idm)
@@ -310,7 +306,7 @@ plot(idp)
 We can find good values for the idw parameters (distance decay and number of neighbours) through optimization. For simplicity's sake I do not do that *k* times here. The optim function may be a bit hard to grasp at first. But the essence is simple. You provide a function that returns a value that you want to minimize (or maximize) given a number of unknown parameters. Your provide initial values for these parameters, and optim then searches for the optimal values (for which the function returns the lowest number).
 
 
-```{r}
+```{r, warning=FALSE}
 RMSE <- function(observed, predicted) {
   sqrt(mean((predicted - observed)^2, na.rm=TRUE))
 }
@@ -334,7 +330,7 @@ opt
 
 
 Our optimal IDW model
-```{r krig32}
+```{r krig32, warning=FALSE}
 m <- gstat(formula=OZDLYAV~1, locations=aq, nmax=opt$par[1], set=list(idp=opt$par[2]))
 idw <- interpolate(r, m)
 idw <- mask(idw, ca)
@@ -343,7 +339,7 @@ plot(idw)
 
 
 A thin plate spline model
-```{r krig34}
+```{r krig34, warning=FALSE}
 library(fields)
 m <- Tps(coordinates(aq), aq$OZDLYAV)
 tps <- interpolate(r, m)
@@ -356,7 +352,7 @@ plot(tps)
 
 Cross-validate the three methods (IDW, Ordinary kriging, TPS) and add RMSE weighted ensemble model.
 
-```{r}
+```{r, warning=FALSE}
 library(dismo)
 
 nfolds <- 5
@@ -396,10 +392,14 @@ rme
 
 __Question 6__: *Which method performed best?*
 
-We can use the rmse scores to make a weighted ensemble. Let's look at the maps
+We can use the RMSE values to make a weighted ensemble. I use the inverse of the differnce between a model's RMSE and a NULL model.
 
-```{r krig40}
-weights <- ( rms / sum(rms) )
+```{r krig40, warning=FALSE}
+nullrmse <- RMSE(test$OZDLYAV, mean(test$OZDLYAV))
+w <- 1 / (nullrmse - rms)
+weights <- ( w / sum(w) )
+# check 
+sum(weights)
 s <- stack(idw, ok[[1]], tps)
 ensemble <- sum(s * weights)
 ```

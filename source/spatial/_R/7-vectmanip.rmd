@@ -233,7 +233,7 @@ plot(cov)
 
 The symmetrical difference of two SpatialPolygons* objects
 
-```{r, dif}
+```{r, dif, warnings=FALSE}
 dif <- symdif(z,p)
 plot(dif, col=rainbow(length(dif)))
 dif
