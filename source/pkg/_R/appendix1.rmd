@@ -267,6 +267,74 @@ Note that most of the additional arguments are passed on to writeStart:
 Only the `progress=` argument goes to `pbCreate`
 
 
+## A complete function with multiple layers
+
+For functions with output in multiple layers.
+
+```{r code-10}
+f9 <- function(x, a, filename='', ...) {
+	nLayersOut<- 2 # mean & sd
+	out<- brick(x, values=FALSE, nl=nLayersOut)
+	names(out)<- c("mean", "sd")
+	big<- !canProcessInMemory(out, nlayers(x) + nLayersOut)
+	filename<- trim(filename)
+
+	if (nlayers(x) < 2){
+		out<- setValues(out, x[] + a, layer=1)
+		if (filename != ''){
+			out<- writeRaster(out, filename, ...)
+		}
+		return(out)
+}
+
+	if (big & filename == '') {
+		filename<- rasterTmpFile()
+	}
+	if (filename != '') {
+		out<- writeStart(out, filename, ...)
+		todisk<- TRUE
+	} else {
+		vv<- array(NA_real_, dim=c(ncol(out), nrow(out), nlayers(out)))
+		todisk<- FALSE
+	}
+
+	bs<- blockSize(x)
+	pb<- pbCreate(bs$n, ...)
+
+	if (todisk) {
+		for (i in 1:bs$n) {
+			v<- getValues(x, row=bs$row[i], nrows=bs$nrows[i])
+			v<- v + a
+			v<- cbind(rowMeans(v), apply(v, 1, sd))
+			out<- writeValues(out, v, bs$row[i])
+			pbStep(pb, i)
+		}
+		out<- writeStop(out)
+	} else {
+		for (i in 1:bs$n) {
+			v<- getValues(x, row=bs$row[i], nrows=bs$nrows[i])
+			v<- v + a
+			v<- cbind(rowMeans(v), apply(v, 1, sd))
+			cols<- bs$row[i]:(bs$row[i] + bs$nrows[i] - 1)
+			vv[, cols, ]<- array(v, dim=c(ncol(x), length(cols), nLayersOut))
+			pbStep(pb, i)
+		}
+		out<- setValues(out, as.vector(vv))
+	}
+	pbClose(pb)
+	return(out)
+}
+
+s <- f9(r, 5)
+s
+
+rr <- stack(lapply(-1:2, function(x) r * x))
+s <- f9(rr, 5, filename='test', overwrite=TRUE)
+s
+
+```
+
+
 ## Debugging
 
 Typically functions are developed and tested with small (RasterLayer) objects. But you also need to test your functions for the case it needs to write values to disk. You can use a very large raster for that, but then you may need to wait a long time each time you run it. Depending on how you design your function you may be able to test alternate forks in your function by providing a file name. But this would not necessarily work for function f7. You can force functions of that type to treat the input as a very large raster by setting to option 'todisk' to `TRUE` as in `setOptions(todisk=TRUE)`. If that option is set, `canProcessInMemory` always returns `FALSE`. This should only be used in debugging. 
@@ -276,20 +344,20 @@ Typically functions are developed and tested with small (RasterLayer) objects. B
 
 The raster package is build with S4 classes and methods. If you are developing a package that builds on the raster package I would advise to also use S4 classes and methods. Thus, rather than using plain functions, define generic methods (where necessary) and implement them for a RasterLayer, as in the example below (the function does not do anything; replace 'return(x)' with something meaningful along the pattern explained above. 
 
-```{r code-10}
-if (!isGeneric("f9")) {
-	setGeneric("f9", function(x, ...)
-		standardGeneric("f9"))
+```{r code-11}
+if (!isGeneric("f10")) {
+	setGeneric("f10", function(x, ...)
+		standardGeneric("f10"))
 }	
 
 
-setMethod('f9', signature(x='RasterLayer'), 
+setMethod('f10', signature(x='RasterLayer'),
 	function(x, filename='', ...) {
 		return(x)
 	}
 )
 
-s <- f9(r)
+s <- f10(r)
 ```
 
 ## Mutli-core functions
