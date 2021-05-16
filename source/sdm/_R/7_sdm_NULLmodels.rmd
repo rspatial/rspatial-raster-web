@@ -2,11 +2,7 @@
 
 
 ```{r, echo=FALSE, include=FALSE}
-library(knitr)
-opts_chunk$set(fig.width = 6,fig.height = 6,fig.cap = '',collapse = TRUE)
-library(dismo)
 library(maptools)
-
 ```
 
 
@@ -18,6 +14,7 @@ Simple model based on the assumption that the closer to a know presence point, t
 
 Recreate our data.
 ```{r, sdm100a, fig.width=9, fig.height=6}
+library(dismo)
 predictors <- stack(list.files(path=file.path(system.file(package="dismo"), 'ex'), pattern='grd$', full.names=TRUE ))
 ext <- extent(-90, -32, -33, 23)
 

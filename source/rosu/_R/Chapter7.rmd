@@ -1,13 +1,5 @@
 # Spatial autocorrelation
 
-```{r, echo=FALSE, include=FALSE}
-library(knitr)
-opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='', collapse = TRUE )
-library(rgeos)
-library(raster)
-library(spdep)
-library(deldir)
-```
 
 ## Introduction
 
@@ -176,8 +168,8 @@ wd25 <- dnearneigh(xy, 0, 2500)
 
 Nearest neighbors:
 ```{r}
-k3 <- knn2nb(knearneigh(xy, k=3, RANN=FALSE))
-k6 <- knn2nb(knearneigh(xy, k=6, RANN=FALSE))
+k3 <- knn2nb(knearneigh(xy, k=3))
+k6 <- knn2nb(knearneigh(xy, k=6))
 ```
 
 Delauny:

@@ -1,5 +1,6 @@
 # High-level methods
 
+
 Several 'high level' methods (functions) have been implemented for `RasterLayer` objects. 'High level' refers to methods that you would normally find in a GIS program that supports raster data. Here we briefly discuss some of these. See the help files for more detailed descriptions.
 
 The high-level methods have some arguments in common. The first argument is typically 'x' or 'object' and can be a `RasterLayer`, or, in most cases, a `RasterStack` or `RasterBrick`. It is followed by one or more arguments specific to the method (either additional `RasterLayer` objects or other arguments), followed by a filename="" and "..." arguments. 

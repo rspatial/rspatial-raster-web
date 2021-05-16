@@ -82,6 +82,7 @@ Let's make some maps, at the orignal Census tract level. We are using a bit more
 
 ```{r, spreg2}
 library(latticeExtra)
+library(RColorBrewer)
 
 grps <- 10
 brks <- quantile(h$houseValue, 0:(grps-1)/(grps-1), na.rm=TRUE)
@@ -180,7 +181,13 @@ Clearly, there is spatial autocorrelation. Our *p*-values and regression model c
 
 ## Spatial lag model
 
-Here I show a how to do spatial regression with a spatial lag model (lagsarlm)
+Here I show a how to do spatial regression with a spatial lag model (lagsarlm), using the `spatialreg` package.
+
+
+```{r spreg, message=FALSE}
+library(spatialreg )
+```
+
 
 ```{r spregplot1}
 m1s = lagsarlm(f1, data=hh, lw, tol.solve=1.0e-30)
@@ -201,7 +208,7 @@ print( p + layer(sp.polygons(hh)) )
 And now with a "Spatial error" (or spatial moving average) models (errorsarlm)
 
 ```{r spregplotx}
-m1e = errorsarlm(f1, data=hh, lw, tol.solve=1.0e-30)
+m1e <- errorsarlm(f1, data=hh, lw, tol.solve=1.0e-30)
 summary(m1e)
 
 hh$residuals <- residuals(m1e)
@@ -232,6 +239,7 @@ __Question 2__: *The last two maps still seem to show a lot of spatial autocorre
 
 
 __Question 3__: *One of the most important, or perhaps THE most important aspect of modeling is variable selection. A misspecified model is never going to be any good, no matter how much you do to, e.g., correct for spatial autocorrelation.*
+
 a) Which variables would you choose from the list? 
 
 b) Which new variables could you propose to create from the variables in the list. 

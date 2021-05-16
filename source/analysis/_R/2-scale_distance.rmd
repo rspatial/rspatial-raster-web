@@ -1,14 +1,5 @@
 # Scale and distance
 
-```{r, echo=FALSE, include=FALSE}
-library(knitr)
-opts_chunk$set(fig.width = 8, fig.height = 4, fig.cap='', collapse = TRUE
-)
-library(raster)
-library(deldir)
-library(spdep)
-```
-
 
 ## Introduction
 
@@ -322,8 +313,8 @@ wd25 <- dnearneigh(xy, 0, 25, longlat=TRUE)
 
 Nearest neighbors:
 ```{r}
-k3 <- knn2nb(knearneigh(xy, k=3, RANN=FALSE))
-k6 <- knn2nb(knearneigh(xy, k=6, RANN=FALSE))
+k3 <- knn2nb(knearneigh(xy, k=3))
+k6 <- knn2nb(knearneigh(xy, k=6))
 ```
 
 Lag-two Rook:
@@ -343,7 +334,7 @@ for (i in 1:length(wr)) {
 And now we plot them all using the `plotit` function. 
 
 ```{r, weights, fig.height=11, fig.width=9}
-  plotit <- function(nb, lab='') {
+plotit <- function(nb, lab='') {
   plot(p, col='gray', border='white')
   plot(nb, xy, add=TRUE, pch=20)
   text(6.3, 50.1, paste0('(', lab, ')'), cex=1.25)

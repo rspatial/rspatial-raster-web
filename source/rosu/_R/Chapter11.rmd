@@ -1,14 +1,5 @@
 # Map overlay
 
-```{r, include=FALSE}
-library(knitr)
-opts_chunk$set(
-  fig.width = 5, fig.height = 5, fig.cap = '', collapse   = TRUE
-)
-library(rgeos)
-library(rgdal)
-```
-
 ## Introduction
 
 This document shows some example *R* code to do "overlays" and associated spatial data manipulation to accompany Chapter 11 in [O'Sullivan and Unwin (2010)](http://www.wiley.com/WileyCDA/WileyTitle/productCd-0470288574.html). You have already seen many of this type of data manipulation in previsous labs. And we have done perhaps more advanced things using regression type models (including LDA and RandomForest). This lab is very much a review of what you have already seen: basic spatial data operations in *R*. Below are some of the key packages for spatial data analysis that we have been using.
@@ -152,6 +143,7 @@ plot(cityTA, col='light gray', border='light gray')
 plot(railTA, add=T, col='blue', lwd=4)
 plot(parksTA, col='dark green', add=TRUE)
 
+library(rgeos)
 d <- gDistance(parksTA, railTA, byid=TRUE)
 dmin <- apply(d, 2, min)
 parksTA$railDist <- dmin
