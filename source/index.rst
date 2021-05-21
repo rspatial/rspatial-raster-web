@@ -5,6 +5,9 @@ This website provides materials to learn about spatial data analysis and modelin
 
 If you have never used *R*, or if you need a refresher, you should start with our `Introduction to R <../intr/index.html>`__ 
 
+*This is the "raster/sp" version of this resource. Have a look at the the `"terra" <https://rspatial.org/terra/index.html>`_ *version.* instead!
+
+
 
 .. topic:: 1. `Spatial data <spatial/index.html>`__
 
@@ -55,8 +58,6 @@ Manuals
    |
 
      
-
-*This is the "raster/sp" version of this resource. You can also use the* `"terra/sf" <https://rspatial.org/terra/index.html>`_ *version.* **(under development)** 
 
 
 

@@ -23,6 +23,8 @@ for (pk in pkgs) {
   }
 }
 
+if (!require("remotes", quietly = TRUE)) install.packages("remotes", repos="https://cloud.r-project.org/")
+
 if (!("rspatial" %in% ipkgs)) {
 	devtools::install_github('rspatial/rspatial')
 }
