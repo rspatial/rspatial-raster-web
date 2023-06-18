@@ -92,6 +92,7 @@ if (tolower(Sys.info()["sysname"])=="windows"){
 } else {
 	sysfun <- system		  
 }
+options("rgdal_show_exportToProj4_warnings"="none")
 
 args <- commandArgs(TRUE)
 ch <- grep("_R$", list.dirs(recursive=TRUE), value=TRUE)

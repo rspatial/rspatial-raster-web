@@ -17,7 +17,7 @@ Throughout this book, we will use data that is installed with the `rspatial` pac
 
 ```{r getDataOSU1, echo=TRUE}
 if (!require("devtools")) install.packages('devtools')
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 ```
 
 Now you should have the data for all chapters. 

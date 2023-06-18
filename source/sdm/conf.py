@@ -228,7 +228,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'SDM.tex', u'Spatial Distribution Models',
+  (master_doc, 'raster_SDM.tex', u'Species Distribution Models',
    u'Robert J. Hijmans and Jane Elith', 'manual'),
 ]
 

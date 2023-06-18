@@ -1,10 +1,6 @@
 # 3. Analysing species distribution data
 
 ```{r, echo=FALSE, include=FALSE}
-library(knitr)
-opts_chunk$set(
-	fig.width = 6, fig.height = 6,	fig.cap = '', collapse = TRUE
-)
 library(rgdal)
 library(rgeos)
 ```
@@ -19,14 +15,14 @@ In this case-study I show some techniques that can be used to analyze species di
 
 The data we will use is available in the rspatial package. First install that from github, using `devtools`.
 ```{r, a1}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 ```
 
 The extracted file is a tab delimited text file. Normally, you would read such a file with something like:
 
-```{r, a1b}
+```{r, a1b, error=TRUE}
 f <- system.file("WILDPOT.txt", package="rspatial")
-f
+basename(f)
 d <- read.table(f, header=TRUE)
 ```
 
@@ -82,8 +78,7 @@ Get a SpatialPolygonsDataFrame with most of the countries of the Americas.
 library(raster)
 library(rspatial)
 cn <- sp_data('pt_countries')
-proj4string(cn) <- CRS("+proj=longlat +datum=WGS84")
-class(cn)
+cn
 ```
 
 Make a quick map
@@ -285,8 +280,10 @@ CA <- vector(length=length(sp))
 for (s in 1:length(sp)) {
 	p <- xy[pts$SPECIES == sp[s], ,drop=FALSE]
 	# run "circles" model
-	m <- circles(p, d=50000, lonlat=FALSE)
-	CA[s] <- area(polygons(m))
+	m <- try(circles(p, d=50000, lonlat=FALSE), silent=TRUE)
+	if (!inherits(m, "try-error")) {
+   	CA[s] <- area(polygons(m))
+	}
 }
 # standardize to the size of one circle
 CA <- CA / (pi * 50000^2)

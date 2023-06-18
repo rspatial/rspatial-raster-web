@@ -228,7 +228,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'rs.tex', u'Remote Sensing Image Analysis with R',
+  (master_doc, 'raster_rs.tex', u'Remote Sensing Image Analysis with R',
    u'Aniruddah Ghosh and Robert J. Hijmans', 'manual'),
 ]
 

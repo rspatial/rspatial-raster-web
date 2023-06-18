@@ -227,7 +227,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'Spatialdata.tex', u'Spatial Data in R',
+  (master_doc, 'raster_Spatialdata.tex', u'Spatial Data in R',
    u'Robert J. Hijmans', 'manual'),
 ]
 

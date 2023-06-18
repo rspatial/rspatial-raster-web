@@ -16,7 +16,7 @@ Recreating Figures 10.2, 10.13 & 10.14 in [O'Sullivan and Unwin (2010)](http://w
 
 We need the rspatial packge to get the data we will use.
 ```{r, krig0}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 ```
 
 Figure 10.2

@@ -26,7 +26,7 @@ This handout accompanies Chapter 8 in [O'Sullivan and Unwin (2010)](http://www.w
 Read the Auckland data.
 
 ```{r, loca1}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 library(rspatial)
 auck <- sp_data('auctb.rds')
 ``` 

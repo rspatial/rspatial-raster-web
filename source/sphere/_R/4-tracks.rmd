@@ -16,6 +16,7 @@ Points on great circles, etc.
 Points on a great circle are returned by the function 'greatCircle', using two points on the great circle to define it, and an additional argument to indicate how many points should be returned. You can also use greatCircleBearing, and provide starting points and bearing as arguments. gcIntermediate only returns points on the great circle that are on the track of shortest distance between the two points defining the great circle; and midPoint computes the point half-way between the two points. You can use onGreatCircle to test whether a point is on a great circle between two other points.
 
 ```{r, geo3}
+library(geosphere)
 LA <- c(-118.40, 33.95)
 NY <- c(-73.78,  40.63)
 data(wrld)

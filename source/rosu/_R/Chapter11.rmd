@@ -20,7 +20,7 @@ This document shows some example *R* code to do "overlays" and associated spatia
 You can get the data for this tutorial with the "rspatial" package that you can install with the line below. 
 
 ```{r getData, echo=TRUE}
-if (!require("rspatial")) devtools::install_github('rspatial/rspatial')
+if (!require("rspatial")) remotes::install_github('rspatial/rspatial')
 ```
 
 ## Selection by attribute

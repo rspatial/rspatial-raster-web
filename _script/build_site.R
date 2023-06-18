@@ -41,20 +41,27 @@ if (!dopdf) {
 
 	ff <- list.files("build/html", patt='\\.html$', recursive=TRUE, full=TRUE)
 
-	ignore_errors <- c("build/html/intr/2-basic-data-types.html", "build/html/intr/7-explore.html"
-	,"build/html/intr/8-functions.html", "build/html/intr/9-apply.html", "build/html/cases/3-speciesdistribution.html")
+	ignore_errors <- c("Error in read.table(f, header = TRUE): more column")
+	
+	txtin <-  'R.txt" rel="nofollow"> View page source</a>'
+	txtout <- 'R.txt" rel="nofollow"> <em>R</em> code</a>'
+	txt2 <- '.rst.txt" rel="nofollow"> View page source</a>$'
 
 	for (f in ff) {
 		x <- readLines(f, warn=FALSE)
-		i <- grep("## Error", x)
-		if (length(i) > 0) {
-			if (f %in% ignore_errors) {
-				if (length(i) < 5) next
-			}
+		e <- grep("## Error", x, value=TRUE)
+		e <- gsub("<span class=\"c1\">## ", "", e)
+		e <- substr(e, 1, 50)
+		e <- e[!(e %in% ignore_errors)]
+		if (length(e) > 0) {
 			print(f)
-			print(head(x[i]))
+			print(e)
 			cat("----\n\n")
 		}
+		x <- gsub(txtin, txtout, x)
+		i <- grep(txt2, x)
+		x[i] <- paste("<!--", x[i], "-->")
+		writeLines(x, f)
 	}
 
 

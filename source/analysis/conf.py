@@ -229,8 +229,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'analysis.tex', u'Spatial Data Analysis with R',
-   u'Robert J. Hijmans and Aniruddha Ghosh', 'manual'),
+  (master_doc, 'raster_analysis.tex', u'Spatial Data Analysis with R',
+   u'Robert J. Hijmans', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

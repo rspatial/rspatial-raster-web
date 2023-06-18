@@ -10,6 +10,7 @@ opts_chunk$set(fig.width = 5, fig.height = 5, fig.cap='',  collapse = TRUE)
 You can compute the area and perimeter of spherical polygons like this. 
 
 ```{r}
+library(geosphere)
 pol <- rbind(c(-120,-20), c(-80,5), c(0, -20), c(-40,-60), c(-120,-20))
 areaPolygon(pol)
 perimeter(pol)

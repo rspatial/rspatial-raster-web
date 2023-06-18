@@ -1,38 +1,39 @@
 Spatial Data Science with R
 ===========================
 
+**This is the "raster/sp" version of this resource. These packages are now obsolete and this version of the website is no longer maintained. Please use the** `terra version <https://rspatial.org/index.html>`__ **instead.**
+
+
 This website provides materials to learn about spatial data analysis and modeling with *R*. *R* is a widely used programming language and software environment for data science. *R* has advanced capabilities for managing spatial data; and it provides unparalleled opportunities for analyzing such data. 
 
+
 If you have never used *R*, or if you need a refresher, you should start with our `Introduction to R <../intr/index.html>`__ 
-
-*This is the "raster/sp" version of this resource. Have a look at the the `"terra" <https://rspatial.org/terra/index.html>`_ *version.* instead!
-
 
 
 .. topic:: 1. `Spatial data <spatial/index.html>`__
 
-  | An introduction Spatial Data handling in R. (`pdf <spatial/spatial.pdf>`__)
+  | An introduction Spatial Data handling in R. (`pdf <spatial/raster_spatial.pdf>`__)
   |  
  
 .. topic:: 2. `Spatial data analysis <analysis/index.html>`__
 
-  | An introduction to methods for description, prediction and inference with spatial data. (`pdf <analysis/analysis.pdf>`__)
+  | An introduction to methods for description, prediction and inference with spatial data. (`pdf <analysis/raster_analysis.pdf>`__)
   |  
 
 .. topic:: 3. `Remote sensing image analysis <rs/index.html>`__
 
-  | Introduction to remote sensing (satellite) image analysis spatial data. (`pdf </rs/rs.pdf>`__)
+  | Introduction to remote sensing (satellite) image analysis spatial data. (`pdf </rs/raster_rs.pdf>`__)
   |
 
 .. topic:: 4. `Species Distribution Modeling <sdm/index.html>`__ with R
 
-   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf <sdm/SDM.pdf>`__)
+   | An in-depth tutorial for predicting the geographic ranges of species. (`pdf <sdm/raster_SDM.pdf>`__)
    |
   
   
 .. topic:: 5. `Case studies <cases/index.html>`__
 
-   | A (small) collection of case studies that can help you learn more about particular topics and design your own workflows. (`pdf <cases/cases.pdf>`__)
+   | A (small) collection of case studies that can help you learn more about particular topics and design your own workflows. (`pdf <cases/raster_cases.pdf>`__)
    |
    
 
